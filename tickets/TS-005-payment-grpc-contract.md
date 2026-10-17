@@ -16,7 +16,7 @@ created: 2026-10-18
 # TS-005: Payment gRPC contract
 
 ## Summary
-Write `tinyshop/proto/payment.proto`, which defines the `PaymentService.ProcessPayment` RPC, and document its error semantics in `tinyshop/docs/contracts.md`. Check that the proto is valid using a containerized tool, without installing anything on the host.
+Write `tinyshop/proto/tinyshop/payment/v1/payment.proto`, which defines the `PaymentService.ProcessPayment` RPC, and document its error semantics in `tinyshop/docs/contracts.md`. Check that the proto is valid using a containerized tool, without installing anything on the host.
 
 ## Background
 - Outline §7: the request carries `order_id`, `user_id` and `amount`, and the response carries `success` and `transaction_id`.
@@ -75,3 +75,4 @@ Write `tinyshop/proto/payment.proto`, which defines the `PaymentService.ProcessP
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Proto path changed from `tinyshop/proto/payment.proto` to `tinyshop/proto/tinyshop/payment/v1/payment.proto`, so the directories mirror the package as buf's `STANDARD` lint rules require (`PACKAGE_DIRECTORY_MATCH`)

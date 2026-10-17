@@ -448,4 +448,68 @@ Deliberately not solved in M1:
 
 ## 9. Payment gRPC contract
 
-Defined in TS-005: [`../proto/payment.proto`](../proto/payment.proto). It must stay consistent with the payment rows of [§6](#6-order-service-dependency-failure-translation): order ID, user ID and amount use the types from [§1](#1-conventions) (`int64` IDs, `int64` amount in cents).
+Source of truth: [`../proto/tinyshop/payment/v1/payment.proto`](../proto/tinyshop/payment/v1/payment.proto). This section summarises it.
+
+### 9.1 Service
+
+| | |
+|---|---|
+| Package | `tinyshop.payment.v1` (C# namespace `TinyShop.Payment.V1`) |
+| Service | `PaymentService` |
+| RPC | `ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse)`, a single request and response (unary) |
+| Transport | HTTP/2 without TLS (h2c) at `payment-service:8080`, reachable only from order-service over `payment-network` |
+| Caller | order-service only |
+
+### 9.2 Messages
+
+`ProcessPaymentRequest`
+
+| # | Field | Type | Meaning |
+|---|---|---|---|
+| 1 | `order_id` | `int64` | The order being paid for |
+| 2 | `user_id` | `int64` | The user being charged |
+| 3 | `amount_cents` | `int64` | Amount in USD cents ([§1.2](#12-money)) |
+
+`ProcessPaymentResponse`
+
+| # | Field | Type | Meaning |
+|---|---|---|---|
+| 1 | `success` | `bool` | `true` if approved. Unset reads as `false`, so a missing value is a decline, never an approval. |
+| 2 | `transaction_id` | `string` | Set when approved, empty otherwise |
+| 3 | `failure_reason` | `string` | `snake_case` decline reason, set when declined, empty otherwise |
+
+Proto3 strings can't be null; an unset string is `""`. order-service maps empty strings to `null` in the Order resource (`transactionId`, `failureReason`).
+
+### 9.3 Outcomes
+
+Business outcomes and technical failures are kept apart:
+
+| Outcome | gRPC status | Response message | order-service result ([§6](#6-order-service-dependency-failure-translation)) |
+|---|---|---|---|
+| Approved | `OK` | `success = true`, `transaction_id` set | 201, order `PAID` |
+| Declined | `OK` | `success = false`, `failure_reason` set | 201, order `FAILED` |
+| payment-service failed while processing | `INTERNAL` | none | 502 `payment_unavailable`, order `FAILED` |
+| payment-service couldn't be reached | `UNAVAILABLE` (raised by the gRPC client) | none | 502 `payment_unavailable`, order `FAILED` |
+| Call exceeded its deadline | `DEADLINE_EXCEEDED` | none | 504 `payment_timeout`, order stays `PENDING` |
+| Any other non-OK status | as returned | none | 502 `payment_unavailable`, order `FAILED` |
+
+A decline uses status `OK` because the payment system worked correctly and produced an answer; the answer was "no". gRPC error statuses are reserved for cases where no answer could be produced. In M1 no deadline is set ([§7](#7-default-timeouts-in-m1)), so `DEADLINE_EXCEEDED` can't happen yet.
+
+### 9.4 Evolving the contract
+
+- **Field numbers, not names, identify fields on the wire.** Never change or reuse a field's number. To remove a field, delete it and mark its number and name `reserved`.
+- **Adding a field is safe.** Old clients skip fields they don't recognise, and new fields read as their default value from old senders.
+- **Breaking changes go into a new package** (`tinyshop.payment.v2`), which can run alongside v1.
+
+### 9.5 Tooling
+
+Buf configuration is in [`../proto/buf.yaml`](../proto/buf.yaml), with `tinyshop/proto/` as the module root. The directory layout mirrors the package (`tinyshop/payment/v1/`), which buf's `STANDARD` lint rules require.
+
+Run buf in Docker from the repository root; nothing needs to be installed locally:
+
+```powershell
+docker run --rm -v "${PWD}\tinyshop\proto:/workspace" -w /workspace bufbuild/buf:1.50.0 lint
+docker run --rm -v "${PWD}\tinyshop\proto:/workspace" -w /workspace bufbuild/buf:1.50.0 format --diff --exit-code
+```
+
+In Git Bash, prefix each command with `MSYS_NO_PATHCONV=1` and pass the host path as `"$(cygpath -w "$PWD/tinyshop/proto")"`. Otherwise Git Bash rewrites `/workspace` into a Windows path before Docker sees it.
