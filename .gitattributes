@@ -1,0 +1,11 @@
+# Let git detect which files are text and store them with LF in the repository.
+# On checkout, line endings follow each machine's core.autocrlf / core.eol setting.
+* text=auto
+
+# Anything executed inside a Linux container must be checked out with LF,
+# whatever the machine's settings are: a CRLF breaks the shebang line.
+*.sh text eol=lf
+
+# Windows batch files are the reverse: cmd.exe needs CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
