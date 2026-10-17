@@ -45,8 +45,7 @@ Write the answers in `notes/`.
 ## Definition of done
 - [ ] All acceptance criteria met
 - [ ] Questions answered in `notes/`
-- [ ] Reviewed and approved
-- [ ] Squash-merged into `master`, branch deleted, board updated
+- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - YYYY-MM-DD: Created

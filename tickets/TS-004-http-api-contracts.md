@@ -2,7 +2,7 @@
 key: TS-004
 title: HTTP API contracts
 type: Task
-status: To Do
+status: Done
 priority: Highest
 points: 3
 assignee: yeasir118
@@ -107,3 +107,4 @@ The error model and status-code rules below were decided by the tech lead (decis
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Done, merged into master

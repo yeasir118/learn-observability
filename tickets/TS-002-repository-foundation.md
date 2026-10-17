@@ -2,7 +2,7 @@
 key: TS-002
 title: Repository foundation
 type: Task
-status: To Do
+status: Done
 priority: Highest
 points: 1
 assignee: yeasir118
@@ -76,3 +76,4 @@ The repo currently contains `README.md`, `resources/outline.md`, `tickets/` and 
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Done, merged into master
