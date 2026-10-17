@@ -2,7 +2,7 @@
 key: TS-005
 title: Payment gRPC contract
 type: Task
-status: To Do
+status: Done
 priority: High
 points: 2
 assignee: yeasir118
@@ -76,3 +76,4 @@ Write `tinyshop/proto/tinyshop/payment/v1/payment.proto`, which defines the `Pay
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: Proto path changed from `tinyshop/proto/payment.proto` to `tinyshop/proto/tinyshop/payment/v1/payment.proto`, so the directories mirror the package as buf's `STANDARD` lint rules require (`PACKAGE_DIRECTORY_MATCH`)
+- 2026-10-18: Done, merged into master

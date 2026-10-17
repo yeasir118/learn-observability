@@ -2,7 +2,7 @@
 key: TS-003
 title: System architecture document
 type: Task
-status: To Do
+status: Done
 priority: Highest
 points: 3
 assignee: yeasir118
@@ -75,3 +75,4 @@ Before any code is written, design and document every container, port and networ
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Done, merged into master

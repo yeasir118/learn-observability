@@ -42,6 +42,12 @@ These are final unless a new ticket reopens one.
 | D11 | Fault injection is controlled by environment variables, and all faults are off by default | Its own ticket later |
 | D12 | The frontend (React components) is written by Claude. Its Dockerfile and nginx config are written by the assignee | |
 | D13 | TLS is out of scope for M1 and is planned as epic M1.5 | |
+| D14 | Containers, ports and networks follow [architecture.md](../tinyshop/docs/architecture.md); HTTP and gRPC behaviour follows [contracts.md](../tinyshop/docs/contracts.md) | Step-0 output |
+| D15 | One Compose file at `tinyshop/compose.yaml`, extended ticket by ticket | `compose.yaml` is the filename the Compose specification prefers |
+| D16 | Services use ASP.NET Core minimal APIs, one solution file at `tinyshop/` | |
+| D17 | Tests: xUnit, `WebApplicationFactory` for in-process HTTP tests, Testcontainers for real Postgres in tests | Tests are written alongside each service |
+| D18 | CI is GitHub Actions, introduced in TS-006 and extended by every ticket that adds something checkable (see [tickets/README.md](README.md#continuous-integration-policy)) | |
+| D19 | Local development secrets use `dotnet user-secrets` (host) and `.env` (Compose). Neither is committed | |
 
 ## Child tickets
 | Step | Key | Title |
@@ -50,18 +56,22 @@ These are final unless a new ticket reopens one.
 | 0 | TS-003 | System architecture document |
 | 0 | TS-004 | HTTP API contracts |
 | 0 | TS-005 | Payment gRPC contract |
-| 1 | not yet created | Product service running on the host, with Postgres in Docker (EF Core) |
-| 2 | not yet created | Containerize the Product service, move it into Compose |
-| 3 | not yet created | User service |
-| 4 | not yet created | Payment service (gRPC) |
-| 5 | not yet created | Order service and the order flow |
-| 6 | not yet created | Gateway and network segmentation |
-| 7 | not yet created | Frontend container and nginx reverse proxy |
-| 8 | not yet created | Fault switches and load generator |
-| 9 | not yet created | Fresh-clone verification, tag `phase-1-baseline` |
-| – | not yet created | Failure Exercise 1 write-up |
+| – | TS-006 | CI pipeline foundation (GitHub Actions) |
+| 1 | TS-007 | Product database and debug proxy in Compose |
+| 1 | TS-008 | Product service on the host with EF Core |
+| 1 | TS-009 | Product service integration tests |
+| 2 | TS-010 | Containerize the product service |
+| 3 | TS-011 | User service |
+| 4 | TS-012 | Payment service (gRPC) |
+| 5 | TS-013 | Order service and the order flow |
+| 6 | TS-014 | Gateway and network segmentation |
+| 7 | TS-015 | Frontend container and nginx reverse proxy (React components written by Claude) |
+| 8 | TS-016 | Fault injection switches |
+| 8 | TS-017 | Load generator (k6) |
+| 9 | TS-018 | End-to-end smoke test in CI and `phase-1-baseline` tag |
+| – | TS-019 | Failure Exercise 1 write-up |
 
-Tickets for steps 1 onwards are created once the step-0 contracts have been reviewed, so they can refer to the agreed contracts.
+TS-011 onwards carry the `needs-refinement` label and are refined just before they're picked up.
 
 ## Acceptance criteria
 - [ ] A fresh clone followed by `docker compose up` gives a working system with no manual steps.
@@ -77,3 +87,4 @@ Tickets for steps 1 onwards are created once the step-0 contracts have been revi
 
 ## Activity log
 - 2026-10-18: Created. Step-0 tickets TS-002 to TS-005 opened.
+- 2026-10-18: Step-0 tickets done. Created TS-006 to TS-019 and added decisions D14 to D19
