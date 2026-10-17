@@ -1,0 +1,12 @@
+# Buf configuration for TinyShop's protobuf contracts.
+# This directory is the module root: import paths and package-to-directory
+# checks are relative to it (package tinyshop.payment.v1 lives in tinyshop/payment/v1/).
+version: v2
+modules:
+  - path: .
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

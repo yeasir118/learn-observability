@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package tinyshop.payment.v1;
+
+option csharp_namespace = "TinyShop.Payment.V1";
+
+// PaymentService simulates payment processing for TinyShop orders.
+// It is called only by order-service.
+service PaymentService {
+  // ProcessPayment attempts to charge a user for an order.
+  //
+  // Business outcomes are returned in the response with status OK:
+  // an approved payment has success = true, a declined payment has
+  // success = false and a failure_reason.
+  //
+  // Technical failures are returned as non-OK gRPC statuses, with no
+  // response message:
+  //   INTERNAL           payment-service failed while processing
+  //   UNAVAILABLE        payment-service could not be reached (raised by the client)
+  //   DEADLINE_EXCEEDED  the call took longer than the caller's deadline
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+}
+
+message ProcessPaymentRequest {
+  // ID of the order being paid for (order-service's order id).
+  int64 order_id = 1;
+
+  // ID of the user being charged.
+  int64 user_id = 2;
+
+  // Amount to charge, in USD cents: 20000 means $200.00.
+  // Integer minor units, because protobuf has no decimal type and
+  // floating point cannot represent most cent values exactly.
+  int64 amount_cents = 3;
+}
+
+message ProcessPaymentResponse {
+  // True if the payment was approved.
+  // Unset is false, so a response that forgets to set it is a decline,
+  // never an accidental approval.
+  bool success = 1;
+
+  // Opaque identifier of the approved payment, such as "txn_8f14e45f".
+  // Empty when success is false.
+  string transaction_id = 2;
+
+  // Machine-readable snake_case reason for a decline, such as "insufficient_funds".
+  // Empty when success is true.
+  string failure_reason = 3;
+}
