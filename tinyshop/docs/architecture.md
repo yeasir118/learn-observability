@@ -29,11 +29,13 @@ Debug-only containers, started only with `docker compose --profile debug` (see [
 
 | Service (DNS name) | Image | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
-| `product-db-proxy` | `alpine/socat` | Forwards host connections to `product-db:5432` | 5432 | **5433** | `debug-network`, `product-network` |
-| `user-db-proxy` | `alpine/socat` | Forwards host connections to `user-db:5432` | 5432 | **5434** | `debug-network`, `user-network` |
-| `order-db-proxy` | `alpine/socat` | Forwards host connections to `order-db:5432` | 5432 | **5435** | `debug-network`, `order-network` |
+| `product-db-proxy` | `alpine/socat` | Forwards host connections to `product-db:5432` | 5432 | **127.0.0.1:5433** | `debug-network`, `product-network` |
+| `user-db-proxy` | `alpine/socat` | Forwards host connections to `user-db:5432` | 5432 | **127.0.0.1:5434** | `debug-network`, `user-network` |
+| `order-db-proxy` | `alpine/socat` | Forwards host connections to `order-db:5432` | 5432 | **127.0.0.1:5435** | `debug-network`, `order-network` |
 
 Notes:
+
+- **Published ports bind to every host interface by default.** `"8000:80"` is reachable at `localhost:8000` and also from any machine that can reach the host's LAN IP. That's intended for `frontend`. The debug proxies must never be exposed like that, so they bind to the loopback interface only (`"127.0.0.1:5433:5432"`).
 
 - **8080** is the default port of .NET 8+ container images, so the services need no port configuration inside Docker. A non-privileged port also lets the services run as a non-root user.
 - **Payment's port 8080 speaks only HTTP/2.** gRPC requires HTTP/2, and without TLS a client can't negotiate the protocol, so the port is configured for HTTP/2 only (h2c).
@@ -235,6 +237,8 @@ host process ──localhost:5433──► product-db-proxy ──product-db:543
 `product-db-proxy` runs `socat`. It publishes host port 5433 through the non-internal `debug-network`. For every connection it accepts, it opens a **second** TCP connection to `product-db:5432` over `product-network` and copies bytes in both directions. As a consequence, Postgres sees the proxy's IP as the client address, not the host's.
 
 The proxies belong to the `debug` profile. `docker compose up` doesn't start them; `docker compose --profile debug up` does. That's why they don't conflict with "only the frontend publishes a port": in the default stack, the only published port is 8000.
+
+The proxies publish on **`127.0.0.1` only** (`"127.0.0.1:5433:5432"`), never on all interfaces. A plain `"5433:5432"` would bind to every network interface on the host, so anyone on the same Wi-Fi or LAN could connect straight to the database. Binding to loopback means only processes on this machine can use the entry point.
 
 ### Alternatives considered
 
