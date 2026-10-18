@@ -26,7 +26,7 @@ Package the React frontend as an nginx image that serves the built static files 
 ## Scope
 **In scope**
 - Multi-stage Dockerfile: a Node stage runs `npm ci` and `npm run build`, and the nginx stage serves the result
-- nginx configuration: static files, a fallback to `index.html` for client-side routes, and a reverse proxy for `/api/`
+- nginx configuration in `src/frontend/` next to the Dockerfile, since it's baked into the image: static files, a fallback to `index.html` for client-side routes, and a reverse proxy for `/api/`
 - Vite's development proxy, so that `npm run dev` on the host works against the gateway
 - The Compose service on `edge-network`, published as `8000:80` (or the port your Q3 decision gives)
 - CI builds the image
@@ -48,3 +48,4 @@ To be refined before pickup. Points to discuss: `proxy_pass` with and without a 
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Updated for the `tinyshop/infrastructure/` layout

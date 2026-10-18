@@ -55,3 +55,21 @@ jobs:
           archive: false
           # Commenting on pull requests would need "pull-requests: write"; the check status is enough.
           pr_comment: false
+
+  compose:
+    name: compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate Compose file
+        working-directory: tinyshop/infrastructure/compose
+        # .env is git-ignored, so CI validates with the committed template (which also proves
+        # the template lists every variable compose.yaml needs).
+        # --profile '*' includes services behind profiles; without it, a broken debug-only
+        # service would pass.
+        run: docker compose --env-file .env.example --profile '*' config --quiet
