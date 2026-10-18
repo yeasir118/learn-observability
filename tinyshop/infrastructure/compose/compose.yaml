@@ -1,0 +1,66 @@
+# TinyShop: the whole system in one Compose file.
+# Design: tinyshop/docs/architecture.md (containers §2, networks §3, local development §8).
+# Run every command from this folder; Compose reads .env from here.
+#   docker compose up -d                   default stack
+#   docker compose --profile debug up -d   also starts the database proxies
+
+# Without this, the project would be named after this folder ("compose").
+name: tinyshop
+
+services:
+  # Service names are DNS names on the Docker networks. Hostnames may not
+  # contain underscores, so names use hyphens.
+  product-db:
+    image: postgres:18-alpine
+    environment:
+      # The database name is part of the design, not configuration.
+      POSTGRES_DB: tinyshop_products
+      # ":?" makes Compose stop with an error if the variable is missing from .env,
+      # instead of silently starting Postgres with an empty value.
+      POSTGRES_USER: ${PRODUCT_DB_USER:?set PRODUCT_DB_USER in .env}
+      POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD:?set PRODUCT_DB_PASSWORD in .env}
+    volumes:
+      # Postgres 18 images keep their data under /var/lib/postgresql/18/docker,
+      # so the volume mounts at /var/lib/postgresql (not .../data as in older guides).
+      - product-db-data:/var/lib/postgresql
+    networks:
+      - product-network
+    healthcheck:
+      # "$$" escapes Compose's own interpolation, so the variables are expanded
+      # by the shell inside the container, from the container's environment.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Debug-only entry point from the host to product-db (architecture.md §8).
+  product-db-proxy:
+    image: alpine/socat:1.8.1.1
+    profiles: [debug]
+    # The image's entrypoint is socat, so this is just socat's arguments:
+    #   TCP-LISTEN:5432        listen on 5432 inside the container
+    #   fork                   handle each connection in a child process, so several clients can connect
+    #   reuseaddr              allow an immediate restart without "address already in use"
+    #   TCP:product-db:5432    for each connection, open a new one to product-db over product-network
+    command: TCP-LISTEN:5432,fork,reuseaddr TCP:product-db:5432
+    ports:
+      # Loopback only: reachable from this machine, never from the LAN.
+      # Quoted, because YAML 1.1 can read unquoted "xx:yy" numbers as base-60 integers.
+      - "127.0.0.1:5433:5432"
+    networks:
+      - product-network
+      - debug-network
+    depends_on:
+      product-db:
+        condition: service_healthy
+
+networks:
+  # Product service <-> its database only. No traffic to or from outside Docker.
+  product-network:
+    internal: true
+  # Debug profile only: the non-internal network that lets the proxies publish ports.
+  debug-network: {}
+
+volumes:
+  product-db-data:
