@@ -20,7 +20,8 @@ These apply to every endpoint unless the endpoint says otherwise.
 | Null | Optional fields are always present, with value `null` when empty. They are never omitted. | One shape per resource; clients never test for "missing" and "null" separately |
 | Unknown request fields | Ignored | Lets clients and servers evolve independently |
 | Collections | Wrapped in an object: `{ "items": [ ... ] }`, never a bare array | Pagination or metadata can be added later without breaking clients |
-| Versioning, authentication, pagination | Out of scope for M1 | |
+| Versioning | Optional `api-version` query parameter or header (`?api-version=1.0` / `api-version: 1.0`). Requests without one get `1.0`. Responses carry an `api-supported-versions` header. Paths never contain a version. | Lets services evolve without changing the paths this document defines |
+| Authentication, pagination | Out of scope for M1 | |
 
 ### 1.1 IDs
 
@@ -95,7 +96,8 @@ Implementation note: errors that the framework generates itself (malformed JSON,
 | Status | Meaning in TinyShop |
 |---|---|
 | 400 | The request is malformed: invalid JSON, missing fields, wrong types, values out of range |
-| 404 | The resource named in the URL doesn't exist |
+| 404 | The resource named in the URL doesn't exist, or no route matches the URL |
+| 405 | The route exists but doesn't support the HTTP method (the `Allow` header lists the ones it does) |
 | 415 | The request body isn't `application/json` |
 | 422 | The request is well-formed but refers to something that doesn't exist (an unknown user or product in `POST /orders`) |
 | 500 | I broke: a bug or unhandled exception in this service |
@@ -111,6 +113,9 @@ Implementation note: errors that the framework generates itself (malformed JSON,
 |---|---|---|---|
 | `validation_failed` | 400 | any service | Body, path or query parameter is malformed. See `errors`. |
 | `unsupported_media_type` | 415 | any service | Request body isn't JSON |
+| `not_found` | 404 | any service | No route matches the URL |
+| `method_not_allowed` | 405 | any service | The route doesn't support the HTTP method |
+| `unsupported_api_version` | 400 | any service | The requested `api-version` doesn't exist or is malformed |
 | `user_not_found` | 404 or 422 | user-service (404), order-service (422) | No user with that ID |
 | `product_not_found` | 404 or 422 | product-service (404), order-service (422) | No product with that ID |
 | `order_not_found` | 404 | order-service | No order with that ID |

@@ -1,0 +1,13 @@
+<!--
+  Applied automatically to every project under tinyshop/ (MSBuild searches upward for this file).
+  Settings shared by all projects live here, so the .csproj files only describe what's unique to them.
+-->
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Code-style rules from .editorconfig are reported during build, not only in the IDE. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

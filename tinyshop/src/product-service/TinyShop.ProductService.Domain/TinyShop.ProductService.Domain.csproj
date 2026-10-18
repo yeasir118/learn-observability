@@ -1,0 +1,7 @@
+<!--
+  Domain: the business model (entities, value rules, enums).
+  References nothing: every other layer depends on it, it depends on no one.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+</Project>

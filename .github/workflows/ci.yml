@@ -73,3 +73,34 @@ jobs:
         # --profile '*' includes services behind profiles; without it, a broken debug-only
         # service would pass.
         run: docker compose --env-file .env.example --profile '*' config --quiet
+
+  dotnet:
+    name: dotnet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tinyshop
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          # Installs exactly the SDK that global.json pins, the same one used locally.
+          global-json-file: tinyshop/global.json
+
+      - name: Restore
+        run: dotnet restore TinyShop.slnx
+
+      - name: Build (warnings are errors)
+        run: dotnet build TinyShop.slnx --no-restore --configuration Release -warnaserror
+
+      - name: Check formatting (.editorconfig)
+        run: dotnet format TinyShop.slnx --no-restore --verify-no-changes
+
+      - name: Unit tests
+        run: dotnet test --solution TinyShop.slnx --no-build --configuration Release

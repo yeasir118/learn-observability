@@ -44,7 +44,7 @@ These are final unless a new ticket reopens one.
 | D13 | TLS is out of scope for M1 and is planned as epic M1.5 | |
 | D14 | Containers, ports and networks follow [architecture.md](../tinyshop/docs/architecture.md); HTTP and gRPC behaviour follows [contracts.md](../tinyshop/docs/contracts.md) | Step-0 output |
 | D15 | One Compose file at `tinyshop/infrastructure/compose/compose.yaml`, extended ticket by ticket. Infrastructure files live under `tinyshop/infrastructure/`; each Dockerfile lives next to the code it builds ([layout](../tinyshop/docs/architecture.md#repository-layout)) | `compose.yaml` is the filename the Compose specification prefers. Keeps `tinyshop/` uncluttered |
-| D16 | Services use ASP.NET Core minimal APIs, one solution file at `tinyshop/` | |
+| D16 | Each .NET service follows clean architecture: four projects (Api, Application, Domain, Infrastructure) with dependencies pointing inward. The Api uses controllers, API versioning (optional `api-version`, default 1.0) and Swagger (Development only). One solution file at `tinyshop/`, with shared build settings (`Directory.Build.props`), central package versions (`Directory.Packages.props`), a pinned SDK (`global.json`) and `.editorconfig` | Changed from minimal APIs on 2026-10-18, at the assignee's request |
 | D17 | Tests: xUnit, `WebApplicationFactory` for in-process HTTP tests, Testcontainers for real Postgres in tests | Tests are written alongside each service |
 | D18 | CI is GitHub Actions, introduced in TS-006 and extended by every ticket that adds something checkable (see [tickets/README.md](README.md#continuous-integration-policy)) | |
 | D19 | Local development secrets use `dotnet user-secrets` (host) and `.env` (Compose). Neither is committed | |
@@ -90,3 +90,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-18: Created. Step-0 tickets TS-002 to TS-005 opened.
 - 2026-10-18: Step-0 tickets done. Created TS-006 to TS-019 and added decisions D14 to D19
 - 2026-10-18: D15 updated: infrastructure files moved under `tinyshop/infrastructure/`
+- 2026-10-18: D16 changed from minimal APIs to clean architecture with controllers

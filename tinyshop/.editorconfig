@@ -1,0 +1,49 @@
+# Formatting and code-style rules for everything under tinyshop/.
+# Editors apply them while typing; "dotnet format --verify-no-changes" enforces them in CI.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,props,targets,csproj,slnx,xml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Namespaces: one per file, file-scoped (namespace X;).
+csharp_style_namespace_declarations = file_scoped:warning
+# "using" directives: System.* first, outside the namespace.
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+# Braces on their own lines, and always used, even for one-line if bodies.
+csharp_new_line_before_open_brace = all
+csharp_prefer_braces = true:warning
+# Prefer "var" when the type is obvious.
+csharp_style_var_when_type_is_apparent = true:suggestion
+# Private fields: _camelCase.
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_underscore.severity = warning
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+# Constants and static readonly fields are PascalCase, so exclude them from the rule above.
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal_case
+dotnet_naming_rule.constants_pascal.severity = warning
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_rule.static_readonly_pascal.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_pascal.style = pascal_case
+dotnet_naming_rule.static_readonly_pascal.severity = warning
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+dotnet_naming_style.pascal_case.capitalization = pascal_case

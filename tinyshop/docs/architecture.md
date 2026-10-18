@@ -15,17 +15,25 @@ Design principles:
 
 ```text
 tinyshop/
-├── TinyShop.slnx
+├── TinyShop.slnx                 the single solution file
+├── global.json                   pins the .NET SDK version (local and CI)
+├── Directory.Build.props         build settings shared by every project
+├── Directory.Packages.props      every NuGet package version, set once
+├── .editorconfig                 formatting and code-style rules
 ├── src/                          application code: one folder per container image
 │   ├── product-service/
 │   │   ├── Dockerfile            each image's Dockerfile sits next to the code it builds
-│   │   └── ...
+│   │   ├── TinyShop.ProductService.Api/             controllers, error handling, composition root
+│   │   ├── TinyShop.ProductService.Application/     use cases, models, interfaces
+│   │   ├── TinyShop.ProductService.Domain/          entities, enums
+│   │   └── TinyShop.ProductService.Infrastructure/  EF Core, repositories, health checks
 │   ├── user-service/
 │   ├── order-service/
 │   ├── payment-service/
 │   ├── gateway/
 │   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
-├── tests/                        test projects, one per service
+├── tests/                        test projects, grouped per service
+│   └── product-service/
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...
 └── infrastructure/               everything that runs the system but isn't application code
