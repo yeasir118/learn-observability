@@ -2,7 +2,7 @@
 key: TS-006
 title: CI pipeline foundation (GitHub Actions)
 type: Task
-status: To Do
+status: In Progress
 priority: Highest
 points: 3
 assignee: yeasir118
@@ -51,7 +51,7 @@ Create the repository's first CI workflow. It checks the protobuf contract (form
 - **Pinning:** a tag such as `@v4` can be moved by the action's owner to point at different code. A full commit SHA can't. Pinning by SHA, with Dependabot proposing updates, is the safest practice in the industry, but either is acceptable here as long as you can explain the trade-off.
 - **Required checks and path filters don't mix.** If a workflow only runs when certain files change (`paths:`), a pull request that doesn't touch those files never reports the required check, and GitHub waits for it forever. While the pipeline is small, run every job on every pull request.
 - **Required checks are matched by name.** The check that appears in the ruleset is the job's name (`proto`). Renaming a job later silently breaks the rule.
-- Squash merging can be made the only allowed merge method under the repository's Settings → General → Pull Requests.
+- Allow only merge commits (no squash, no rebase) under the repository's Settings → General → Pull Requests, and turn on "Automatically delete head branches".
 
 ## Learning objectives
 - The structure of a GitHub Actions workflow: triggers, jobs, steps, runners, permissions, concurrency.
@@ -72,3 +72,4 @@ Create the repository's first CI workflow. It checks the protobuf contract (form
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: In progress. Workflow and Dependabot config written; merge strategy changed to merge commits (decision D20)

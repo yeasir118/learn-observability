@@ -71,7 +71,7 @@ Before any code is written, design and document every container, port and networ
 - [ ] All acceptance criteria met
 - [ ] Questions answered in `notes/m1.md`
 - [ ] Reviewed and approved
-- [ ] Squash-merged into `master`, branch deleted, board updated
+- [ ] Merged into `master`, branch deleted, board updated
 
 ## Activity log
 - 2026-10-18: Created

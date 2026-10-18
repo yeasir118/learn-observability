@@ -103,7 +103,7 @@ The error model and status-code rules below were decided by the tech lead (decis
 - [ ] All acceptance criteria met
 - [ ] Questions answered in `notes/m1.md`
 - [ ] Reviewed and approved
-- [ ] Squash-merged into `master`, branch deleted, board updated
+- [ ] Merged into `master`, branch deleted, board updated
 
 ## Activity log
 - 2026-10-18: Created

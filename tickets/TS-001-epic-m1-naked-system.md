@@ -48,6 +48,7 @@ These are final unless a new ticket reopens one.
 | D17 | Tests: xUnit, `WebApplicationFactory` for in-process HTTP tests, Testcontainers for real Postgres in tests | Tests are written alongside each service |
 | D18 | CI is GitHub Actions, introduced in TS-006 and extended by every ticket that adds something checkable (see [tickets/README.md](README.md#continuous-integration-policy)) | |
 | D19 | Local development secrets use `dotnet user-secrets` (host) and `.env` (Compose). Neither is committed | |
+| D20 | Pull requests are merged with a merge commit. Squash and rebase merging are disabled | Keeps every commit from a branch; the merge commit marks where each ticket landed |
 
 ## Child tickets
 | Step | Key | Title |

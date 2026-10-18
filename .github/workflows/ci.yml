@@ -1,0 +1,57 @@
+# Continuous integration for the TinyShop repository.
+# This workflow grows with the code: every ticket that adds something checkable
+# adds it here (see tickets/README.md, "Continuous integration policy").
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Least privilege: the workflow's GITHUB_TOKEN can only read the repository.
+permissions:
+  contents: read
+
+# One run at a time per pull request: a newer push cancels the outdated run.
+# Runs on master are never cancelled, so every merged commit gets a complete result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Branch protection requires this check by name. Renaming the job breaks the rule.
+  proto:
+    name: proto
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        # Pinned to a full commit SHA, which can't be moved like a tag can.
+        # The comment records the version for humans and for Dependabot.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history, so the breaking-change check can read the base commit
+          # from the local .git (the repository is private, so buf can't clone it anonymously).
+          fetch-depth: 0
+          # Don't leave the token in .git/config for later steps; nothing needs to push.
+          persist-credentials: false
+
+      - name: Check protobuf contracts (format, lint, breaking)
+        uses: bufbuild/buf-action@85aebf73123b5c15fd5528aaecbf9129cddf7fa7 # v1.6.0
+        with:
+          # Same buf version as the local commands in tinyshop/docs/contracts.md §9.5.
+          version: 1.50.0
+          input: tinyshop/proto
+          format: true
+          lint: true
+          # Pull requests compare against their base commit, pushes against the previous commit.
+          # Manual runs have nothing to compare against, so they skip this check.
+          breaking: ${{ github.event_name != 'workflow_dispatch' }}
+          breaking_against: .git#ref=${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }},subdir=tinyshop/proto
+          # Never talk to the Buf Schema Registry.
+          push: false
+          archive: false
+          # Commenting on pull requests would need "pull-requests: write"; the check status is enough.
+          pr_comment: false
