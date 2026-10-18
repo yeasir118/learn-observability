@@ -11,6 +11,49 @@ Design principles:
 - **Internal by default.** Every network except the edge network is `internal: true`: no traffic to or from anything outside Docker, and published ports are ignored.
 - **Standard ports inside containers, distinct ports on the host.** Isolation lets every container use its image's conventional port. Everything published on, or run directly on, the host gets a unique port that is deliberately different from the container port.
 
+### Repository layout
+
+```text
+tinyshop/
+├── TinyShop.slnx
+├── src/                          application code: one folder per container image
+│   ├── product-service/
+│   │   ├── Dockerfile            each image's Dockerfile sits next to the code it builds
+│   │   └── ...
+│   ├── user-service/
+│   ├── order-service/
+│   ├── payment-service/
+│   ├── gateway/
+│   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
+├── tests/                        test projects, one per service
+├── proto/                        protobuf contracts (buf module root)
+├── docs/                         this document, contracts.md, ...
+└── infrastructure/               everything that runs the system but isn't application code
+    ├── compose/
+    │   ├── compose.yaml          the single Compose file for the whole system
+    │   ├── .env.example          committed template of every variable
+    │   └── .env                  your values (git-ignored)
+    ├── postgres/                 database configuration or init scripts, if ever needed
+    ├── load/                     k6 load-test scripts (TS-017)
+    ├── scripts/                  helper scripts, such as the reachability check (TS-014)
+    └── observability/            collector, Prometheus, Loki, Tempo, Grafana config (later epics)
+```
+
+Rules:
+
+- **A file that's baked into an image lives with that image's code.** A file that's mounted into a container at run time, or that drives the system from outside, lives under `infrastructure/`. So nginx's config is in `src/frontend/`, while a Grafana dashboard mounted into the stock Grafana image belongs in `infrastructure/observability/`.
+- **Folders are created when their first file arrives,** not in advance. The tree above shows where things will go, not what exists today.
+
+#### Working with Compose from `infrastructure/compose/`
+
+Compose treats the folder containing `compose.yaml` as the **project directory**, which has three consequences:
+
+- **`.env` is read from `infrastructure/compose/`,** next to `compose.yaml`, not from `tinyshop/`.
+- **Relative paths inside `compose.yaml` are resolved from `infrastructure/compose/`.** A service's build context is therefore `../..` (that is, `tinyshop/`), with `dockerfile: src/<service>/Dockerfile`.
+- **The project name would default to the folder name, `compose`.** `compose.yaml` sets `name: tinyshop` at the top so that containers, networks and volumes are named `tinyshop-…` / `tinyshop_…` as this document assumes.
+
+Every `docker compose` command in the tickets and documents is run from `tinyshop/infrastructure/compose/`. From anywhere else, add `-f <path>/compose.yaml`.
+
 ## 2. Container inventory
 
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
@@ -217,7 +260,7 @@ The other outcomes (unknown user or product, dependency failures, timeouts) are 
   - Addresses of other services: `Services__<Name>Service__BaseUrl`, bound to `Services:<Name>Service:BaseUrl`. Example: `Services__ProductService__BaseUrl=http://product-service:8080`.
   - Listening port: `ASPNETCORE_HTTP_PORTS` (left at the image default of 8080 in containers).
 - **Postgres images** use the image's own variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
-- **Compose-level variables** (from `.env`, used for substitution inside `docker-compose.yml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_PASSWORD`, `FRONTEND_HOST_PORT`. `.env` is git-ignored, and `.env.example` documents every variable.
+- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_PASSWORD`, `FRONTEND_HOST_PORT`. `.env` is git-ignored, and `.env.example` documents every variable.
 
 ## 8. Local development
 

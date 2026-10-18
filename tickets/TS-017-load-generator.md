@@ -25,7 +25,7 @@ Add a k6 load generator as a Compose service behind a `load` profile. It produce
 
 ## Scope
 **In scope**
-- `tinyshop/load/` with a k6 script and its settings
+- `tinyshop/infrastructure/load/` with a k6 script and its settings, mounted into the stock k6 image at run time
 - A Compose service `load-generator` under the `load` profile, with a pinned image
 
 ## Acceptance criteria
@@ -43,3 +43,4 @@ To be refined before pickup. Points to discuss: k6 executors (constant arrival r
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Updated for the `tinyshop/infrastructure/` layout

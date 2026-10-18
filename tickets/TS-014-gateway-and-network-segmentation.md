@@ -35,7 +35,7 @@ Build the `gateway`, the single public entry point for `/api/*`, as hand-written
 - [ ] AC1: Every public route forwards the method, path, query string, body and the relevant headers, and passes the status, headers and body back unchanged, except for `Location`.
 - [ ] AC2: Hop-by-hop headers (`Connection`, `Transfer-Encoding`, and so on) are handled correctly. Your notes explain what they are and why a proxy mustn't copy them.
 - [ ] AC3: When a downstream service is stopped, the gateway returns 502 `upstream_unreachable`.
-- [ ] AC4: **The reachability matrix is proven:** a script (PowerShell or bash) runs netshoot containers on each network and tests every ✓, ◐ and ✗ cell of architecture.md §4. Its output matches the document exactly. Any difference is a bug in either the Compose file or the document, so fix whichever is wrong.
+- [ ] AC4: **The reachability matrix is proven:** a script in `tinyshop/infrastructure/scripts/` (PowerShell or bash) runs netshoot containers on each network and tests every ✓, ◐ and ✗ cell of architecture.md §4. Its output matches the document exactly. Any difference is a bug in either the Compose file or the document, so fix whichever is wrong.
 - [ ] AC5: Tests cover forwarding, `Location` rewriting and the upstream errors. CI builds, tests and builds the image.
 
 ## Technical notes
@@ -47,3 +47,4 @@ To be refined before pickup. Points to discuss: streaming request and response b
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Updated for the `tinyshop/infrastructure/` layout

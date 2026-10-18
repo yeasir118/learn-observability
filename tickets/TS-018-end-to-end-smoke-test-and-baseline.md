@@ -29,7 +29,7 @@ Prove that the complete system starts from a fresh clone with one command, both 
 - A fresh-clone run on your own machine, and the git tag
 
 ## Acceptance criteria
-- [ ] AC1: In a fresh clone in a new folder, `cp .env.example .env` followed by `docker compose up -d` gives a healthy stack, and an order can be placed at `localhost:8000`.
+- [ ] AC1: In a fresh clone in a new folder, `cp .env.example .env` followed by `docker compose up -d`, both in `tinyshop/infrastructure/compose/`, gives a healthy stack, and an order can be placed at `localhost:8000`.
 - [ ] AC2: The CI job starts the stack, places an order through `frontend`, checks the result, and passes. It shuts the stack down even when a step fails.
 - [ ] AC3: When the job fails, the container logs are attached to the run as an artifact.
 - [ ] AC4: Every acceptance criterion of epic TS-001 has been checked. Any that aren't met are listed with the ticket that will fix them.
@@ -44,3 +44,4 @@ To be refined before pickup. Points to discuss: `docker compose up --wait`, `if:
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
