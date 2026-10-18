@@ -11,7 +11,7 @@ This folder is our lightweight issue tracker. Each ticket is one Markdown file, 
 | [TS-003](TS-003-system-architecture-document.md) | Task | System architecture document | Done | 3 | TS-002 |
 | [TS-004](TS-004-http-api-contracts.md) | Task | HTTP API contracts | Done | 3 | TS-003 |
 | [TS-005](TS-005-payment-grpc-contract.md) | Task | Payment gRPC contract | Done | 2 | TS-004 |
-| [TS-006](TS-006-ci-pipeline-foundation.md) | Task | CI pipeline foundation (GitHub Actions) | To Do | 3 | TS-005 |
+| [TS-006](TS-006-ci-pipeline-foundation.md) | Task | CI pipeline foundation (GitHub Actions) | In Progress | 3 | TS-005 |
 | [TS-007](TS-007-product-database-in-compose.md) | Task | Product database and debug proxy in Compose | To Do | 2 | TS-006 |
 | [TS-008](TS-008-product-service-on-host.md) | Story | Product service on the host with EF Core | To Do | 5 | TS-007 |
 | [TS-009](TS-009-product-service-integration-tests.md) | Task | Product service integration tests | To Do | 3 | TS-008 |
@@ -75,17 +75,17 @@ In addition to each ticket's own acceptance criteria:
 - [ ] CI covers everything new in this ticket that can be built, tested or linted, and CI is green
 - [ ] Documentation affected by the change (`tinyshop/docs/`, READMEs, `.env.example`) is updated
 - [ ] Reviewed and approved
-- [ ] Merged into `master` (squash merge), branch deleted, board and ticket status updated
+- [ ] Merged into `master` with a merge commit, branch deleted, board and ticket status updated
 
 ## Workflow for each ticket
 
 1. **Pick up.** Set `status: In Progress` and add a line to the Activity log.
 2. **Branch** from `master`, named after the ticket: `TS-002-repository-foundation`.
-3. **Commit** with the key as a prefix: `TS-002: Add root .gitignore`.
+3. **Commit** with the key as a prefix: `TS-002: Add root .gitignore`. Every commit ends up on `master`, so make each one a meaningful step with a message saying what changed and why. Before opening the pull request, tidy up "fix typo" or "wip" commits by folding them into the commit they belong to.
 4. **Write notes.** Answer the ticket's *Questions to answer* in `notes/`, and record every mistake that cost you more than 15 minutes.
 5. **Request review.** Push the branch, open a pull request on GitHub titled `TS-xxx: <ticket title>`, set `status: In Review`, and tell Claude the branch name. The review happens locally with `git diff master...<branch>`; CI runs on the pull request.
 6. **Address feedback** by pushing new commits on the same branch. Don't force-push during a review.
-7. **Merge** once approved and CI is green, as a **squash merge**, so each ticket is one commit on `master`. Set `status: Done`, update the board, and delete the branch (locally and on GitHub).
+7. **Merge** once approved and CI is green, with a **merge commit**, so every commit on the branch is kept and the merge commit marks where the ticket landed on `master`. Set `status: Done`, update the board, and delete the branch (locally and on GitHub).
 
 ## Template
 New tickets start from [_TEMPLATE.md](_TEMPLATE.md).
