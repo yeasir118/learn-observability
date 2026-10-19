@@ -26,7 +26,7 @@ Implement `payment-service`: a gRPC server for `PaymentService.ProcessPayment`, 
 
 ## Scope
 **In scope**
-- `tinyshop/src/payment-service/`, with code generated from the proto by `Grpc.Tools` at build time (`GrpcServices="Server"`)
+- `tinyshop/services/payment-service/` (with its own `src/`, `tests/` and solution), with code generated from the proto by `Grpc.Tools` at build time (`GrpcServices="Server"`)
 - Kestrel configured for HTTP/2 only
 - gRPC server reflection, so the service can be explored with command-line tools
 - Dockerfile, Compose service, health check, `payment-network`
@@ -50,3 +50,4 @@ To be refined before pickup. Points to discuss: options for the gRPC health chec
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

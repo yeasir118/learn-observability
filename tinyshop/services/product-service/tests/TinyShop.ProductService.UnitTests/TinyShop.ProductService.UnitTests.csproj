@@ -1,0 +1,28 @@
+<!--
+  Fast tests for logic in every layer. No database, no network, no running server.
+  References the Api project, which brings in all other layers.
+  Integration tests against a real Postgres come in TS-009 as a separate project.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- xUnit v3 test projects are executables that run on Microsoft.Testing.Platform
+         (enabled for "dotnet test" in global.json). -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TinyShop.ProductService.Api\TinyShop.ProductService.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

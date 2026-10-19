@@ -2,7 +2,7 @@
 key: TS-008
 title: Product service on the host with EF Core
 type: Story
-status: To Do
+status: In Progress
 priority: High
 points: 5
 assignee: yeasir118
@@ -18,7 +18,7 @@ created: 2026-10-18
 ## Summary
 As a shopper, I can list products and look one up by ID, so that I can choose what to buy.
 
-Technically: create the .NET solution and `product-service` as an ASP.NET Core minimal API. It runs on the host with `dotnet run` and connects to `product-db` through the debug proxy, using EF Core for the schema, seed data and queries.
+Technically: create the .NET solution and `product-service` as four clean-architecture projects (Api, Application, Domain, Infrastructure; decision D16). It runs on the host with `dotnet run` and connects to `product-db` through the debug proxy, using EF Core for the schema, seed data and queries.
 
 ## Background
 - The endpoints, response shapes and error codes are in [contracts.md §3 and §5.1](../tinyshop/docs/contracts.md#51-product-service). Health endpoints are in [§5.4](../tinyshop/docs/contracts.md#54-health-endpoints).
@@ -27,7 +27,8 @@ Technically: create the .NET solution and `product-service` as an ASP.NET Core m
 
 ## Scope
 **In scope**
-- `tinyshop/TinyShop.slnx` and `tinyshop/src/product-service/`
+- `tinyshop/services/product-service/TinyShop.ProductService.slnx`, with the four projects in `src/` (`TinyShop.ProductService.{Api,Application,Domain,Infrastructure}`)
+- Unit tests in `tinyshop/services/product-service/tests/TinyShop.ProductService.UnitTests`
 - EF Core model, migrations and seed data for products
 - `GET /products`, `GET /products/{id}`, `GET /health/live`, `GET /health/ready`
 - Problem Details error handling with `code`, as contracts.md specifies
@@ -39,7 +40,7 @@ Technically: create the .NET solution and `product-service` as an ASP.NET Core m
 - Fault injection (TS-016)
 
 ## Acceptance criteria
-- [ ] AC1: The solution is created at `tinyshop/` and the project at `tinyshop/src/product-service/`, targeting .NET 10. The project builds with no warnings.
+- [ ] AC1: The service solution is created at `tinyshop/services/product-service/` and the four projects in its `src/`, targeting .NET 10. Dependencies point inward only (Api → Application, Infrastructure; Infrastructure → Application; Application → Domain), and the solution builds with no warnings.
 - [ ] AC2: `dotnet-ef` is installed as a **local tool** (`.config/dotnet-tools.json`), so `dotnet tool restore` gives anyone the same version.
 - [ ] AC3: The `Product` entity matches contracts.md §3: `Id` is a `bigint` identity column, `Name` is at most 100 characters and required, and `PriceCents` is a `bigint` that must be greater than 0 (enforced by a database check constraint). Table and column names follow one convention, and your notes say which and why.
 - [ ] AC4: An EF Core migration creates the schema, and seeds five products (Laptop, Keyboard, Mouse, Monitor, Headphones, or your own choice).
@@ -54,7 +55,7 @@ Technically: create the .NET solution and `product-service` as an ASP.NET Core m
 
 ## Technical notes
 - The .NET 10 SDK creates solutions in the new XML format (`.slnx`) by default.
-- **Minimal APIs:** `MapGroup("/products")` keeps the endpoints together. Look at `TypedResults` for return types the compiler can check.
+- **Controllers and versioning:** `ProductsController` lives in `Controllers/V1/`. Versioning is optional for callers (contracts.md §1), because the contract's paths carry no version.
 - **Problem Details:** start with `AddProblemDetails()` and `UseExceptionHandler()`, then use `CustomizeProblemDetails` to add `code`. Then work out how to map "the database is unreachable" (an `NpgsqlException`, often wrapped in another exception) to 503 rather than 500. An `IExceptionHandler` implementation is the idiomatic way to do that.
 - **Route parameters and 400:** a route constraint (`{id:long}`) makes `/products/abc` a 404, because the route doesn't match. Without a constraint, binding fails, and in Production that's a 400. The contract asks for 400. Find out what the Development environment does differently.
 - **Health checks:** `AddHealthChecks().AddDbContextCheck<...>()` comes from the `Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore` package. Tag your checks so that `/health/live` runs none of them and `/health/ready` runs the database check.
@@ -82,3 +83,5 @@ Technically: create the .NET solution and `product-service` as an ASP.NET Core m
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Rescoped to clean architecture with controllers (D16). Implementation scaffolded by Claude and tested end to end; connection, seed data, user secrets, dotnet-ef and migrations left for the assignee
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

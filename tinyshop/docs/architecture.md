@@ -15,17 +15,27 @@ Design principles:
 
 ```text
 tinyshop/
-├── TinyShop.slnx
-├── src/                          application code: one folder per container image
+├── global.json                   pins the .NET SDK version (local and CI)
+├── Directory.Build.props         build settings shared by every project
+├── Directory.Packages.props      every NuGet package version, set once
+├── .editorconfig                 formatting and code-style rules
+├── services/                     one self-contained folder per service (= per container image)
 │   ├── product-service/
-│   │   ├── Dockerfile            each image's Dockerfile sits next to the code it builds
-│   │   └── ...
-│   ├── user-service/
+│   │   ├── TinyShop.ProductService.slnx                the service's own solution
+│   │   ├── Dockerfile                                  next to the code it builds
+│   │   ├── src/
+│   │   │   ├── TinyShop.ProductService.Api/            controllers, error handling, composition root
+│   │   │   ├── TinyShop.ProductService.Application/    use cases, models, interfaces
+│   │   │   ├── TinyShop.ProductService.Domain/         entities, enums
+│   │   │   └── TinyShop.ProductService.Infrastructure/ EF Core, migrations, repositories, health checks
+│   │   └── tests/
+│   │       ├── TinyShop.ProductService.UnitTests/
+│   │       └── TinyShop.ProductService.IntegrationTests/  (TS-009)
+│   ├── user-service/             same shape
 │   ├── order-service/
 │   ├── payment-service/
 │   ├── gateway/
 │   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
-├── tests/                        test projects, one per service
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...
 └── infrastructure/               everything that runs the system but isn't application code
@@ -41,7 +51,9 @@ tinyshop/
 
 Rules:
 
-- **A file that's baked into an image lives with that image's code.** A file that's mounted into a container at run time, or that drives the system from outside, lives under `infrastructure/`. So nginx's config is in `src/frontend/`, while a Grafana dashboard mounted into the stock Grafana image belongs in `infrastructure/observability/`.
+- **Each service is one self-contained folder:** its solution, Dockerfile, code (`src/`) and tests (`tests/`). A service's projects may reference only projects inside its own folder; services depend on each other through contracts (`proto/`, contracts.md), never through code. CI enforces this with `infrastructure/scripts/check-service-boundaries.sh`.
+- **Files shared by all .NET services stay at `tinyshop/`** (`global.json`, `Directory.*.props`, `.editorconfig`). MSBuild and the SDK find them by searching upward from each project, so they apply to every service without being referenced.
+- **A file that's baked into an image lives with that image's code.** A file that's mounted into a container at run time, or that drives the system from outside, lives under `infrastructure/`. So nginx's config is in `services/frontend/`, while a Grafana dashboard mounted into the stock Grafana image belongs in `infrastructure/observability/`.
 - **Folders are created when their first file arrives,** not in advance. The tree above shows where things will go, not what exists today.
 
 #### Working with Compose from `infrastructure/compose/`
@@ -49,7 +61,7 @@ Rules:
 Compose treats the folder containing `compose.yaml` as the **project directory**, which has three consequences:
 
 - **`.env` is read from `infrastructure/compose/`,** next to `compose.yaml`, not from `tinyshop/`.
-- **Relative paths inside `compose.yaml` are resolved from `infrastructure/compose/`.** A service's build context is therefore `../..` (that is, `tinyshop/`), with `dockerfile: src/<service>/Dockerfile`.
+- **Relative paths inside `compose.yaml` are resolved from `infrastructure/compose/`.** A service's build context is therefore `../..` (that is, `tinyshop/`), with `dockerfile: services/<service>/Dockerfile`. The context must be `tinyshop/`, not the service folder: the build needs `Directory.Packages.props` (every package version), `global.json`, `Directory.Build.props` and, for gRPC services, `proto/`.
 - **The project name would default to the folder name, `compose`.** `compose.yaml` sets `name: tinyshop` at the top so that containers, networks and volumes are named `tinyshop-…` / `tinyshop_…` as this document assumes.
 
 Every `docker compose` command in the tickets and documents is run from `tinyshop/infrastructure/compose/`. From anywhere else, add `-f <path>/compose.yaml`.
@@ -58,12 +70,12 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
-| `frontend` | build `tinyshop/src/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
-| `gateway` | build `tinyshop/src/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
-| `product-service` | build `tinyshop/src/product-service` | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
-| `user-service` | build `tinyshop/src/user-service` | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
-| `order-service` | build `tinyshop/src/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
-| `payment-service` | build `tinyshop/src/payment-service` | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
+| `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
+| `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
+| `product-service` | build `tinyshop/services/product-service` | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
+| `user-service` | build `tinyshop/services/user-service` | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
+| `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
+| `payment-service` | build `tinyshop/services/payment-service` | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
 | `product-db` | `postgres:18-alpine` | Database `tinyshop_products` | 5432 | none | `product-network` |
 | `user-db` | `postgres:18-alpine` | Database `tinyshop_users` | 5432 | none | `user-network` |
 | `order-db` | `postgres:18-alpine` | Database `tinyshop_orders` | 5432 | none | `order-network` |

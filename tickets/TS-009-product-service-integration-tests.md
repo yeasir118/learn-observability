@@ -25,7 +25,7 @@ Add an integration test project for `product-service` that runs the real HTTP pi
 
 ## Scope
 **In scope**
-- `tinyshop/tests/product-service.tests/` (or a name you choose and justify)
+- `tinyshop/services/product-service/tests/TinyShop.ProductService.IntegrationTests/`, added to `TinyShop.ProductService.slnx`
 - Tests for the contract in contracts.md §5.1 and §5.4
 - A CI job that runs the tests
 
@@ -72,3 +72,4 @@ Add an integration test project for `product-service` that runs the real HTTP pi
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

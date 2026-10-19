@@ -73,3 +73,58 @@ jobs:
         # --profile '*' includes services behind profiles; without it, a broken debug-only
         # service would pass.
         run: docker compose --env-file .env.example --profile '*' config --quiet
+
+  # One job per .NET service, each built and tested from its own solution.
+  # Adding a service means adding one line to the matrix.
+  dotnet:
+    name: dotnet (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # Let every service finish, so one failure doesn't hide another.
+      fail-fast: false
+      matrix:
+        include:
+          - service: product-service
+            solution: TinyShop.ProductService.slnx
+    defaults:
+      run:
+        working-directory: tinyshop/services/${{ matrix.service }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          # Installs exactly the SDK that global.json pins, the same one used locally.
+          # dotnet finds tinyshop/global.json by searching upward from the service folder.
+          global-json-file: tinyshop/global.json
+
+      - name: Restore
+        run: dotnet restore ${{ matrix.solution }}
+
+      - name: Build (warnings are errors)
+        run: dotnet build ${{ matrix.solution }} --no-restore --configuration Release -warnaserror
+
+      - name: Check formatting (.editorconfig)
+        run: dotnet format ${{ matrix.solution }} --no-restore --verify-no-changes
+
+      - name: Unit tests
+        run: dotnet test --solution ${{ matrix.solution }} --no-build --configuration Release
+
+  # Services may depend on each other only through contracts, never through project references.
+  service-boundaries:
+    name: service-boundaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: No project references across services
+        run: bash tinyshop/infrastructure/scripts/check-service-boundaries.sh
