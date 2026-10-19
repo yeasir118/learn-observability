@@ -128,3 +128,23 @@ jobs:
 
       - name: No project references across services
         run: bash tinyshop/infrastructure/scripts/check-service-boundaries.sh
+
+  # The only check the master ruleset requires. It passes only if every job above passed,
+  # so adding a job (or a matrix entry) never means editing the ruleset, only "needs" below.
+  ci-passed:
+    name: ci-passed
+    # Run even when a needed job failed or was skipped. Without this, ci-passed would itself be
+    # skipped, and GitHub treats a skipped required check as passing.
+    if: always()
+    needs: [proto, compose, dotnet, service-boundaries]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check that every job succeeded
+        env:
+          # Passed through an environment variable, never pasted into the script, so job output
+          # can't inject shell commands. For a matrix job, the result covers all its entries.
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$NEEDS" | jq -e 'all(.[]; .result == "success")' > /dev/null
