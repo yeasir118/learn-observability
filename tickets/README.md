@@ -13,7 +13,7 @@ This folder is our lightweight issue tracker. Each ticket is one Markdown file, 
 | [TS-005](TS-005-payment-grpc-contract.md) | Task | Payment gRPC contract | Done | 2 | TS-004 |
 | [TS-006](TS-006-ci-pipeline-foundation.md) | Task | CI pipeline foundation (GitHub Actions) | In Progress | 3 | TS-005 |
 | [TS-007](TS-007-product-database-in-compose.md) | Task | Product database and debug proxy in Compose | In Progress | 2 | TS-006 |
-| [TS-008](TS-008-product-service-on-host.md) | Story | Product service on the host with EF Core | In Progress | 5 | TS-007 |
+| [TS-008](TS-008-product-service-on-host.md) | Story | Product service on the host with EF Core | Done | 5 | TS-007 |
 | [TS-009](TS-009-product-service-integration-tests.md) | Task | Product service integration tests | To Do | 3 | TS-008 |
 | [TS-010](TS-010-containerize-product-service.md) | Story | Containerize the product service | To Do | 5 | TS-009 |
 | [TS-011](TS-011-user-service.md) | Story | User service | To Do | 5 | TS-010 |
@@ -66,7 +66,8 @@ Tickets that are further out are written with less certainty and carry the label
 CI exists from the first ticket that produces something checkable (TS-006), and **grows with the code rather than being designed up front**:
 
 - **Every ticket that adds something buildable, testable or lintable also adds it to CI in the same pull request.** A new service brings its build and tests into the workflow; a new Dockerfile brings an image build; and so on. A ticket isn't done if its new code isn't checked by CI.
-- **`master` is protected.** Changes arrive only through pull requests, and a pull request can only be merged when the required CI checks pass.
+- **`master` is protected.** Changes arrive only through pull requests, and a pull request can only be merged when CI passes.
+- **The ruleset requires exactly one check: `ci-passed`.** That job depends on every other CI job and passes only if all of them passed. **A new job must be added to `ci-passed`'s `needs:` list in the same pull request**; that's the only place to update. New matrix entries are covered automatically.
 - **Keep CI fast and deterministic.** If a job becomes slow or flaky, fixing it is a ticket of its own, not something to work around.
 - **Deployment (CD) is out of scope.** TinyShop has no deployment target, so CI ends at build, test and verify.
 

@@ -2,7 +2,7 @@
 key: TS-008
 title: Product service on the host with EF Core
 type: Story
-status: In Progress
+status: Done
 priority: High
 points: 5
 assignee: yeasir118
@@ -85,3 +85,4 @@ Technically: create the .NET solution and `product-service` as four clean-archit
 - 2026-10-18: Created
 - 2026-10-18: Rescoped to clean architecture with controllers (D16). Implementation scaffolded by Claude and tested end to end; connection, seed data, user secrets, dotnet-ef and migrations left for the assignee
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
+- 2026-10-19: Done, merged into master (PR #8)
