@@ -19,14 +19,14 @@ created: 2026-10-18
 Package the React frontend as an nginx image that serves the built static files and reverse-proxies `/api/*` to the gateway, published on host port 8000. This is the only port the default stack publishes.
 
 ## Background
-- **Decision D12: Claude writes the React application** (in `tinyshop/src/frontend/`) before this ticket is picked up. It covers the pages and calls agreed earlier: Shop (products, user lookup, create order), Order details, and optionally User orders. This ticket is about everything around it: the build, the image, nginx and the networking.
+- **Decision D12: Claude writes the React application** (in `tinyshop/services/frontend/`) before this ticket is picked up. It covers the pages and calls agreed earlier: Shop (products, user lookup, create order), Order details, and optionally User orders. This ticket is about everything around it: the build, the image, nginx and the networking.
 - Phases 1 and 2 of loading a web app (downloading the app, then the app calling the API) were explained in the M1 discussion. This ticket makes them concrete.
 - Settles architecture.md Q3 (whether nginx runs as non-root).
 
 ## Scope
 **In scope**
 - Multi-stage Dockerfile: a Node stage runs `npm ci` and `npm run build`, and the nginx stage serves the result
-- nginx configuration in `src/frontend/` next to the Dockerfile, since it's baked into the image: static files, a fallback to `index.html` for client-side routes, and a reverse proxy for `/api/`
+- nginx configuration in `services/frontend/` next to the Dockerfile, since it's baked into the image: static files, a fallback to `index.html` for client-side routes, and a reverse proxy for `/api/`
 - Vite's development proxy, so that `npm run dev` on the host works against the gateway
 - The Compose service on `edge-network`, published as `8000:80` (or the port your Q3 decision gives)
 - CI builds the image
@@ -49,3 +49,4 @@ To be refined before pickup. Points to discuss: `proxy_pass` with and without a 
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

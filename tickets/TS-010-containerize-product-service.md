@@ -25,7 +25,7 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 
 ## Scope
 **In scope**
-- `tinyshop/src/product-service/Dockerfile` and a `.dockerignore`
+- `tinyshop/services/product-service/Dockerfile` and a `.dockerignore`
 - The `product-service` service and `backend-network` in `infrastructure/compose/compose.yaml`
 - A decision on how migrations run, and its implementation
 - Container health check and startup ordering
@@ -52,8 +52,8 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - [ ] AC11: **CI:** a job builds the product-service image (`docker build`, or `docker compose build`) on every pull request, without pushing it anywhere.
 
 ## Technical notes
-- **Build context:** the Dockerfile is in `src/product-service/`, but the build may need files from higher up, such as the solution and `Directory.Build.props` if you add one. Decide what the build context is (`tinyshop/` is common), and make sure the `.dockerignore` matches that context. In `compose.yaml`, paths are relative to `infrastructure/compose/`, so a `tinyshop/` context is written `context: ../..` with `dockerfile: src/product-service/Dockerfile`.
-- **Where `.dockerignore` goes:** Docker reads it from the root of the build context, so with a `tinyshop/` context it's `tinyshop/.dockerignore`, shared by every image. BuildKit also supports a Dockerfile-specific `src/product-service/Dockerfile.dockerignore`. Decide which you want and why.
+- **Build context:** the Dockerfile is in `services/product-service/`, but the build needs files from higher up: `Directory.Packages.props` (without it, restore has no package versions), `Directory.Build.props` and `global.json`. So the build context is `tinyshop/`, not the service folder (architecture.md, repository layout). In `compose.yaml`, paths are relative to `infrastructure/compose/`, so that's `context: ../..` with `dockerfile: services/product-service/Dockerfile`. Copy only what this service needs into the image.
+- **Where `.dockerignore` goes:** Docker reads it from the root of the build context, so with a `tinyshop/` context it's `tinyshop/.dockerignore`, shared by every image. BuildKit also supports a Dockerfile-specific `services/product-service/Dockerfile.dockerignore`. Decide which you want and why.
 - **Non-root:** .NET 8+ images include an `app` user, and `$APP_UID` holds its ID. Look up how the official images expect you to use it.
 - **Health check without curl:** the options include installing `curl` (which makes the image bigger and adds attack surface), using an `-alpine` runtime image (busybox includes `wget`), or a small health-check program written in .NET. Each has trade-offs; pick one and justify it.
 - **`depends_on`:** look at `condition: service_healthy` and `condition: service_completed_successfully`.
@@ -82,3 +82,4 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

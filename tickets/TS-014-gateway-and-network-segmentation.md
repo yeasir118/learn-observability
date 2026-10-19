@@ -26,7 +26,7 @@ Build the `gateway`, the single public entry point for `/api/*`, as hand-written
 
 ## Scope
 **In scope**
-- `tinyshop/src/gateway/`: forwarding for the five public routes, `Location` rewriting, and its own `upstream_unreachable` / `upstream_timeout` / `internal_error` responses
+- `tinyshop/services/gateway/`: forwarding for the five public routes, `Location` rewriting, and its own `upstream_unreachable` / `upstream_timeout` / `internal_error` responses
 - `edge-network` in Compose
 - A script that checks the reachability matrix
 - Tests, and CI
@@ -48,3 +48,4 @@ To be refined before pickup. Points to discuss: streaming request and response b
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)

@@ -1,6 +1,8 @@
-# Let git detect which files are text and store them with LF in the repository.
-# On checkout, line endings follow each machine's core.autocrlf / core.eol setting.
-* text=auto
+# Let git detect which files are text, store them with LF in the repository, and check them out
+# with LF on every machine, overriding core.autocrlf. That keeps git consistent with
+# tinyshop/.editorconfig (end_of_line = lf); otherwise Windows checkouts get CRLF and
+# "dotnet format --verify-no-changes" fails locally while passing in CI.
+* text=auto eol=lf
 
 # Anything executed inside a Linux container must be checked out with LF,
 # whatever the machine's settings are: a CRLF breaks the shebang line.

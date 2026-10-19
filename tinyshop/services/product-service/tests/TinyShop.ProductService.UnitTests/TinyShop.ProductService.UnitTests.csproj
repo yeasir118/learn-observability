@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\product-service\TinyShop.ProductService.Api\TinyShop.ProductService.Api.csproj" />
+    <ProjectReference Include="..\..\src\TinyShop.ProductService.Api\TinyShop.ProductService.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -27,8 +27,8 @@ Technically: create the .NET solution and `product-service` as four clean-archit
 
 ## Scope
 **In scope**
-- `tinyshop/TinyShop.slnx` and the four projects in `tinyshop/src/product-service/` (`TinyShop.ProductService.{Api,Application,Domain,Infrastructure}`)
-- Unit tests in `tinyshop/tests/product-service/TinyShop.ProductService.UnitTests`
+- `tinyshop/services/product-service/TinyShop.ProductService.slnx`, with the four projects in `src/` (`TinyShop.ProductService.{Api,Application,Domain,Infrastructure}`)
+- Unit tests in `tinyshop/services/product-service/tests/TinyShop.ProductService.UnitTests`
 - EF Core model, migrations and seed data for products
 - `GET /products`, `GET /products/{id}`, `GET /health/live`, `GET /health/ready`
 - Problem Details error handling with `code`, as contracts.md specifies
@@ -40,7 +40,7 @@ Technically: create the .NET solution and `product-service` as four clean-archit
 - Fault injection (TS-016)
 
 ## Acceptance criteria
-- [ ] AC1: The solution is created at `tinyshop/` and the four projects at `tinyshop/src/product-service/`, targeting .NET 10. Dependencies point inward only (Api → Application, Infrastructure; Infrastructure → Application; Application → Domain), and the solution builds with no warnings.
+- [ ] AC1: The service solution is created at `tinyshop/services/product-service/` and the four projects in its `src/`, targeting .NET 10. Dependencies point inward only (Api → Application, Infrastructure; Infrastructure → Application; Application → Domain), and the solution builds with no warnings.
 - [ ] AC2: `dotnet-ef` is installed as a **local tool** (`.config/dotnet-tools.json`), so `dotnet tool restore` gives anyone the same version.
 - [ ] AC3: The `Product` entity matches contracts.md §3: `Id` is a `bigint` identity column, `Name` is at most 100 characters and required, and `PriceCents` is a `bigint` that must be greater than 0 (enforced by a database check constraint). Table and column names follow one convention, and your notes say which and why.
 - [ ] AC4: An EF Core migration creates the schema, and seeds five products (Laptop, Keyboard, Mouse, Monitor, Headphones, or your own choice).
@@ -84,3 +84,4 @@ Technically: create the .NET solution and `product-service` as four clean-archit
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: Rescoped to clean architecture with controllers (D16). Implementation scaffolded by Claude and tested end to end; connection, seed data, user secrets, dotnet-ef and migrations left for the assignee
+- 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
