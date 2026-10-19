@@ -2,7 +2,7 @@
 key: TS-009
 title: Product service integration tests
 type: Task
-status: To Do
+status: In Progress
 priority: High
 points: 3
 assignee: yeasir118
@@ -80,3 +80,4 @@ Add an integration test project for `product-service` that runs the real HTTP pi
 - 2026-10-18: Created
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-10-19: Refined after TS-008: unit tests already exist, real migrations in the fixture, configuration-override pitfall, xUnit v3 fixtures, CI needs no new job, added AC8 (ci-passed gatekeeper)
+- 2026-10-19: In progress. Integration test project implemented (25 tests); ConfigureAppConfiguration confirmed too late for AddInfrastructure, UseSetting used

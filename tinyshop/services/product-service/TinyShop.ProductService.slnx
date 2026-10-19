@@ -6,6 +6,7 @@
     <Project Path="src/TinyShop.ProductService.Infrastructure/TinyShop.ProductService.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/TinyShop.ProductService.IntegrationTests/TinyShop.ProductService.IntegrationTests.csproj" />
     <Project Path="tests/TinyShop.ProductService.UnitTests/TinyShop.ProductService.UnitTests.csproj" />
   </Folder>
 </Solution>
