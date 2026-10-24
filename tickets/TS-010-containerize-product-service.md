@@ -2,7 +2,7 @@
 key: TS-010
 title: Containerize the product service
 type: Story
-status: To Do
+status: In Progress
 priority: High
 points: 5
 assignee: yeasir118
@@ -47,7 +47,7 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
   - a separate init service
 - [ ] AC7: **Startup order:** `product-service` starts only once `product-db` is healthy (and, if you chose a one-off migration container, once that has finished successfully). `docker compose up` on an empty volume works on the first try, every time.
 - [ ] AC8: **Health:** `product-service` has a Docker health check against `/health/ready`, and `docker compose ps` shows it as `healthy`. Record in architecture.md how the check makes its HTTP request, given that the default `aspnet` image has no `curl` or `wget`.
-- [ ] AC9: **Proof:** a throwaway `nicolaka/netshoot` container on `backend-network` gets 200 from `curl http://product-service:8080/products`. The same command on `product-network` fails, and your notes say why.
+- [ ] AC9: **Proof:** a throwaway `nicolaka/netshoot` container on `backend-network` gets 200 from `curl http://product-service:8080/products`. The same command from `debug-network` (a network product-service is **not** on) fails, and your notes say at which step it fails (name lookup or connection) and why. A netshoot on `product-network` *would* reach it, because product-service is on that network too.
 - [ ] AC10: Images are pinned according to your decision on architecture.md Q2. Q2, Q4 and the health-check question are marked resolved in architecture.md §9.
 - [ ] AC11: **CI:** a job builds the product-service image (`docker build`, or `docker compose build`) on every pull request, without pushing it anywhere.
 
@@ -84,3 +84,5 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-10-25: Started early on the TS-009 branch: multi-stage Dockerfile with a cached restore layer, non-root (`USER $APP_UID`), shared `tinyshop/.dockerignore` (no secrets, no build output, keeps `proto/`), and the `image (product-service)` CI job (AC1-AC4, AC11). Compose service, migrations, health check and startup order remain
+- 2026-10-25: AC9 corrected: the negative test must use a network product-service isn't attached to (debug-network), not product-network
+- 2026-10-25: Steps 3-5 done: migration bundle (Dockerfile target `migrations`, Compose job `product-db-migrate`), startup chain, readiness health check on an Alpine runtime image; decisions in architecture.md §10. CI image job also builds the migrations target. Verified: 3 fresh-volume startups, idempotent re-run, failed migration blocks the service, unhealthy after DB loss

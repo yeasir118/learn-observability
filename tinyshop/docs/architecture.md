@@ -72,13 +72,19 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 |---|---|---|---|---|---|
 | `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
 | `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
-| `product-service` | build `tinyshop/services/product-service` | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
+| `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
 | `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
 | `payment-service` | build `tinyshop/services/payment-service` | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
 | `product-db` | `postgres:18-alpine` | Database `tinyshop_products` | 5432 | none | `product-network` |
 | `user-db` | `postgres:18-alpine` | Database `tinyshop_users` | 5432 | none | `user-network` |
 | `order-db` | `postgres:18-alpine` | Database `tinyshop_orders` | 5432 | none | `order-network` |
+
+One-off jobs: they run to completion during startup, then stay stopped (see [§10](#10-startup-migrations-and-health-checks)):
+
+| Service (DNS name) | Image | Role | Container port | Host port | Networks |
+|---|---|---|---|---|---|
+| `product-db-migrate` | build `tinyshop/services/product-service`, target `migrations` (`aspnet:10.0`) | Applies product-service's EF Core migrations, then exits | none | none | `product-network` |
 
 Debug-only containers, started only with `docker compose --profile debug` (see [§8](#8-local-development)):
 
@@ -330,5 +336,48 @@ The same database, reached by a different path, needs a different address. The p
 | Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | Step 4 |
 | Q2 | Image pinning: major tag (current), exact patch tag, or digest? | Step 2 |
 | Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
-| Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | Step 2 |
+| Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |
 | Q5 | Does `nginx` strip the `/api` prefix, or does the gateway own `/api/*`? (Assumed in this document: the gateway owns `/api/*` and nginx forwards the path unchanged.) | Step 6/7 |
+
+## 10. Startup, migrations and health checks
+
+Decided in TS-010 for product-service. User-service and order-service, which also own a database, follow the same pattern.
+
+### Startup chain
+
+```text
+product-db ──healthy──► product-db-migrate ──exited 0──► product-service ──healthy──► (gateway, later)
+```
+
+- `product-db-migrate` starts once `product-db` is **healthy** (`depends_on: condition: service_healthy`).
+- `product-service` starts only after `product-db-migrate` has **exited with code 0** (`condition: service_completed_successfully`). A failed migration (non-zero exit) leaves the service stopped, so it never serves requests against a missing or outdated schema.
+- The migration job has `restart: "no"`: it's a job, not a server, and a failure must stop the chain rather than loop.
+- Re-running is safe: migrations already applied are skipped ("No migrations were applied. The database is already up to date").
+- Services also cope with the database disappearing *later*: they don't connect at startup, and every request or readiness check simply fails (503) until it's back. So there's no retry loop at startup.
+
+### Migrations: a bundle in a one-off container
+
+| Option | Verdict |
+|---|---|
+| **Migration bundle run by a one-off container** | **Chosen.** Schema changes are a separate, explicit step that runs exactly once per deployment, however many instances of the service run. It's the usual production pattern |
+| Apply migrations at service startup | Rejected. Several instances starting together would race to migrate the same database; a startup failure mixes "schema problem" with "service problem" |
+| SQL scripts run by an init container | Rejected. It works, but the SQL would have to be regenerated from EF Core and kept in sync by hand |
+
+How it's built: the service's Dockerfile has a `migrations` target. Its build stage restores `dotnet-ef` from the repository's tool manifest and runs `dotnet ef migrations bundle`, producing a standalone executable built from the same sources as the service. The bundle reads `ConnectionStrings__ProductDb` from the environment, the same variable as the service, so no password is baked into the image or passed on a command line. Compose defines the connection string once (an `x-` extension field with a YAML anchor) and gives it to both containers.
+
+Two details:
+
+- `dotnet ef` runs `Program.cs` up to `builder.Build()` to find the `DbContext`, which triggers the service's "connection string is required" check. The bundle build doesn't connect anywhere, so the Dockerfile sets a placeholder connection string for that single `RUN` command only.
+- The migrations image is Debian-based (`aspnet:10.0`), unlike the Alpine runtime image, because the bundle is built in the Debian-based SDK image and targets its C library (glibc).
+
+### Health check
+
+| Decision | Reason |
+|---|---|
+| Runtime image `aspnet:10.0-alpine` | It includes BusyBox `wget`, which the Debian-based `aspnet` image lacks (it has neither `curl` nor `wget`), and it's much smaller. Trade-off: Alpine images use invariant globalization (no culture-specific formatting), which TinyShop doesn't need |
+| `wget -q --spider http://localhost:8080/health/ready` | Runs inside the container against its own port, so Docker's port forwarding isn't involved. Checks **readiness**, so "healthy" means "can serve requests, including reaching the database" |
+| Defined in Compose, not as a Dockerfile `HEALTHCHECK` | Orchestration settings live with the orchestration. Other platforms (Kubernetes) ignore Dockerfile health checks and define their own probes anyway |
+| `interval: 10s`, `timeout: 3s`, `retries: 3` | Unhealthy within about 30 seconds of losing the database |
+| `start_period: 20s`, `start_interval: 2s` | Checks every 2 seconds while starting, so the service turns healthy within seconds; failures during that period don't count |
+
+When the database is down, a readiness check can take longer than the 3-second timeout (Npgsql waits up to 15 seconds to connect). Docker records that as a timed-out check, which counts as a failure like an HTTP 503 does.

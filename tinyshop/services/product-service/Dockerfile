@@ -1,7 +1,10 @@
-# product-service image.
+# product-service images. One Dockerfile, two images:
+#   runtime     (default, last stage) the service itself
+#   migrations  a one-off container that applies EF Core migrations, then exits
 # Build context: tinyshop/ (not this folder), because the build needs the shared files there
-# (Directory.Build.props, Directory.Packages.props, global.json). From tinyshop/:
-#   docker build -f services/product-service/Dockerfile -t tinyshop-productservice .
+# (Directory.Build.props, Directory.Packages.props, global.json, dotnet-tools.json). From tinyshop/:
+#   docker build -f services/product-service/Dockerfile -t tinyshop/product-service:local .
+#   docker build -f services/product-service/Dockerfile --target migrations -t tinyshop/product-service-migrations:local .
 
 # ---- Build stage: SDK image, compiles and publishes --------------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -33,8 +36,44 @@ RUN dotnet publish \
     --no-restore \
     -p:UseAppHost=false
 
+# ---- Migration bundle: built from the same sources as the service ------------------------
+FROM build AS migrations-build
+
+# dotnet-ef comes from the repository's tool manifest, so the version matches local use.
+COPY dotnet-tools.json ./
+RUN dotnet tool restore
+
+# A migration bundle is a standalone executable that applies this project's migrations.
+# It's built here, inside Linux, so it targets Linux whatever OS the developer uses.
+# dotnet-ef runs Program.cs up to builder.Build() to find the DbContext, so AddInfrastructure's
+# "connection string is required" check runs too. Building a bundle never connects, so a
+# placeholder set for this one command is enough (unlike ENV, it isn't kept in the image).
+RUN ConnectionStrings__ProductDb="Host=unused-at-build-time" \
+    dotnet ef migrations bundle \
+    --project services/product-service/src/TinyShop.ProductService.Infrastructure \
+    --startup-project services/product-service/src/TinyShop.ProductService.Api \
+    --configuration Release \
+    --output /app/efbundle
+
+# ---- Migrations image: runs the bundle once, then exits -----------------------------------
+# Debian-based like the SDK, because the bundle is built for the SDK image's C library (glibc).
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS migrations
+
+WORKDIR /app
+COPY --from=migrations-build /app/efbundle .
+
+USER $APP_UID
+
+# The bundle reads ConnectionStrings__ProductDb from the environment, like the service does,
+# so no password is ever baked into the image or passed on the command line.
+ENTRYPOINT ["./efbundle"]
+
 # ---- Runtime stage: ASP.NET Core runtime only, no SDK, no source -------------------------
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+# Must stay the LAST stage: "docker build" without --target builds the last one.
+# Alpine variant: much smaller, and it includes BusyBox wget, which the Compose health check
+# uses (the Debian-based aspnet image has neither curl nor wget). Trade-off: Alpine images run
+# with invariant globalization (no culture-specific formatting), which TinyShop doesn't need.
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish/ .

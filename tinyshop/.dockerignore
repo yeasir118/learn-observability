@@ -20,7 +20,6 @@
 docs/
 infrastructure/
 .editorconfig
-dotnet-tools.json
 **/node_modules/
 
 # --- Editor and repository clutter ----------------------------------------------------
@@ -30,4 +29,5 @@ dotnet-tools.json
 .idea/
 
 # NOT excluded on purpose:
-#   proto/   the gRPC services (payment, order) compile their code from it
+#   proto/              the gRPC services (payment, order) compile their code from it
+#   dotnet-tools.json   migration images restore dotnet-ef from it

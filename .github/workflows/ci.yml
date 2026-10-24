@@ -138,7 +138,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [product-service]
+        include:
+          - service: product-service
+            migrations: true
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -150,6 +152,16 @@ jobs:
           docker build
           --file tinyshop/services/${{ matrix.service }}/Dockerfile
           --tag tinyshop/${{ matrix.service }}:ci
+          tinyshop
+
+      # Only services that own a database have a "migrations" stage.
+      - name: Build migrations image
+        if: matrix.migrations
+        run: >-
+          docker build
+          --file tinyshop/services/${{ matrix.service }}/Dockerfile
+          --target migrations
+          --tag tinyshop/${{ matrix.service }}-migrations:ci
           tinyshop
 
   # The only check the master ruleset requires. It passes only if every job above passed,

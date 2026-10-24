@@ -7,6 +7,11 @@
 # Without this, the project would be named after this folder ("compose").
 name: tinyshop
 
+# Top-level "x-" keys are ignored by Compose, which makes them a place to define values once and
+# reuse them with YAML anchors (&name) and aliases (*name).
+# product-service and its migration job must use exactly the same connection string.
+x-product-db-connection: &product-db-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=${PRODUCT_DB_USER};Password=${PRODUCT_DB_PASSWORD}"
+
 services:
   # Service names are DNS names on the Docker networks. Hostnames may not
   # contain underscores, so names use hyphens.
@@ -54,6 +59,56 @@ services:
     depends_on:
       product-db:
         condition: service_healthy
+  
+  # One-off job: applies product-service's EF Core migrations, then exits (architecture.md §10).
+  # Startup chain: product-db (healthy) -> product-db-migrate (exit 0) -> product-service.
+  product-db-migrate:
+    image: tinyshop/product-service-migrations:local
+    build:
+      # Paths resolve from this folder: ../.. is tinyshop/. "dockerfile" is relative to the context.
+      context: ../..
+      dockerfile: services/product-service/Dockerfile
+      target: migrations
+    environment:
+      ConnectionStrings__ProductDb: *product-db-connection
+    networks:
+      - product-network
+    depends_on:
+      product-db:
+        condition: service_healthy
+    # A job, not a server: run once and stay stopped. A failure must stop the chain, not loop.
+    restart: "no"
+
+  product-service:
+    image: tinyshop/product-service:local
+    build:
+      context: ../..
+      dockerfile: services/product-service/Dockerfile
+    environment:
+      ConnectionStrings__ProductDb: *product-db-connection
+      ASPNETCORE_ENVIRONMENT: Production
+    networks:
+      - product-network
+      - backend-network
+    # No "ports": both networks are internal, and only the frontend publishes a port (architecture.md §2).
+    depends_on:
+      product-db:
+        condition: service_healthy
+      # Start only after the schema is in place; a failed migration keeps the service down.
+      product-db-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # Runs INSIDE the container against its own port, so no Docker port forwarding is involved.
+      # /health/ready (not /live): "healthy" means "can serve requests", including reaching the
+      # database. BusyBox wget exits non-zero on an HTTP error status such as 503.
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      # Grace period after start: failures here don't count against "retries", and checks run
+      # every start_interval instead of every interval, so the service turns healthy quickly.
+      start_period: 20s
+      start_interval: 2s
 
 networks:
   # Product service <-> its database only. No traffic to or from outside Docker.
@@ -61,6 +116,8 @@ networks:
     internal: true
   # Debug profile only: the non-internal network that lets the proxies publish ports.
   debug-network: {}
+  backend-network:
+    internal: true
 
 volumes:
   product-db-data:
