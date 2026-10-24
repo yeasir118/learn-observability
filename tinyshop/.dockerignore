@@ -1,0 +1,33 @@
+# Applies to every image built with tinyshop/ as the build context (all services share it),
+# so a rule here must suit every service's Dockerfile, not just one.
+# Everything listed is left out of the build context: never sent to the Docker engine,
+# so it can't end up in an image or invalidate a cached layer.
+
+# --- Secrets and local configuration --------------------------------------------------
+# Real values must never reach an image, not even an intermediate build stage.
+**/.env
+**/.env.*
+
+# --- Build output and test artifacts --------------------------------------------------
+# Built inside the image; local copies would only conflict with it.
+**/bin/
+**/obj/
+**/publish/
+**/TestResults/
+
+# --- Not needed to build any image ----------------------------------------------------
+**/tests/
+docs/
+infrastructure/
+.editorconfig
+**/node_modules/
+
+# --- Editor and repository clutter ----------------------------------------------------
+.git
+.vs/
+.vscode/
+.idea/
+
+# NOT excluded on purpose:
+#   proto/              the gRPC services (payment, order) compile their code from it
+#   dotnet-tools.json   migration images restore dotnet-ef from it

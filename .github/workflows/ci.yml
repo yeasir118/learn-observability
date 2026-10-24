@@ -129,6 +129,41 @@ jobs:
       - name: No project references across services
         run: bash tinyshop/infrastructure/scripts/check-service-boundaries.sh
 
+  # Builds each containerized service's image, exactly as Compose will (tinyshop/ as the
+  # build context). Images are only built, never pushed: there's no registry and no deployment.
+  image:
+    name: image (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: product-service
+            migrations: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build image
+        run: >-
+          docker build
+          --file tinyshop/services/${{ matrix.service }}/Dockerfile
+          --tag tinyshop/${{ matrix.service }}:ci
+          tinyshop
+
+      # Only services that own a database have a "migrations" stage.
+      - name: Build migrations image
+        if: matrix.migrations
+        run: >-
+          docker build
+          --file tinyshop/services/${{ matrix.service }}/Dockerfile
+          --target migrations
+          --tag tinyshop/${{ matrix.service }}-migrations:ci
+          tinyshop
+
   # The only check the master ruleset requires. It passes only if every job above passed,
   # so adding a job (or a matrix entry) never means editing the ruleset, only "needs" below.
   ci-passed:
@@ -136,7 +171,7 @@ jobs:
     # Run even when a needed job failed or was skipped. Without this, ci-passed would itself be
     # skipped, and GitHub treats a skipped required check as passing.
     if: always()
-    needs: [proto, compose, dotnet, service-boundaries]
+    needs: [proto, compose, dotnet, service-boundaries, image]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

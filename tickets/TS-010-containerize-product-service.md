@@ -2,7 +2,7 @@
 key: TS-010
 title: Containerize the product service
 type: Story
-status: To Do
+status: In Review
 priority: High
 points: 5
 assignee: yeasir118
@@ -36,20 +36,20 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - Other services
 
 ## Acceptance criteria
-- [ ] AC1: A **multi-stage** Dockerfile: the SDK image builds, and the `aspnet` runtime image runs. The final image contains no SDK and no source code.
-- [ ] AC2: Layer caching works: changing a `.cs` file and rebuilding doesn't re-run `dotnet restore`. Your notes show the `docker build` output that proves it.
-- [ ] AC3: The container runs as a **non-root** user and listens on 8080.
-- [ ] AC4: A `.dockerignore` keeps `bin/`, `obj/`, `.git`, `.env` and other irrelevant files out of the build context.
-- [ ] AC5: In `compose.yaml`, `product-service` is on `backend-network` and `product-network` and publishes no ports. Its connection string comes from environment variables following the naming in architecture.md §7, and points at `product-db:5432`.
-- [ ] AC6: **Migrations:** pick one approach and record the decision and its trade-offs in architecture.md:
+- [x] AC1: A **multi-stage** Dockerfile: the SDK image builds, and the `aspnet` runtime image runs. The final image contains no SDK and no source code.
+- [x] AC2: Layer caching works: changing a `.cs` file and rebuilding doesn't re-run `dotnet restore`. Your notes show the `docker build` output that proves it.
+- [x] AC3: The container runs as a **non-root** user and listens on 8080.
+- [x] AC4: A `.dockerignore` keeps `bin/`, `obj/`, `.git`, `.env` and other irrelevant files out of the build context.
+- [x] AC5: In `compose.yaml`, `product-service` is on `backend-network` and `product-network` and publishes no ports. Its connection string comes from environment variables following the naming in architecture.md §7, and points at `product-db:5432`.
+- [x] AC6: **Migrations:** pick one approach and record the decision and its trade-offs in architecture.md:
   - a migration bundle run by a one-off container before the service starts
   - migrations applied at startup, behind a flag that's only on in Compose
   - a separate init service
-- [ ] AC7: **Startup order:** `product-service` starts only once `product-db` is healthy (and, if you chose a one-off migration container, once that has finished successfully). `docker compose up` on an empty volume works on the first try, every time.
-- [ ] AC8: **Health:** `product-service` has a Docker health check against `/health/ready`, and `docker compose ps` shows it as `healthy`. Record in architecture.md how the check makes its HTTP request, given that the default `aspnet` image has no `curl` or `wget`.
-- [ ] AC9: **Proof:** a throwaway `nicolaka/netshoot` container on `backend-network` gets 200 from `curl http://product-service:8080/products`. The same command on `product-network` fails, and your notes say why.
-- [ ] AC10: Images are pinned according to your decision on architecture.md Q2. Q2, Q4 and the health-check question are marked resolved in architecture.md §9.
-- [ ] AC11: **CI:** a job builds the product-service image (`docker build`, or `docker compose build`) on every pull request, without pushing it anywhere.
+- [x] AC7: **Startup order:** `product-service` starts only once `product-db` is healthy (and, if you chose a one-off migration container, once that has finished successfully). `docker compose up` on an empty volume works on the first try, every time.
+- [x] AC8: **Health:** `product-service` has a Docker health check against `/health/ready`, and `docker compose ps` shows it as `healthy`. Record in architecture.md how the check makes its HTTP request, given that the default `aspnet` image has no `curl` or `wget`.
+- [x] AC9: **Proof:** a throwaway `nicolaka/netshoot` container on `backend-network` gets 200 from `curl http://product-service:8080/products`. The same command from `debug-network` (a network product-service is **not** on) fails, and your notes say at which step it fails (name lookup or connection) and why. A netshoot on `product-network` *would* reach it, because product-service is on that network too.
+- [x] AC10: Images are pinned according to your decision on architecture.md Q2. Q2, Q4 and the health-check question are marked resolved in architecture.md §9.
+- [x] AC11: **CI:** a job builds the product-service image (`docker build`, or `docker compose build`) on every pull request, without pushing it anywhere.
 
 ## Technical notes
 - **Build context:** the Dockerfile is in `services/product-service/`, but the build needs files from higher up: `Directory.Packages.props` (without it, restore has no package versions), `Directory.Build.props` and `global.json`. So the build context is `tinyshop/`, not the service folder (architecture.md, repository layout). In `compose.yaml`, paths are relative to `infrastructure/compose/`, so that's `context: ../..` with `dockerfile: services/product-service/Dockerfile`. Copy only what this service needs into the image.
@@ -83,3 +83,7 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - 2026-10-18: Created
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
+- 2026-10-25: Started early on the TS-009 branch: multi-stage Dockerfile with a cached restore layer, non-root (`USER $APP_UID`), shared `tinyshop/.dockerignore` (no secrets, no build output, keeps `proto/`), and the `image (product-service)` CI job (AC1-AC4, AC11). Compose service, migrations, health check and startup order remain
+- 2026-10-25: AC9 corrected: the negative test must use a network product-service isn't attached to (debug-network), not product-network
+- 2026-10-25: Steps 3-5 done: migration bundle (Dockerfile target `migrations`, Compose job `product-db-migrate`), startup chain, readiness health check on an Alpine runtime image; decisions in architecture.md §10. CI image job also builds the migrations target. Verified: 3 fresh-volume startups, idempotent re-run, failed migration blocks the service, unhealthy after DB loss
+- 2026-10-25: Remaining criteria verified. AC2: after a .cs change, `dotnet restore` is CACHED and only the source copy and publish re-run. AC9: from backend-network, product-service resolves and returns 200; from debug-network, the DNS lookup returns nothing (Docker's DNS only answers within a network; the query is forwarded to the host's DNS and times out). AC10: image pinning decided (architecture.md §2 notes), Q2/Q4 resolved, Dependabot covers nuget, docker and docker-compose. In Review; the questions in notes/ remain
