@@ -83,3 +83,4 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - 2026-10-18: Created
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
+- 2026-10-25: Started early on the TS-009 branch: multi-stage Dockerfile with a cached restore layer, non-root (`USER $APP_UID`), shared `tinyshop/.dockerignore` (no secrets, no build output, keeps `proto/`), and the `image (product-service)` CI job (AC1-AC4, AC11). Compose service, migrations, health check and startup order remain

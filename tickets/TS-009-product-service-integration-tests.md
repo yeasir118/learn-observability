@@ -81,3 +81,4 @@ Add an integration test project for `product-service` that runs the real HTTP pi
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-10-19: Refined after TS-008: unit tests already exist, real migrations in the fixture, configuration-override pitfall, xUnit v3 fixtures, CI needs no new job, added AC8 (ci-passed gatekeeper)
 - 2026-10-19: In progress. Integration test project implemented (25 tests); ConfigureAppConfiguration confirmed too late for AddInfrastructure, UseSetting used
+- 2026-10-25: Branch also carries the start of TS-010 (Dockerfile, .dockerignore, .env.example for manual runs) and, per the CI policy, an `image (product-service)` CI job that builds it
