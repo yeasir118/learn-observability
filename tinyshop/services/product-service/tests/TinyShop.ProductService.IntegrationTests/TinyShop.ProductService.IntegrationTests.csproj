@@ -27,4 +27,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The same database init script Compose uses, copied next to the test binaries so the test
+         container creates the same least-privilege roles. One script, tested on every CI run. -->
+    <None Include="..\..\..\..\infrastructure\postgres\initdb\*.sh"
+          Link="initdb\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

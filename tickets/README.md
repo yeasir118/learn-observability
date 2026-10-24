@@ -27,6 +27,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | To Do | 2 | TS-015 |
 | [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
+| [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | In Review | 3 | TS-010 |
 
 Keep this table in sync with each ticket's front matter.
 

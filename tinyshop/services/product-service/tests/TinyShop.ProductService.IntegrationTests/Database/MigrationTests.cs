@@ -55,7 +55,8 @@ public class MigrationTests(PostgresFixture fixture)
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        await using var connection = new NpgsqlConnection(fixture.ConnectionString);
+        // As the migrator (the table owner): the read-only app role may not insert at all.
+        await using var connection = new NpgsqlConnection(fixture.MigratorConnectionString);
         await connection.OpenAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 

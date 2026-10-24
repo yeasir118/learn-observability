@@ -52,6 +52,7 @@ These are final unless a new ticket reopens one.
 | D21 | A service that owns a database applies migrations with an EF Core migration bundle, run by a one-off Compose job (`<service>-db-migrate`, built from the service Dockerfile's `migrations` target). The service starts only after the job exits 0 | Decided in TS-010; architecture.md §10 |
 | D22 | .NET services run on `aspnet:10.0-alpine` and have a Compose health check on `/health/ready` using BusyBox `wget` | Decided in TS-010; architecture.md §10 |
 | D23 | Images: official base images pinned to a major version, small third-party images to an exact version, Actions to a commit SHA; Dependabot watches all of them, plus NuGet | Decided in TS-010; architecture.md §2 |
+| D24 | Every service database has three roles: the superuser (initialisation only), `<service>_migrator` (owns the schema, used by the migration job) and `<service>_app` (only the DML the service needs), created by the shared `infrastructure/postgres/initdb` script | Decided in TS-020; architecture.md §10, Database roles |
 
 ## Child tickets
 | Step | Key | Title |
@@ -96,3 +97,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-18: D16 changed from minimal APIs to clean architecture with controllers
 - 2026-10-18: D16 updated: per-service folders and solutions instead of one root solution
 - 2026-10-25: Added D21 to D23 from TS-010 (migrations, runtime image and health check, image pinning)
+- 2026-10-25: Added TS-020 (least-privilege database roles) and decision D24

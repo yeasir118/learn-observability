@@ -9,8 +9,10 @@ name: tinyshop
 
 # Top-level "x-" keys are ignored by Compose, which makes them a place to define values once and
 # reuse them with YAML anchors (&name) and aliases (*name).
-# product-service and its migration job must use exactly the same connection string.
-x-product-db-connection: &product-db-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=${PRODUCT_DB_USER};Password=${PRODUCT_DB_PASSWORD}"
+# Least privilege (architecture.md §10, "Database roles"): the migration job connects as the role
+# that owns the schema, the service as a role that can only read. Neither uses the superuser.
+x-product-db-migrator-connection: &product-db-migrator-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_migrator;Password=${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}"
+x-product-db-app-connection: &product-db-app-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_app;Password=${PRODUCT_DB_APP_PASSWORD:?set PRODUCT_DB_APP_PASSWORD in .env}"
 
 services:
   # Service names are DNS names on the Docker networks. Hostnames may not
@@ -18,22 +20,34 @@ services:
   product-db:
     image: postgres:18-alpine
     environment:
-      # The database name is part of the design, not configuration.
+      # The database name and role names are part of the design, not configuration.
       POSTGRES_DB: tinyshop_products
+      # The superuser: used only to initialise the database (and by a human in an emergency).
+      POSTGRES_USER: postgres
       # ":?" makes Compose stop with an error if the variable is missing from .env,
       # instead of silently starting Postgres with an empty value.
-      POSTGRES_USER: ${PRODUCT_DB_USER:?set PRODUCT_DB_USER in .env}
-      POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD:?set PRODUCT_DB_PASSWORD in .env}
+      POSTGRES_PASSWORD: ${PRODUCT_DB_ADMIN_PASSWORD:?set PRODUCT_DB_ADMIN_PASSWORD in .env}
+      # Read by the init script below: creates product_migrator and product_app.
+      DB_ROLE_PREFIX: product
+      MIGRATOR_PASSWORD: ${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}
+      APP_PASSWORD: ${PRODUCT_DB_APP_PASSWORD:?set PRODUCT_DB_APP_PASSWORD in .env}
+      # product-service only reads (contracts.md §5.1); order-service will need more.
+      APP_TABLE_PRIVILEGES: SELECT
     volumes:
       # Postgres 18 images keep their data under /var/lib/postgresql/18/docker,
       # so the volume mounts at /var/lib/postgresql (not .../data as in older guides).
       - product-db-data:/var/lib/postgresql
+      # Scripts here run once, on an empty volume. Shared by every service database.
+      - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - product-network
     healthcheck:
       # "$$" escapes Compose's own interpolation, so the variables are expanded
       # by the shell inside the container, from the container's environment.
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
+      # that only listens on a Unix socket; a socket check would report "ready" before the roles
+      # exist, and the migration job would start too early.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -70,7 +84,7 @@ services:
       dockerfile: services/product-service/Dockerfile
       target: migrations
     environment:
-      ConnectionStrings__ProductDb: *product-db-connection
+      ConnectionStrings__ProductDb: *product-db-migrator-connection
     networks:
       - product-network
     depends_on:
@@ -85,7 +99,7 @@ services:
       context: ../..
       dockerfile: services/product-service/Dockerfile
     environment:
-      ConnectionStrings__ProductDb: *product-db-connection
+      ConnectionStrings__ProductDb: *product-db-app-connection
       ASPNETCORE_ENVIRONMENT: Production
     networks:
       - product-network
