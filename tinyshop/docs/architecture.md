@@ -43,7 +43,7 @@ tinyshop/
     │   ├── compose.yaml          the single Compose file for the whole system
     │   ├── .env.example          committed template of every variable
     │   └── .env                  your values (git-ignored)
-    ├── postgres/                 database configuration or init scripts, if ever needed
+    ├── postgres/initdb/          init scripts mounted into every service database (role setup, §10)
     ├── load/                     k6 load-test scripts (TS-017)
     ├── scripts/                  helper scripts, such as the reachability check (TS-014)
     └── observability/            collector, Prometheus, Loki, Tempo, Grafana config (later epics)

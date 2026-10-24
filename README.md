@@ -13,4 +13,4 @@ A hands-on lab for learning observability, Docker, networking, TLS and distribut
 | [tinyshop/docs/](tinyshop/docs/) | Architecture and API contracts |
 | [tinyshop/proto/](tinyshop/proto/) | Protobuf (gRPC) contracts |
 | [tinyshop/services/](tinyshop/services/) | One folder per service: its solution, Dockerfile, code (`src/`) and tests (`tests/`) |
-| `tinyshop/infrastructure/` | Compose file, `.env.example`, load tests, helper scripts and infrastructure config (from TS-007). Layout: [architecture.md](tinyshop/docs/architecture.md#repository-layout) |
+| `tinyshop/infrastructure/` | Compose file, `.env.example`, Postgres init scripts, load tests, helper scripts and infrastructure config (from TS-007). Layout: [architecture.md](tinyshop/docs/architecture.md#repository-layout) |

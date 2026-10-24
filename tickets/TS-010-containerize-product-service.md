@@ -2,7 +2,7 @@
 key: TS-010
 title: Containerize the product service
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 5
 assignee: yeasir118
@@ -87,3 +87,4 @@ Package `product-service` as a Docker image and run it in Compose next to `produ
 - 2026-10-25: AC9 corrected: the negative test must use a network product-service isn't attached to (debug-network), not product-network
 - 2026-10-25: Steps 3-5 done: migration bundle (Dockerfile target `migrations`, Compose job `product-db-migrate`), startup chain, readiness health check on an Alpine runtime image; decisions in architecture.md §10. CI image job also builds the migrations target. Verified: 3 fresh-volume startups, idempotent re-run, failed migration blocks the service, unhealthy after DB loss
 - 2026-10-25: Remaining criteria verified. AC2: after a .cs change, `dotnet restore` is CACHED and only the source copy and publish re-run. AC9: from backend-network, product-service resolves and returns 200; from debug-network, the DNS lookup returns nothing (Docker's DNS only answers within a network; the query is forwarded to the host's DNS and times out). AC10: image pinning decided (architecture.md §2 notes), Q2/Q4 resolved, Dependabot covers nuget, docker and docker-compose. In Review; the questions in notes/ remain
+- 2026-10-25: Done, merged into master (PR #11)

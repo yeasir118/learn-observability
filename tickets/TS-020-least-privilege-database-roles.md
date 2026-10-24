@@ -46,6 +46,7 @@ Stop using the Postgres superuser for everything. product-db gets three roles wi
 - [x] AC9: The database health check uses TCP, so the migration job can't start while init scripts are still running.
 - [x] AC10: Integration tests use the same script and roles; role tests fail if the app role is given too much (verified by mutation).
 - [x] AC11: `.env.example` files and architecture.md are updated; CI's Compose check passes with the template.
+- [x] AC12: **CI:** a `shell` job lints every tracked `.sh` file with ShellCheck (pinned image `koalaman/shellcheck:v0.10.0`), and `ci-passed` depends on it.
 
 ## Upgrading an existing local stack
 The script runs only when a volume is created, so an existing `product-db-data` volume keeps the old single superuser. To switch:
@@ -71,3 +72,4 @@ The script runs only when a volume is created, so an existing `product-db-data` 
 
 ## Activity log
 - 2026-10-25: Created and implemented by Claude at the assignee's request. Verified under a separate Compose project: roles and owners, every allowed and refused operation per role, default privileges, a reusable INSERT configuration with the script sourced, injection rejected (exit 1) in both execution modes, fresh and repeated startup. Integration tests: 36 (11 new role tests), all passing; a mutation that over-grants the app role is caught. During testing, found and fixed a bug: the validation didn't stop the script when it was executed rather than sourced
+- 2026-10-25: Added the `shell` CI job (ShellCheck; both scripts pass, and a deliberately unsafe script is flagged). Updated the repository layout in architecture.md and the root README for `infrastructure/postgres/initdb/`
