@@ -2,7 +2,7 @@
 key: TS-009
 title: Product service integration tests
 type: Task
-status: In Progress
+status: In Review
 priority: High
 points: 3
 assignee: yeasir118
