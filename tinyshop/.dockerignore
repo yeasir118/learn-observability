@@ -1,0 +1,12 @@
+.git
+.vs/
+.vscode/
+**/bin/
+**/obj/
+**/tests/
+**/TestResults/
+docs/
+infrastructure/
+proto/
+.editorconfig
+dotnet-tools.json
