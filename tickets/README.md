@@ -2,6 +2,8 @@
 
 This folder is our lightweight issue tracker. Each ticket is one Markdown file, following the usual Jira conventions.
 
+The bigger picture (milestones, and expansion ideas parked for later) is in the [roadmap](ROADMAP.md).
+
 ## Board
 
 | Key | Type | Title | Status | Points | Depends on |

@@ -7,7 +7,7 @@ A hands-on lab for learning observability, Docker, networking, TLS and distribut
 | Path | Contents |
 |---|---|
 | [resources/](resources/) | The project brief ([outline.md](resources/outline.md)) and other reference material |
-| [tickets/](tickets/) | Jira-style tickets that drive the work. Start at the [board](tickets/README.md) |
+| [tickets/](tickets/) | Jira-style tickets that drive the work. Start at the [board](tickets/README.md); the [roadmap](tickets/ROADMAP.md) shows milestones and future expansion ideas |
 | [notes/](notes/) | Learning journal: answers to ticket questions, mistakes and findings |
 | [tinyshop/](tinyshop/) | The TinyShop system |
 | [tinyshop/docs/](tinyshop/docs/) | Architecture and API contracts |
