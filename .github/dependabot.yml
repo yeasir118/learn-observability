@@ -1,5 +1,6 @@
 # Dependabot opens pull requests when a dependency has a newer version.
-# Ecosystems are added here as the project gains them (NuGet, npm, Docker, ...).
+# Ecosystems are added here as the project gains them (see tickets/README.md, CI policy).
+# Every update arrives as a normal pull request, so CI checks it like any other change.
 version: 2
 updates:
   # Actions used in .github/workflows/. Dependabot updates the pinned SHA
@@ -14,3 +15,38 @@ updates:
       # One pull request for all action updates instead of one per action.
       github-actions:
         patterns: ["*"]
+
+  # NuGet packages. All versions live in tinyshop/Directory.Packages.props
+  # (central package management), so one directory covers every .NET project.
+  - package-ecosystem: nuget
+    directory: /tinyshop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    groups:
+      # Packages released together are upgraded together.
+      ef-core-and-npgsql:
+        patterns: ["Microsoft.EntityFrameworkCore*", "Npgsql*", "EFCore.*"]
+      aspnet-and-extensions:
+        patterns: ["Microsoft.AspNetCore*", "Microsoft.Extensions*"]
+      testing:
+        patterns: ["xunit*", "NSubstitute", "Testcontainers*"]
+
+  # Base images in each service's Dockerfile (FROM lines).
+  # Add a service's folder here when it gets a Dockerfile.
+  - package-ecosystem: docker
+    directories:
+      - /tinyshop/services/product-service
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+
+  # Images used directly in compose.yaml (postgres, socat, later nginx, k6, ...).
+  - package-ecosystem: docker-compose
+    directory: /tinyshop/infrastructure/compose
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps

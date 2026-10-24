@@ -101,7 +101,15 @@ Notes:
 - **8080** is the default port of .NET 8+ container images, so the services need no port configuration inside Docker. A non-privileged port also lets the services run as a non-root user.
 - **Payment's port 8080 speaks only HTTP/2.** gRPC requires HTTP/2, and without TLS a client can't negotiate the protocol, so the port is configured for HTTP/2 only (h2c).
 - **The three databases all listen on 5432 without conflict.** Each container has its own network namespace, so ports only collide when they are published on the same host.
-- **Image tags are pinned to a major version** (`postgres:18-alpine`, `aspnet:10.0`) so a rebuild never silently moves to a new major version. Exact patch or digest pinning is an open question ([§9](#9-open-questions)).
+- **Image pinning (Q2, decided in TS-010):**
+
+  | Image kind | Pinned to | Example | Why |
+  |---|---|---|---|
+  | Official, actively maintained base images | Major version | `postgres:18-alpine`, `sdk:10.0`, `aspnet:10.0-alpine` | The publisher moves these tags to each new patch release, so a rebuild picks up security fixes automatically, but never a new major version |
+  | Small third-party images | Exact version | `alpine/socat:1.8.1.1` | Their tags aren't maintained as rolling major-version tags, so only an exact tag is predictable |
+  | GitHub Actions | Commit SHA | `actions/checkout@3d3c42e…` | Actions run code with access to the repository, so a movable tag is a supply-chain risk (TS-006) |
+
+  Digests (`image@sha256:…`) were rejected: they're fully reproducible, but unreadable, and they stop patch releases arriving on their own. Dependabot watches every Dockerfile and `compose.yaml` and opens a pull request when a newer version appears. Note: Docker reuses a cached base image, so a local rebuild only picks up a newer patch release with `docker compose build --pull`.
 - **The Postgres 18 image changed its data directory.** Mount volumes at `/var/lib/postgresql`, not `/var/lib/postgresql/data` as in older guides.
 
 ## 3. Networks
@@ -334,7 +342,7 @@ The same database, reached by a different path, needs a different address. The p
 | # | Question | Decide in |
 |---|---|---|
 | Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | Step 4 |
-| Q2 | Image pinning: major tag (current), exact patch tag, or digest? | Step 2 |
+| Q2 | Image pinning: major tag (current), exact patch tag, or digest? | **Resolved in TS-010**: see [§2](#2-container-inventory), notes |
 | Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
 | Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |
 | Q5 | Does `nginx` strip the `/api` prefix, or does the gateway own `/api/*`? (Assumed in this document: the gateway owns `/api/*` and nginx forwards the path unchanged.) | Step 6/7 |
