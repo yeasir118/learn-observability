@@ -112,7 +112,24 @@ services:
     depends_on:
       product-db:
         condition: service_healthy
-  
+
+  # Debug-only entry point from the host to user-db, at 127.0.0.1:5434 (architecture.md §8).
+  # One proxy per database, never one proxy on several database networks: that container would be
+  # the one place able to reach every database, undoing the per-database isolation.
+  user-db-proxy:
+    image: alpine/socat:1.8.1.1
+    profiles: [debug]
+    # Same as product-db-proxy, forwarding to user-db instead.
+    command: TCP-LISTEN:5432,fork,reuseaddr TCP:user-db:5432
+    ports:
+      - "127.0.0.1:5434:5432"
+    networks:
+      - user-network
+      - debug-network
+    depends_on:
+      user-db:
+        condition: service_healthy
+
   # One-off job: applies product-service's EF Core migrations, then exits (architecture.md §10).
   # Startup chain: product-db (healthy) -> product-db-migrate (exit 0) -> product-service.
   product-db-migrate:

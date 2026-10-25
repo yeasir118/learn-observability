@@ -26,7 +26,7 @@ Run user-service in Compose exactly the way product-service runs: an image, its 
 **In scope**
 - `services/user-service/Dockerfile` with `runtime` (Alpine) and `migrations` targets, like product-service's
 - Compose: `user-db` (`tinyshop_users`, init script with `DB_ROLE_PREFIX=user`, `APP_TABLE_PRIVILEGES=SELECT`), `user-db-migrate`, `user-service`, `user-network`; connection strings defined once with anchors
-- `user-db-proxy` (debug profile, `127.0.0.1:5434`): **not added yet**; recommendation recorded in the activity log, decision pending
+- `user-db-proxy` (debug profile, `127.0.0.1:5434`): one proxy per database
 - `.env.example` entries for the three user-db passwords
 - CI: add user-service to the `image` job matrix (with `migrations: true`); add its folder to Dependabot's `docker` directories
 
@@ -41,10 +41,11 @@ Run user-service in Compose exactly the way product-service runs: an image, its 
 To be refined before pickup. Most files will be near-copies of product-service's. Points to discuss: whether the Dockerfile's build-time placeholder connection string is still needed (user-service has a design-time DbContext factory, so `dotnet ef migrations bundle` no longer starts the app's host), and whether to extract the repeated Compose blocks with YAML anchors or `extends`.
 
 ## Definition of done
-- [ ] All acceptance criteria met
+- [x] All acceptance criteria met
 - [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - 2026-10-25: Created, split out of TS-011
 - 2026-10-25: Implemented by the assignee (Dockerfile, Compose) on the TS-011 branch; reviewed and completed by Claude: fixed `ASPNETCORE_HTTPPORTS` (typo, should be `ASPNETCORE_HTTP_PORTS`), added the missing `USER_DB_*` entries to `.env.example` (CI's compose check would have failed), corrected a contract reference (§5.2), removed the build-time placeholder connection string (not needed with the design-time factory; verified the bundle builds without it), added comments, CI image matrix entry, Dependabot directory and architecture.md rows. Verified under a separate project: both slices healthy on empty volumes in 12 s, user 123 from backend-network, user-db reachable only from user-network, user_app read-only
 - 2026-10-25: Proxy recommendation: a separate `user-db-proxy` per database (architecture.md §2 and §8 already reserve `127.0.0.1:5434`), not one proxy attached to several database networks, which would bridge them
+- 2026-10-25: Added `user-db-proxy` (debug profile, `127.0.0.1:5434`, on user-network and debug-network only). Verified: not started by the default stack; with the debug profile it serves 5434 next to product-db-proxy on 5433; `user_app` logs in to `tinyshop_users` through it; the LAN IP is refused
