@@ -2,13 +2,13 @@
 key: TS-021
 title: Containerize the user service
 type: Story
-status: To Do
+status: In Review
 priority: High
 points: 3
-assignee: claude
+assignee: yeasir118
 reporter: yeasir118
 epic: TS-001
-labels: [m1, docker, compose, postgres, networking, ci, needs-refinement]
+labels: [m1, docker, compose, postgres, networking, ci]
 depends_on: [TS-011]
 created: 2026-10-25
 ---
@@ -25,16 +25,17 @@ Run user-service in Compose exactly the way product-service runs: an image, its 
 ## Scope
 **In scope**
 - `services/user-service/Dockerfile` with `runtime` (Alpine) and `migrations` targets, like product-service's
-- Compose: `user-db` (`tinyshop_users`, init script with `DB_ROLE_PREFIX=user`, `APP_TABLE_PRIVILEGES=SELECT`), `user-db-migrate`, `user-service`, `user-db-proxy` (debug profile), `user-network`; connection strings defined once with anchors
+- Compose: `user-db` (`tinyshop_users`, init script with `DB_ROLE_PREFIX=user`, `APP_TABLE_PRIVILEGES=SELECT`), `user-db-migrate`, `user-service`, `user-network`; connection strings defined once with anchors
+- `user-db-proxy` (debug profile, `127.0.0.1:5434`): **not added yet**; recommendation recorded in the activity log, decision pending
 - `.env.example` entries for the three user-db passwords
 - CI: add user-service to the `image` job matrix (with `migrations: true`); add its folder to Dependabot's `docker` directories
 
 ## Acceptance criteria
-- [ ] AC1: `docker compose up` on empty volumes brings up the product and user slices; both services become healthy, after their migration jobs exit 0.
-- [ ] AC2: `user-db` is reachable only by `user-service` and `user-db-migrate`; a container on `product-network` (or `backend-network`) can't reach it.
-- [ ] AC3: From `backend-network`, `GET http://user-service:8080/users/123` returns Alice.
-- [ ] AC4: CI builds both user-service images; `ci-passed` covers them.
-- [ ] AC5: architecture.md and the TS-011 duplication list are updated if anything differs from product-service.
+- [x] AC1: `docker compose up` on empty volumes brings up the product and user slices; both services become healthy, after their migration jobs exit 0.
+- [x] AC2: `user-db` is reachable only by `user-service` and `user-db-migrate`; a container on `product-network` (or `backend-network`) can't reach it.
+- [x] AC3: From `backend-network`, `GET http://user-service:8080/users/123` returns Alice.
+- [x] AC4: CI builds both user-service images; `ci-passed` covers them.
+- [x] AC5: architecture.md and the TS-011 duplication list are updated if anything differs from product-service.
 
 ## Technical notes
 To be refined before pickup. Most files will be near-copies of product-service's. Points to discuss: whether the Dockerfile's build-time placeholder connection string is still needed (user-service has a design-time DbContext factory, so `dotnet ef migrations bundle` no longer starts the app's host), and whether to extract the repeated Compose blocks with YAML anchors or `extends`.
@@ -45,3 +46,5 @@ To be refined before pickup. Most files will be near-copies of product-service's
 
 ## Activity log
 - 2026-10-25: Created, split out of TS-011
+- 2026-10-25: Implemented by the assignee (Dockerfile, Compose) on the TS-011 branch; reviewed and completed by Claude: fixed `ASPNETCORE_HTTPPORTS` (typo, should be `ASPNETCORE_HTTP_PORTS`), added the missing `USER_DB_*` entries to `.env.example` (CI's compose check would have failed), corrected a contract reference (§5.2), removed the build-time placeholder connection string (not needed with the design-time factory; verified the bundle builds without it), added comments, CI image matrix entry, Dependabot directory and architecture.md rows. Verified under a separate project: both slices healthy on empty volumes in 12 s, user 123 from backend-network, user-db reachable only from user-network, user_app read-only
+- 2026-10-25: Proxy recommendation: a separate `user-db-proxy` per database (architecture.md §2 and §8 already reserve `127.0.0.1:5434`), not one proxy attached to several database networks, which would bridge them

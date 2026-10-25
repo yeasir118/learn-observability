@@ -9,10 +9,12 @@ name: tinyshop
 
 # Top-level "x-" keys are ignored by Compose, which makes them a place to define values once and
 # reuse them with YAML anchors (&name) and aliases (*name).
-# Least privilege (architecture.md §10, "Database roles"): the migration job connects as the role
-# that owns the schema, the service as a role that can only read. Neither uses the superuser.
+# Least privilege (architecture.md §10, "Database roles"): each migration job connects as the role
+# that owns its schema, each service as a role that can only read. None uses the superuser.
 x-product-db-migrator-connection: &product-db-migrator-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_migrator;Password=${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}"
 x-product-db-app-connection: &product-db-app-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_app;Password=${PRODUCT_DB_APP_PASSWORD:?set PRODUCT_DB_APP_PASSWORD in .env}"
+x-user-db-migrator-connection: &user-db-migrator-connection "Host=user-db;Port=5432;Database=tinyshop_users;Username=user_migrator;Password=${USER_DB_MIGRATOR_PASSWORD:?set USER_DB_MIGRATOR_PASSWORD in .env}"
+x-user-db-app-connection: &user-db-app-connection "Host=user-db;Port=5432;Database=tinyshop_users;Username=user_app;Password=${USER_DB_APP_PASSWORD:?set USER_DB_APP_PASSWORD in .env}"
 
 services:
   # Service names are DNS names on the Docker networks. Hostnames may not
@@ -41,6 +43,43 @@ services:
       - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - product-network
+    healthcheck:
+      # "$$" escapes Compose's own interpolation, so the variables are expanded
+      # by the shell inside the container, from the container's environment.
+      # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
+      # that only listens on a Unix socket; a socket check would report "ready" before the roles
+      # exist, and the migration job would start too early.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Same setup as product-db above (see its comments); only the names and passwords differ.
+  user-db:
+    image: postgres:18-alpine
+    environment:
+      # The database name and role names are part of the design, not configuration.
+      POSTGRES_DB: tinyshop_users
+      # The superuser: used only to initialise the database (and by a human in an emergency).
+      POSTGRES_USER: postgres
+      # ":?" makes Compose stop with an error if the variable is missing from .env,
+      # instead of silently starting Postgres with an empty value.
+      POSTGRES_PASSWORD: ${USER_DB_ADMIN_PASSWORD:?set USER_DB_ADMIN_PASSWORD in .env}
+      # Read by the init script below: creates user_migrator and user_app.
+      DB_ROLE_PREFIX: user
+      MIGRATOR_PASSWORD: ${USER_DB_MIGRATOR_PASSWORD:?set USER_DB_MIGRATOR_PASSWORD in .env}
+      APP_PASSWORD: ${USER_DB_APP_PASSWORD:?set USER_DB_APP_PASSWORD in .env}
+      # user-service only reads (contracts.md §5.2); order-service will need more.
+      APP_TABLE_PRIVILEGES: SELECT
+    volumes:
+      # Postgres 18 images keep their data under /var/lib/postgresql/18/docker,
+      # so the volume mounts at /var/lib/postgresql (not .../data as in older guides).
+      - user-db-data:/var/lib/postgresql
+      # Scripts here run once, on an empty volume. Shared by every service database.
+      - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - user-network
     healthcheck:
       # "$$" escapes Compose's own interpolation, so the variables are expanded
       # by the shell inside the container, from the container's environment.
@@ -93,6 +132,22 @@ services:
     # A job, not a server: run once and stay stopped. A failure must stop the chain, not loop.
     restart: "no"
 
+  # Same as product-db-migrate: user-db (healthy) -> user-db-migrate (exit 0) -> user-service.
+  user-db-migrate:
+    image: tinyshop/user-service-migrations:local
+    build:
+      context: ../..
+      dockerfile: services/user-service/Dockerfile
+      target: migrations
+    environment:
+      ConnectionStrings__UserDb: *user-db-migrator-connection
+    networks:
+      - user-network
+    depends_on:
+      user-db:
+        condition: service_healthy
+    restart: "no"
+
   product-service:
     image: tinyshop/product-service:local
     build:
@@ -124,14 +179,45 @@ services:
       start_period: 20s
       start_interval: 2s
 
+  # Same setup as product-service above (see its comments): no published ports, starts after its
+  # migration job, healthy only when it can reach its database.
+  user-service:
+    image: tinyshop/user-service:local
+    build:
+      context: ../..
+      dockerfile: services/user-service/Dockerfile
+    environment:
+      ConnectionStrings__UserDb: *user-db-app-connection
+      ASPNETCORE_ENVIRONMENT: Production
+    networks:
+      - user-network
+      - backend-network
+    depends_on:
+      user-db:
+        condition: service_healthy
+      user-db-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+      start_interval: 2s
+
 networks:
   # Product service <-> its database only. No traffic to or from outside Docker.
   product-network:
     internal: true
   # Debug profile only: the non-internal network that lets the proxies publish ports.
   debug-network: {}
+  # gateway <-> services. Internal: no traffic to or from outside Docker.
   backend-network:
+    internal: true
+  # User service <-> its database only.
+  user-network:
     internal: true
 
 volumes:
   product-db-data:
+  user-db-data:
