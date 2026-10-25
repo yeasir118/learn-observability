@@ -2,7 +2,7 @@
 key: TS-020
 title: Least-privilege database roles for product-service
 type: Task
-status: In Review
+status: Done
 priority: High
 points: 3
 assignee: claude
@@ -73,3 +73,4 @@ The script runs only when a volume is created, so an existing `product-db-data` 
 ## Activity log
 - 2026-10-25: Created and implemented by Claude at the assignee's request. Verified under a separate Compose project: roles and owners, every allowed and refused operation per role, default privileges, a reusable INSERT configuration with the script sourced, injection rejected (exit 1) in both execution modes, fresh and repeated startup. Integration tests: 36 (11 new role tests), all passing; a mutation that over-grants the app role is caught. During testing, found and fixed a bug: the validation didn't stop the script when it was executed rather than sourced
 - 2026-10-25: Added the `shell` CI job (ShellCheck; both scripts pass, and a deliberately unsafe script is flagged). Updated the repository layout in architecture.md and the root README for `infrastructure/postgres/initdb/`
+- 2026-10-25: Done, merged into master (PR #12)

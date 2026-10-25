@@ -38,6 +38,7 @@ updates:
   - package-ecosystem: docker
     directories:
       - /tinyshop/services/product-service
+      - /tinyshop/services/user-service
     schedule:
       interval: weekly
     commit-message:

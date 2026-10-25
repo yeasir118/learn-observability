@@ -1,0 +1,35 @@
+﻿<!--
+  Api: the HTTP layer and the composition root. Controllers talk only to Application interfaces.
+  The reference to Infrastructure exists only so Program.cs can register its implementations.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- XML doc comments on controllers become descriptions in the OpenAPI document. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: missing XML comment. Only public API surface that matters gets documented. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <UserSecretsId>d0db6382-9baa-4b48-a58d-1f80dd5ec7ec</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.UserService.Application\TinyShop.UserService.Application.csproj" />
+    <ProjectReference Include="..\TinyShop.UserService.Infrastructure\TinyShop.UserService.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.UserService.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <!-- Needed by "dotnet ef" at design time (migrations); never shipped as a runtime dependency. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

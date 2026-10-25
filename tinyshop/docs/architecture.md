@@ -73,7 +73,7 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 | `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
 | `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
-| `user-service` | build `tinyshop/services/user-service` | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
+| `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
 | `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
 | `payment-service` | build `tinyshop/services/payment-service` | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
 | `product-db` | `postgres:18-alpine` | Database `tinyshop_products` | 5432 | none | `product-network` |
@@ -85,6 +85,7 @@ One-off jobs: they run to completion during startup, then stay stopped (see [§1
 | Service (DNS name) | Image | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
 | `product-db-migrate` | build `tinyshop/services/product-service`, target `migrations` (`aspnet:10.0`) | Applies product-service's EF Core migrations, then exits | none | none | `product-network` |
+| `user-db-migrate` | build `tinyshop/services/user-service`, target `migrations` (`aspnet:10.0`) | Applies user-service's EF Core migrations, then exits | none | none | `user-network` |
 
 Debug-only containers, started only with `docker compose --profile debug` (see [§8](#8-local-development)):
 
@@ -342,7 +343,7 @@ The same database, reached by a different path, needs a different address. The p
 | Task on the host | Role | How |
 |---|---|---|
 | Run product-service (`dotnet run`) | `product_app` | The `ConnectionStrings:ProductDb` user secret uses `Username=product_app` |
-| Apply migrations (`dotnet ef database update`) | `product_migrator` | Pass it explicitly, so the read-only user secret is never used for schema changes: `dotnet ef database update --connection "Host=localhost;Port=5433;Database=tinyshop_products;Username=product_migrator;Password=…"` |
+| Apply migrations (`dotnet ef database update`) | `product_migrator` | Pass it explicitly, so the read-only user secret is never used for schema changes: `dotnet ef database update --connection "Host=localhost;Port=5433;Database=tinyshop_products;Username=product_migrator;Password=…"`. For product-service the app's own connection string must be configured too (the user secret), because dotnet ef starts the app's host. User-service has a design-time DbContext factory, so `--connection` alone is enough there (TS-011) |
 | Inspect or repair the database (`psql`, a GUI) | `product_app` to look, `postgres` only when nothing else will do | Through `localhost:5433` |
 
 
