@@ -1,0 +1,24 @@
+<!--
+  Infrastructure: implementations of Application's interfaces using external technology
+  (EF Core, Npgsql, PostgreSQL).
+  References Application (and through it, Domain). Nothing references Infrastructure except the Api,
+  which uses it only to register services.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.UserService.Application\TinyShop.UserService.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.UserService.UnitTests" />
+  </ItemGroup>
+
+</Project>

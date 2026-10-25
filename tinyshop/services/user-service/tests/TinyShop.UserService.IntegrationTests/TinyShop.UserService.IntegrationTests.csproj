@@ -1,0 +1,38 @@
+<!--
+  Integration tests: the real HTTP pipeline (in memory, via WebApplicationFactory), the real EF Core
+  queries and migrations, and a real PostgreSQL started in Docker by Testcontainers.
+  Requires a running Docker engine (Docker Desktop locally, preinstalled on GitHub's Ubuntu runners).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- xUnit v3 test projects are executables that run on Microsoft.Testing.Platform
+         (enabled for "dotnet test" in global.json). -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The Api project is the app under test; it brings in every other layer. -->
+    <ProjectReference Include="..\..\src\TinyShop.UserService.Api\TinyShop.UserService.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same database init script Compose uses, copied next to the test binaries so the test
+         container creates the same least-privilege roles. One script, tested on every CI run. -->
+    <None Include="..\..\..\..\infrastructure\postgres\initdb\*.sh"
+          Link="initdb\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -342,7 +342,7 @@ The same database, reached by a different path, needs a different address. The p
 | Task on the host | Role | How |
 |---|---|---|
 | Run product-service (`dotnet run`) | `product_app` | The `ConnectionStrings:ProductDb` user secret uses `Username=product_app` |
-| Apply migrations (`dotnet ef database update`) | `product_migrator` | Pass it explicitly, so the read-only user secret is never used for schema changes: `dotnet ef database update --connection "Host=localhost;Port=5433;Database=tinyshop_products;Username=product_migrator;Password=…"` |
+| Apply migrations (`dotnet ef database update`) | `product_migrator` | Pass it explicitly, so the read-only user secret is never used for schema changes: `dotnet ef database update --connection "Host=localhost;Port=5433;Database=tinyshop_products;Username=product_migrator;Password=…"`. For product-service the app's own connection string must be configured too (the user secret), because dotnet ef starts the app's host. User-service has a design-time DbContext factory, so `--connection` alone is enough there (TS-011) |
 | Inspect or repair the database (`psql`, a GUI) | `product_app` to look, `postgres` only when nothing else will do | Through `localhost:5433` |
 
 
