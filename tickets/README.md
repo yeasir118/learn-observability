@@ -29,7 +29,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
-| [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | To Do | 3 | TS-012 |
+| [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | In Review | 3 | TS-012 |
 
 Keep this table in sync with each ticket's front matter.
 

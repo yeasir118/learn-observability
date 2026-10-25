@@ -75,7 +75,7 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
 | `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
-| `payment-service` | build `tinyshop/services/payment-service` | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
+| `payment-service` | build `tinyshop/services/payment-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`, plus `grpc_health_probe`) | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
 | `product-db` | `postgres:18-alpine` | Database `tinyshop_products` | 5432 | none | `product-network` |
 | `user-db` | `postgres:18-alpine` | Database `tinyshop_users` | 5432 | none | `user-network` |
 | `order-db` | `postgres:18-alpine` | Database `tinyshop_orders` | 5432 | none | `order-network` |
@@ -351,7 +351,7 @@ The same database, reached by a different path, needs a different address. The p
 
 | # | Question | Decide in |
 |---|---|---|
-| Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | **Service side resolved in TS-012**: payment-service implements `grpc.health.v1` (and `/health/*` over HTTP/2). The port refuses HTTP/1.1 (verified: 400), so the BusyBox `wget` check the other services use can't work. Which probe the container uses is decided in TS-022 |
+| Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | **Resolved in TS-012/TS-022**: the service implements `grpc.health.v1`; the image contains `grpc_health_probe` (copied from its official image, a named stage so Dependabot tracks it), and Compose runs it. Rejected: a second HTTP/1.1 port (an extra port, and a check that doesn't exercise the gRPC stack). See [§10](#10-startup-migrations-and-health-checks) |
 | Q2 | Image pinning: major tag (current), exact patch tag, or digest? | **Resolved in TS-010**: see [§2](#2-container-inventory), notes |
 | Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
 | Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |
@@ -394,6 +394,7 @@ Two details:
 |---|---|
 | Runtime image `aspnet:10.0-alpine` | It includes BusyBox `wget`, which the Debian-based `aspnet` image lacks (it has neither `curl` nor `wget`), and it's much smaller. Trade-off: Alpine images use invariant globalization (no culture-specific formatting), which TinyShop doesn't need |
 | `wget -q --spider http://localhost:8080/health/ready` | Runs inside the container against its own port, so Docker's port forwarding isn't involved. Checks **readiness**, so "healthy" means "can serve requests, including reaching the database" |
+| payment-service: `grpc_health_probe -addr=localhost:8080` | Its port is HTTP/2-only and refuses `wget`'s HTTP/1.1 with a 400. The probe calls the standard `grpc.health.v1` Check and exits 0 only on `SERVING`. The service answers health checks without a cache, so the first probe after startup already sees `SERVING` |
 | Defined in Compose, not as a Dockerfile `HEALTHCHECK` | Orchestration settings live with the orchestration. Other platforms (Kubernetes) ignore Dockerfile health checks and define their own probes anyway |
 | `interval: 10s`, `timeout: 3s`, `retries: 3` | Unhealthy within about 30 seconds of losing the database |
 | `start_period: 20s`, `start_interval: 2s` | Checks every 2 seconds while starting, so the service turns healthy within seconds; failures during that period don't count |
