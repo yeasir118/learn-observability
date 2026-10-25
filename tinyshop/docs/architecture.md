@@ -351,7 +351,7 @@ The same database, reached by a different path, needs a different address. The p
 
 | # | Question | Decide in |
 |---|---|---|
-| Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | Step 4 |
+| Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | **Service side resolved in TS-012**: payment-service implements `grpc.health.v1` (and `/health/*` over HTTP/2). The port refuses HTTP/1.1 (verified: 400), so the BusyBox `wget` check the other services use can't work. Which probe the container uses is decided in TS-022 |
 | Q2 | Image pinning: major tag (current), exact patch tag, or digest? | **Resolved in TS-010**: see [§2](#2-container-inventory), notes |
 | Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
 | Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |

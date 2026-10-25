@@ -18,8 +18,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-008](TS-008-product-service-on-host.md) | Story | Product service on the host with EF Core | Done | 5 | TS-007 |
 | [TS-009](TS-009-product-service-integration-tests.md) | Task | Product service integration tests | In Progress | 3 | TS-008 |
 | [TS-010](TS-010-containerize-product-service.md) | Story | Containerize the product service | Done | 5 | TS-009 |
-| [TS-011](TS-011-user-service.md) | Story | User service | In Review | 5 | TS-010 |
-| [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | To Do | 5 | TS-010 |
+| [TS-011](TS-011-user-service.md) | Story | User service | Done | 5 | TS-010 |
+| [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | In Review | 5 | TS-010 |
 | [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | To Do | 8 | TS-011, TS-012 |
 | [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | To Do | 5 | TS-013 |
 | [TS-015](TS-015-frontend-container.md) | Task | Frontend container and nginx reverse proxy | To Do | 3 | TS-014 |
@@ -28,7 +28,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
-| [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | In Review | 3 | TS-011 |
+| [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
+| [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | To Do | 3 | TS-012 |
 
 Keep this table in sync with each ticket's front matter.
 

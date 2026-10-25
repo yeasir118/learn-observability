@@ -2,7 +2,7 @@
 key: TS-021
 title: Containerize the user service
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 3
 assignee: yeasir118
@@ -49,3 +49,4 @@ To be refined before pickup. Most files will be near-copies of product-service's
 - 2026-10-25: Implemented by the assignee (Dockerfile, Compose) on the TS-011 branch; reviewed and completed by Claude: fixed `ASPNETCORE_HTTPPORTS` (typo, should be `ASPNETCORE_HTTP_PORTS`), added the missing `USER_DB_*` entries to `.env.example` (CI's compose check would have failed), corrected a contract reference (§5.2), removed the build-time placeholder connection string (not needed with the design-time factory; verified the bundle builds without it), added comments, CI image matrix entry, Dependabot directory and architecture.md rows. Verified under a separate project: both slices healthy on empty volumes in 12 s, user 123 from backend-network, user-db reachable only from user-network, user_app read-only
 - 2026-10-25: Proxy recommendation: a separate `user-db-proxy` per database (architecture.md §2 and §8 already reserve `127.0.0.1:5434`), not one proxy attached to several database networks, which would bridge them
 - 2026-10-25: Added `user-db-proxy` (debug profile, `127.0.0.1:5434`, on user-network and debug-network only). Verified: not started by the default stack; with the debug profile it serves 5434 next to product-db-proxy on 5433; `user_app` logs in to `tinyshop_users` through it; the LAN IP is refused
+- 2026-10-25: Done, merged into master (PR #13)

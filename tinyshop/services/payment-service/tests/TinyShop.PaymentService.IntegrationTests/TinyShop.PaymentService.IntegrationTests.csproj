@@ -1,0 +1,28 @@
+<!--
+  Integration tests: the real gRPC pipeline (in memory, via WebApplicationFactory), called through
+  the generated gRPC client, as order-service will call it.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- xUnit v3 test projects are executables that run on Microsoft.Testing.Platform
+         (enabled for "dotnet test" in global.json). -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The app under test. Its generated client (GrpcServices="Both") is what the tests call. -->
+    <ProjectReference Include="..\..\src\TinyShop.PaymentService.Api\TinyShop.PaymentService.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

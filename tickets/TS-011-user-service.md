@@ -2,7 +2,7 @@
 key: TS-011
 title: User service
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 5
 assignee: claude
@@ -67,3 +67,4 @@ About 1,000 lines are near-identical. Candidates for a shared library (for examp
 - 2026-10-25: Noted that D21-D24 apply
 - 2026-10-25: Rescoped to the .NET solution (container work moved to TS-021) and implemented by Claude. Verified: build with warnings as errors, format check, 61 tests (24 unit, 37 integration), a mutation of the not-found code caught by 4 tests, and a run against a throwaway PostgreSQL with the shared role script: migrated as user_migrator, served as user_app, every contract case checked, 503 while the database was down and recovery afterwards
 - 2026-10-25: Fixed two issues found by the assignee: the design-time factory ignored user secrets (moved to the Api project, which owns the secrets, and made it read them; precedence verified for all four sources), and the UserSecretsId had been copied from product-service, so both services shared one secrets store (user-service now has its own)
+- 2026-10-25: Done, merged into master (PR #13)
