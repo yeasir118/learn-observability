@@ -10,7 +10,7 @@
 # services (HTTP/1.1) gets a 400 here. grpc_health_probe speaks gRPC and checks the standard
 # grpc.health.v1 protocol the service implements (architecture.md §9, Q1).
 # A named stage rather than "COPY --from=<image>": Dependabot only updates images in FROM lines.
-FROM ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.59 AS health-probe
+FROM ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.60 AS health-probe
 
 # ---- Build stage: SDK image, compiles and publishes --------------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
