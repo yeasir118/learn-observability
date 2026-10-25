@@ -1,0 +1,7 @@
+<!--
+  Domain: the payment model and its rules.
+  References nothing: every other layer depends on it, it depends on no one.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+</Project>

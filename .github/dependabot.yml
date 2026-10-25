@@ -39,6 +39,7 @@ updates:
     directories:
       - /tinyshop/services/product-service
       - /tinyshop/services/user-service
+      - /tinyshop/services/payment-service
     schedule:
       interval: weekly
     commit-message:

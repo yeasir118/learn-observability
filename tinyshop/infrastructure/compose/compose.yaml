@@ -222,6 +222,31 @@ services:
       start_period: 20s
       start_interval: 2s
 
+  # gRPC only (tinyshop.payment.v1.PaymentService), HTTP/2 only on 8080. No database, so no
+  # migration job and no dependencies to wait for.
+  payment-service:
+    image: tinyshop/payment-service:local
+    build:
+      context: ../..
+      dockerfile: services/payment-service/Dockerfile
+    environment:
+      # Production: gRPC reflection stays off (it describes the whole API to anyone who can
+      # connect). Tools then need the .proto file, e.g. grpcurl -import-path/-proto.
+      ASPNETCORE_ENVIRONMENT: Production
+    networks:
+      # Its own network, NOT backend-network: only order-service (TS-013) will share it, so the
+      # gateway and the other services can't call payments directly (architecture.md §3).
+      - payment-network
+    healthcheck:
+      # The port refuses HTTP/1.1, so wget can't check it. grpc_health_probe (in the image) calls
+      # the standard grpc.health.v1 Check over HTTP/2 and exits 0 only on SERVING.
+      test: ["CMD", "grpc_health_probe", "-addr=localhost:8080", "-connect-timeout=2s", "-rpc-timeout=2s"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+      start_interval: 2s
+
 networks:
   # Product service <-> its database only. No traffic to or from outside Docker.
   product-network:
@@ -233,6 +258,9 @@ networks:
     internal: true
   # User service <-> its database only.
   user-network:
+    internal: true
+  # order-service -> payment-service (gRPC) only.
+  payment-network:
     internal: true
 
 volumes:

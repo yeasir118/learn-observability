@@ -68,7 +68,8 @@ These are final unless a new ticket reopens one.
 | 2 | TS-010 | Containerize the product service |
 | 3 | TS-011 | User service (.NET solution) |
 | 3 | TS-021 | Containerize the user service |
-| 4 | TS-012 | Payment service (gRPC) |
+| 4 | TS-012 | Payment service (gRPC, .NET solution) |
+| 4 | TS-022 | Containerize the payment service |
 | 5 | TS-013 | Order service and the order flow |
 | 6 | TS-014 | Gateway and network segmentation |
 | 7 | TS-015 | Frontend container and nginx reverse proxy (React components written by Claude) |
@@ -100,3 +101,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-25: Added D21 to D23 from TS-010 (migrations, runtime image and health check, image pinning)
 - 2026-10-25: Added TS-020 (least-privilege database roles) and decision D24
 - 2026-10-25: TS-011 rescoped to the .NET solution; container work split into TS-021
+- 2026-10-25: TS-012 rescoped to the .NET solution; container work split into TS-022

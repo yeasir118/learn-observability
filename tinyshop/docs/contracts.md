@@ -464,6 +464,8 @@ Source of truth: [`../proto/tinyshop/payment/v1/payment.proto`](../proto/tinysho
 | RPC | `ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse)`, a single request and response (unary) |
 | Transport | HTTP/2 without TLS (h2c) at `payment-service:8080`, reachable only from order-service over `payment-network` |
 | Caller | order-service only |
+| Health | The standard gRPC health protocol: `grpc.health.v1.Health/Check` (empty service name) returns `SERVING`. Also `/health/live` and `/health/ready` over HTTP/2 (contracts §5.4); the port refuses HTTP/1.1 |
+| Reflection | `grpc.reflection.v1` lists and describes the service, for tools such as grpcurl. Enabled only where configured (`Grpc:EnableReflection`, on in Development) |
 
 ### 9.2 Messages
 
@@ -496,9 +498,13 @@ Business outcomes and technical failures are kept apart:
 | payment-service failed while processing | `INTERNAL` | none | 502 `payment_unavailable`, order `FAILED` |
 | payment-service couldn't be reached | `UNAVAILABLE` (raised by the gRPC client) | none | 502 `payment_unavailable`, order `FAILED` |
 | Call exceeded its deadline | `DEADLINE_EXCEEDED` | none | 504 `payment_timeout`, order stays `PENDING` |
+| Malformed request (an ID or the amount is 0 or negative; proto3 has no required fields, so a missing field arrives as 0) | `INVALID_ARGUMENT`, naming every bad field | none | 502 `payment_unavailable`, order `FAILED`: a malformed request is an order-service bug |
+| Caller cancelled the call | `CANCELLED` | none | (no one is waiting for the answer) |
 | Any other non-OK status | as returned | none | 502 `payment_unavailable`, order `FAILED` |
 
 A decline uses status `OK` because the payment system worked correctly and produced an answer; the answer was "no". gRPC error statuses are reserved for cases where no answer could be produced. In M1 no deadline is set ([§7](#7-default-timeouts-in-m1)), so `DEADLINE_EXCEEDED` can't happen yet.
+
+**Payment-service must report a passed deadline as `DEADLINE_EXCEEDED`, never as `CANCELLED`.** Both arrive in the server as the same cancelled token, but they mean different things to order-service: `DEADLINE_EXCEEDED` keeps the order `PENDING` (the payment may still have happened), anything else marks it `FAILED`. Payment-service's exception interceptor checks the call's deadline to tell them apart (TS-012).
 
 ### 9.4 Evolving the contract
 

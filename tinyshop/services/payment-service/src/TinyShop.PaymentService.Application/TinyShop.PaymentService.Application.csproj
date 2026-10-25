@@ -1,0 +1,24 @@
+<!--
+  Application: the payment use case.
+  References only Domain. There's no Infrastructure project: payment-service talks to no
+  database or external system yet. It gets one when a real payment provider is integrated.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.PaymentService.Domain\TinyShop.PaymentService.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Implementations are internal; the unit tests may still construct them directly. -->
+    <InternalsVisibleTo Include="TinyShop.PaymentService.UnitTests" />
+  </ItemGroup>
+
+</Project>

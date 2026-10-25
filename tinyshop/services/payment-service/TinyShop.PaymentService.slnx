@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TinyShop.PaymentService.Api/TinyShop.PaymentService.Api.csproj" />
+    <Project Path="src/TinyShop.PaymentService.Application/TinyShop.PaymentService.Application.csproj" />
+    <Project Path="src/TinyShop.PaymentService.Domain/TinyShop.PaymentService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TinyShop.PaymentService.IntegrationTests/TinyShop.PaymentService.IntegrationTests.csproj" />
+    <Project Path="tests/TinyShop.PaymentService.UnitTests/TinyShop.PaymentService.UnitTests.csproj" />
+  </Folder>
+</Solution>
