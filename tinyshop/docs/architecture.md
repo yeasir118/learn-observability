@@ -43,7 +43,7 @@ tinyshop/
     │   ├── compose.yaml          the single Compose file for the whole system
     │   ├── .env.example          committed template of every variable
     │   └── .env                  your values (git-ignored)
-    ├── postgres/                 database configuration or init scripts, if ever needed
+    ├── postgres/initdb/          init scripts mounted into every service database (role setup, §10)
     ├── load/                     k6 load-test scripts (TS-017)
     ├── scripts/                  helper scripts, such as the reachability check (TS-014)
     └── observability/            collector, Prometheus, Loki, Tempo, Grafana config (later epics)
@@ -286,7 +286,7 @@ The other outcomes (unknown user or product, dependency failures, timeouts) are 
   - Addresses of other services: `Services__<Name>Service__BaseUrl`, bound to `Services:<Name>Service:BaseUrl`. Example: `Services__ProductService__BaseUrl=http://product-service:8080`.
   - Listening port: `ASPNETCORE_HTTP_PORTS` (left at the image default of 8080 in containers).
 - **Postgres images** use the image's own variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
-- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_PASSWORD`, `FRONTEND_HOST_PORT`. `.env` is git-ignored, and `.env.example` documents every variable.
+- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_APP_PASSWORD`, `FRONTEND_HOST_PORT`. `.env` is git-ignored, and `.env.example` documents every variable.
 
 ## 8. Local development
 
@@ -336,6 +336,15 @@ So moving a service from the host into Docker changes both where it listens and 
 | Docker (step 2) | `8080` | `Host=product-db;Port=5432` |
 
 The same database, reached by a different path, needs a different address. The port numbers are configuration, not code.
+
+**Which role to use from the host** (see [§10, Database roles](#database-roles)):
+
+| Task on the host | Role | How |
+|---|---|---|
+| Run product-service (`dotnet run`) | `product_app` | The `ConnectionStrings:ProductDb` user secret uses `Username=product_app` |
+| Apply migrations (`dotnet ef database update`) | `product_migrator` | Pass it explicitly, so the read-only user secret is never used for schema changes: `dotnet ef database update --connection "Host=localhost;Port=5433;Database=tinyshop_products;Username=product_migrator;Password=…"` |
+| Inspect or repair the database (`psql`, a GUI) | `product_app` to look, `postgres` only when nothing else will do | Through `localhost:5433` |
+
 
 ## 9. Open questions
 
@@ -389,3 +398,29 @@ Two details:
 | `start_period: 20s`, `start_interval: 2s` | Checks every 2 seconds while starting, so the service turns healthy within seconds; failures during that period don't count |
 
 When the database is down, a readiness check can take longer than the 3-second timeout (Npgsql waits up to 15 seconds to connect). Docker records that as a timed-out check, which counts as a failure like an HTTP 503 does.
+
+### Database roles
+
+Each service database has three roles with one job each. The superuser exists only to initialise the database; neither the service nor its migration job ever uses it.
+
+| Role | Used by | Privileges |
+|---|---|---|
+| `postgres` (superuser) | Database initialisation; a human, in an emergency | Everything |
+| `<service>_migrator`, e.g. `product_migrator` | The `<service>-db-migrate` job | Owns the `public` schema, so it can create, alter and drop tables there. Not a superuser, can't create roles or databases |
+| `<service>_app`, e.g. `product_app` | The service | `CONNECT`, `USAGE` on the schema, and only the table privileges its contract needs: `SELECT` for product-service (read-only), `SELECT, INSERT, UPDATE` later for order-service. No DDL, no temporary tables |
+
+How it's set up: one shared script, `infrastructure/postgres/initdb/10-create-service-roles.sh`, is mounted into every service database's `/docker-entrypoint-initdb.d`. Each database configures it through its container's environment (`DB_ROLE_PREFIX`, `MIGRATOR_PASSWORD`, `APP_PASSWORD`, `APP_TABLE_PRIVILEGES`). It:
+
+- creates both roles, with passwords passed as psql variables (never pasted into SQL by the shell);
+- revokes everything from `PUBLIC` (every role) on the database and the schema, then lets in only these two roles;
+- makes the migrator the owner of the `public` schema;
+- sets **default privileges**: every table the migrator creates later, in any future migration, is automatically granted to the app role with exactly the configured privileges (and, when `INSERT` is granted, usage of the tables' identity sequences);
+- validates `APP_TABLE_PRIVILEGES` (only `SELECT`, `INSERT`, `UPDATE`, `DELETE`), because the list is pasted into SQL.
+
+Things to know:
+
+- **The script runs only when the volume is created.** Changing it, or a password in `.env`, has no effect on an existing database until the volume is recreated (`docker compose down -v`) or the change is made inside Postgres.
+- **The database health check uses TCP** (`pg_isready -h 127.0.0.1`). During initialisation the image runs a temporary server on a Unix socket only, so a socket-based check would report "ready" before the roles exist and start the migration job too early.
+- **The integration tests use the same script and the same roles** (Testcontainers mounts it), and include tests that the app role is refused writes and schema changes. A broken script fails CI.
+
+Not done (out of scope for M1): rotating passwords, and short-lived credentials issued on demand (for example by Vault; see the roadmap).

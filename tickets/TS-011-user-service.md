@@ -42,6 +42,8 @@ Technically: build `user-service`, `user-db` and `user-db-proxy` by following th
 - [ ] AC5: Your notes list every piece of code or configuration you copied from product-service, as input for deciding whether to share it.
 
 ## Technical notes
+- Follows decisions D21-D24: a migration bundle job, the Alpine runtime with a readiness health check, and least-privilege roles from the shared `infrastructure/postgres/initdb` script (`DB_ROLE_PREFIX=user`, `APP_TABLE_PRIVILEGES=SELECT`).
+
 To be refined before pickup. Points to discuss: whether to share code (a `Directory.Build.props`, a common library for Problem Details and health checks), and whether CI should build images with a matrix strategy.
 
 ## Definition of done
@@ -50,3 +52,4 @@ To be refined before pickup. Points to discuss: whether to share code (a `Direct
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-25: Noted that D21-D24 apply

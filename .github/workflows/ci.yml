@@ -129,6 +129,26 @@ jobs:
       - name: No project references across services
         run: bash tinyshop/infrastructure/scripts/check-service-boundaries.sh
 
+  # Lints every shell script in the repository (init scripts, helper scripts). Shell code fails in
+  # subtle ways (unquoted variables, ignored errors); ShellCheck catches most of them statically.
+  shell:
+    name: shell
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: ShellCheck every tracked .sh file
+        # A pinned image rather than the runner's preinstalled shellcheck, so CI and local runs use
+        # the same version (the same command works locally with Docker).
+        run: |
+          mapfile -t scripts < <(git ls-files '*.sh')
+          echo "Checking ${#scripts[@]} script(s):" "${scripts[@]}"
+          docker run --rm -v "$PWD:/mnt:ro" -w /mnt koalaman/shellcheck:v0.10.0 "${scripts[@]}"
+
   # Builds each containerized service's image, exactly as Compose will (tinyshop/ as the
   # build context). Images are only built, never pushed: there's no registry and no deployment.
   image:
@@ -171,7 +191,7 @@ jobs:
     # Run even when a needed job failed or was skipped. Without this, ci-passed would itself be
     # skipped, and GitHub treats a skipped required check as passing.
     if: always()
-    needs: [proto, compose, dotnet, service-boundaries, image]
+    needs: [proto, compose, dotnet, service-boundaries, image, shell]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -44,6 +44,8 @@ Technically: build `order-service`, `order-db` and `order-db-proxy`. Implement t
 - [ ] AC6: Your notes walk through each known gap in contracts.md §8 with a concrete scenario of how it would actually happen.
 
 ## Technical notes
+- Follows decisions D21-D24. Unlike the other services, its app role writes: `APP_TABLE_PRIVILEGES=SELECT, INSERT, UPDATE` (orders are created and their status updated, never deleted).
+
 To be refined before pickup. Points to discuss: typed clients against named clients, how to tell "couldn't connect" apart from "timeout" in .NET exceptions (`HttpRequestException` with `SocketException` inside, versus `TaskCanceledException` wrapping a `TimeoutException`), mapping `RpcException` status codes, and where the translation logic should live.
 
 ## Definition of done
@@ -52,3 +54,4 @@ To be refined before pickup. Points to discuss: typed clients against named clie
 
 ## Activity log
 - 2026-10-18: Created
+- 2026-10-25: Noted that D21-D24 apply, and the app role's write privileges
