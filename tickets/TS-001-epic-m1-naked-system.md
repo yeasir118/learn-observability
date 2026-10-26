@@ -44,7 +44,7 @@ These are final unless a new ticket reopens one.
 | D13 | TLS is out of scope for M1 and is planned as epic M1.5 | |
 | D14 | Containers, ports and networks follow [architecture.md](../tinyshop/docs/architecture.md); HTTP and gRPC behaviour follows [contracts.md](../tinyshop/docs/contracts.md) | Step-0 output |
 | D15 | One Compose file at `tinyshop/infrastructure/compose/compose.yaml`, extended ticket by ticket. Infrastructure files live under `tinyshop/infrastructure/`; each Dockerfile lives next to the code it builds ([layout](../tinyshop/docs/architecture.md#repository-layout)) | `compose.yaml` is the filename the Compose specification prefers. Keeps `tinyshop/` uncluttered |
-| D16 | Each .NET service follows clean architecture: four projects (Api, Application, Domain, Infrastructure) with dependencies pointing inward. The Api uses controllers, API versioning (optional `api-version`, default 1.0) and Swagger (Development only). Each service is a self-contained folder `tinyshop/services/<service>/` with its own solution, `src/`, `tests/` and Dockerfile; no project may reference another service's projects (checked in CI). Shared at `tinyshop/`: build settings (`Directory.Build.props`), central package versions (`Directory.Packages.props`), a pinned SDK (`global.json`) and `.editorconfig` | Changed from minimal APIs on 2026-10-18, at the assignee's request |
+| D16 | Each .NET service follows clean architecture: four projects (Api, Application, Domain, Infrastructure) with dependencies pointing inward. The Api uses controllers, API versioning (optional `api-version`, default 1.0) and Swagger (Development only). Each service is a self-contained folder `tinyshop/services/<service>/` with its own solution, `src/`, `tests/` and Dockerfile; no project may reference another service's projects (checked in CI; shared plumbing under `tinyshop/shared/` is the one exception, see D25). Shared at `tinyshop/`: build settings (`Directory.Build.props`), central package versions (`Directory.Packages.props`), a pinned SDK (`global.json`) and `.editorconfig` | Changed from minimal APIs on 2026-10-18, at the assignee's request |
 | D17 | Tests: xUnit, `WebApplicationFactory` for in-process HTTP tests, Testcontainers for real Postgres in tests | Tests are written alongside each service |
 | D18 | CI is GitHub Actions, introduced in TS-006 and extended by every ticket that adds something checkable (see [tickets/README.md](README.md#continuous-integration-policy)) | |
 | D19 | Local development secrets use `dotnet user-secrets` (host) and `.env` (Compose). Neither is committed | |
@@ -53,6 +53,7 @@ These are final unless a new ticket reopens one.
 | D22 | .NET services run on `aspnet:10.0-alpine` and have a Compose health check on `/health/ready` using BusyBox `wget` | Decided in TS-010; architecture.md §10 |
 | D23 | Images: official base images pinned to a major version, small third-party images to an exact version, Actions to a commit SHA; Dependabot watches all of them, plus NuGet | Decided in TS-010; architecture.md §2 |
 | D24 | Every service database has three roles: the superuser (initialisation only), `<service>_migrator` (owns the schema, used by the migration job) and `<service>_app` (only the DML the service needs), created by the shared `infrastructure/postgres/initdb` script | Decided in TS-020; architecture.md §10, Database roles |
+| D25 | Technical plumbing shared by the .NET services (Problem Details, versioning, Swagger, health endpoints, database exception translation, test support; later telemetry) lives in projects under `tinyshop/shared/`, referenced as project references. Business logic, DTOs, contracts, service-specific error codes and clients for other services are never shared | The microservice chassis pattern. Project references, not a NuGet package: one repository, one team, no registry. Decided 2026-10-27; implemented in TS-024 |
 
 ## Child tickets
 | Step | Key | Title |
@@ -72,6 +73,7 @@ These are final unless a new ticket reopens one.
 | 4 | TS-022 | Containerize the payment service |
 | 5 | TS-013 | Order service and the order flow (.NET solution) |
 | 5 | TS-023 | Containerize the order service |
+| 5 | TS-024 | Extract shared service plumbing (`TinyShop.ServiceDefaults`) |
 | 6 | TS-014 | Gateway and network segmentation |
 | 7 | TS-015 | Frontend container and nginx reverse proxy (React components written by Claude) |
 | 8 | TS-016 | Fault injection switches |
@@ -104,3 +106,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-25: TS-011 rescoped to the .NET solution; container work split into TS-021
 - 2026-10-25: TS-012 rescoped to the .NET solution; container work split into TS-022
 - 2026-10-26: TS-013 rescoped to the .NET solution; container work split into TS-023
+- 2026-10-27: Added TS-024 (shared service plumbing) and decision D25; TS-014 now depends on it
