@@ -2,13 +2,13 @@
 key: TS-023
 title: Containerize the order service
 type: Story
-status: To Do
+status: In Progress
 priority: High
 points: 3
 assignee: yeasir118
 reporter: claude
 epic: TS-001
-labels: [m1, docker, compose, networking, grpc, distributed-systems, ci, needs-refinement]
+labels: [m1, docker, compose, networking, grpc, distributed-systems, ci]
 depends_on: [TS-013, TS-021, TS-022]
 created: 2026-10-26
 ---
@@ -33,8 +33,8 @@ Run order-service and its database in Compose, wired to user-service and product
 - CI: order-service in the `image` matrix (with `migrations: true`); its folder in Dependabot's `docker` directories
 
 ## Acceptance criteria
-- [ ] AC1: `docker compose up` on empty volumes brings up every slice; order-service becomes healthy after its migration job exits 0. From a container on `backend-network`, `POST http://order-service:8080/orders` with `{ "userId": 123, "productId": 2, "quantity": 2 }` returns 201 with a `PAID` order and the Keyboard snapshot.
-- [ ] AC2: `order-db` is reachable only by `order-service` and `order-db-migrate`. order-service reaches payment-service; nothing else on `backend-network` does.
+- [x] AC1: `docker compose up` on empty volumes brings up every slice; order-service becomes healthy after its migration job exits 0. From a container on `backend-network`, `POST http://order-service:8080/orders` with `{ "userId": 123, "productId": 2, "quantity": 2 }` returns 201 with a `PAID` order and the Keyboard snapshot.
+- [x] AC2: `order-db` is reachable only by `order-service` and `order-db-migrate`. order-service reaches payment-service; nothing else on `backend-network` does.
 - [ ] AC3: **Experiment:** repeat TS-013's AC5 inside Compose (`docker compose stop product-service`, then `payment-service`). Compare the response time and the .NET error (`HttpRequestError`, gRPC status detail) with TS-013's local run, which went through a socat proxy, and explain the difference.
 - [ ] AC4: **Experiment:** stop `order-db` and place an order, then check `/health/live` and `/health/ready` and what Docker reports for the container.
 - [ ] AC5: CI builds both order-service images; `ci-passed` covers them.
@@ -48,3 +48,4 @@ To be refined before pickup. Most files will be near-copies of user-service's (T
 
 ## Activity log
 - 2026-10-26: Created, split out of TS-013
+- 2026-10-27: Implemented by the assignee (Dockerfile, Compose), reviewed and completed by Claude. Fixed: `APP_TABLE_PRIVILEGES` included `DELETE` (orders are never deleted; the integration tests assert it's refused); the migrations image ran as root; a leftover placeholder connection string (the design-time factory makes it unnecessary). Decided: order-service's `depends_on` covers only order-db and its migration job, not user-, product- or payment-service (it starts and is ready without them, and answers 502/504 while one is down). Added `.env.example` entries, CI image matrix, Dependabot. Verified under a separate project on empty volumes: every service healthy in 12 s, both order images run as UID 1654; AC1 201 `PAID` with the Keyboard snapshot from `backend-network`; AC2: from `backend-network` payment-service and every database don't resolve, from `payment-network` only order- and payment-service do; `order_app` has exactly SELECT, INSERT, UPDATE. AC3 and AC4 (experiments) are left to the assignee

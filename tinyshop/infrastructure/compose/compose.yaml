@@ -10,11 +10,14 @@ name: tinyshop
 # Top-level "x-" keys are ignored by Compose, which makes them a place to define values once and
 # reuse them with YAML anchors (&name) and aliases (*name).
 # Least privilege (architecture.md §10, "Database roles"): each migration job connects as the role
-# that owns its schema, each service as a role that can only read. None uses the superuser.
+# that owns its schema, each service as a role with only the table privileges it needs (read-only,
+# except order_app, which also inserts and updates). None uses the superuser.
 x-product-db-migrator-connection: &product-db-migrator-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_migrator;Password=${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}"
 x-product-db-app-connection: &product-db-app-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_app;Password=${PRODUCT_DB_APP_PASSWORD:?set PRODUCT_DB_APP_PASSWORD in .env}"
 x-user-db-migrator-connection: &user-db-migrator-connection "Host=user-db;Port=5432;Database=tinyshop_users;Username=user_migrator;Password=${USER_DB_MIGRATOR_PASSWORD:?set USER_DB_MIGRATOR_PASSWORD in .env}"
 x-user-db-app-connection: &user-db-app-connection "Host=user-db;Port=5432;Database=tinyshop_users;Username=user_app;Password=${USER_DB_APP_PASSWORD:?set USER_DB_APP_PASSWORD in .env}"
+x-order-db-migrator-connection: &order-db-migrator-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_migrator;Password=${ORDER_DB_MIGRATOR_PASSWORD:?set ORDER_DB_MIGRATOR_PASSWORD in .env}"
+x-order-db-app-connection: &order-db-app-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_app;Password=${ORDER_DB_APP_PASSWORD:?set ORDER_DB_APP_PASSWORD in .env}"
 
 services:
   # Service names are DNS names on the Docker networks. Hostnames may not
@@ -33,7 +36,7 @@ services:
       DB_ROLE_PREFIX: product
       MIGRATOR_PASSWORD: ${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}
       APP_PASSWORD: ${PRODUCT_DB_APP_PASSWORD:?set PRODUCT_DB_APP_PASSWORD in .env}
-      # product-service only reads (contracts.md §5.1); order-service will need more.
+      # product-service only reads (contracts.md §5.1).
       APP_TABLE_PRIVILEGES: SELECT
     volumes:
       # Postgres 18 images keep their data under /var/lib/postgresql/18/docker,
@@ -70,7 +73,7 @@ services:
       DB_ROLE_PREFIX: user
       MIGRATOR_PASSWORD: ${USER_DB_MIGRATOR_PASSWORD:?set USER_DB_MIGRATOR_PASSWORD in .env}
       APP_PASSWORD: ${USER_DB_APP_PASSWORD:?set USER_DB_APP_PASSWORD in .env}
-      # user-service only reads (contracts.md §5.2); order-service will need more.
+      # user-service only reads (contracts.md §5.2).
       APP_TABLE_PRIVILEGES: SELECT
     volumes:
       # Postgres 18 images keep their data under /var/lib/postgresql/18/docker,
@@ -86,6 +89,33 @@ services:
       # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
       # that only listens on a Unix socket; a socket check would report "ready" before the roles
       # exist, and the migration job would start too early.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Same setup as product-db above (see its comments), except the app role's privileges.
+  order-db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: tinyshop_orders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${ORDER_DB_ADMIN_PASSWORD:?set ORDER_DB_ADMIN_PASSWORD in .env}
+      # Read by the init script below: creates order_migrator and order_app.
+      DB_ROLE_PREFIX: order
+      MIGRATOR_PASSWORD: ${ORDER_DB_MIGRATOR_PASSWORD:?set ORDER_DB_MIGRATOR_PASSWORD in .env}
+      APP_PASSWORD: ${ORDER_DB_APP_PASSWORD:?set ORDER_DB_APP_PASSWORD in .env}
+      # The only service that writes: orders are inserted (PENDING) and updated (PAID/FAILED),
+      # never deleted, so no DELETE. A bug or an injected query can't erase order history.
+      # Also grants the identity sequence (USAGE, SELECT), which an INSERT needs for new IDs.
+      APP_TABLE_PRIVILEGES: SELECT, INSERT, UPDATE
+    volumes:
+      - order-db-data:/var/lib/postgresql
+      - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - order-network
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
@@ -130,6 +160,21 @@ services:
       user-db:
         condition: service_healthy
 
+  # Debug-only entry point from the host to order-db, at 127.0.0.1:5435 (architecture.md §8).
+  order-db-proxy:
+    image: alpine/socat:1.8.1.1
+    profiles: [debug]
+    # Same as product-db-proxy, forwarding to order-db instead.
+    command: TCP-LISTEN:5432,fork,reuseaddr TCP:order-db:5432
+    ports:
+      - "127.0.0.1:5435:5432"
+    networks:
+      - order-network
+      - debug-network
+    depends_on:
+      order-db:
+        condition: service_healthy
+
   # One-off job: applies product-service's EF Core migrations, then exits (architecture.md §10).
   # Startup chain: product-db (healthy) -> product-db-migrate (exit 0) -> product-service.
   product-db-migrate:
@@ -162,6 +207,22 @@ services:
       - user-network
     depends_on:
       user-db:
+        condition: service_healthy
+    restart: "no"
+
+  # Same as product-db-migrate: order-db (healthy) -> order-db-migrate (exit 0) -> order-service.
+  order-db-migrate:
+    image: tinyshop/order-service-migrations:local
+    build:
+      context: ../..
+      dockerfile: services/order-service/Dockerfile
+      target: migrations
+    environment:
+      ConnectionStrings__OrderDb: *order-db-migrator-connection
+    networks:
+      - order-network
+    depends_on:
+      order-db:
         condition: service_healthy
     restart: "no"
 
@@ -222,6 +283,48 @@ services:
       start_period: 20s
       start_interval: 2s
 
+  # The order flow (architecture.md §6): calls user- and product-service over HTTP/1.1 on
+  # backend-network, and payment-service over gRPC (HTTP/2) on payment-network. Same setup as
+  # product-service otherwise: no published ports, starts after its migration job.
+  order-service:
+    image: tinyshop/order-service:local
+    build:
+      context: ../..
+      dockerfile: services/order-service/Dockerfile
+    environment:
+      ConnectionStrings__OrderDb: *order-db-app-connection
+      ASPNETCORE_ENVIRONMENT: Production
+      # The other services' addresses (architecture.md §8 naming). Service names resolve through
+      # Docker's DNS on the networks both containers share. Required: the app fails at startup
+      # without them. "http://" for payment-service means HTTP/2 without TLS (h2c), the only
+      # protocol its port speaks.
+      Services__UserService__BaseUrl: http://user-service:8080
+      Services__ProductService__BaseUrl: http://product-service:8080
+      Services__PaymentService__BaseUrl: http://payment-service:8080
+    networks:
+      - order-network     # order-db
+      - backend-network   # the gateway calls it; it calls user- and product-service
+      - payment-network   # it calls payment-service; nothing else on this network can
+    # Only its own database and schema. Deliberately NOT user-, product- or payment-service:
+    # order-service starts and is ready without them, and answers 502/504 while one is down
+    # (contracts.md §6). Waiting for them would also make one unhealthy service keep this one
+    # from starting at all: the cascade that readiness avoids (contracts.md §5.4).
+    # "docker compose up" starts every service anyway.
+    depends_on:
+      order-db:
+        condition: service_healthy
+      order-db-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # /health/ready checks order-db only (contracts.md §5.4). The port speaks HTTP/1.1,
+      # so the same wget check as product-service works.
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+      start_interval: 2s
+
   # gRPC only (tinyshop.payment.v1.PaymentService), HTTP/2 only on 8080. No database, so no
   # migration job and no dependencies to wait for.
   payment-service:
@@ -234,8 +337,8 @@ services:
       # connect). Tools then need the .proto file, e.g. grpcurl -import-path/-proto.
       ASPNETCORE_ENVIRONMENT: Production
     networks:
-      # Its own network, NOT backend-network: only order-service (TS-013) will share it, so the
-      # gateway and the other services can't call payments directly (architecture.md §3).
+      # Its own network, NOT backend-network: only order-service shares it, so the gateway and
+      # the other services can't call payments directly (architecture.md §3).
       - payment-network
     healthcheck:
       # The port refuses HTTP/1.1, so wget can't check it. grpc_health_probe (in the image) calls
@@ -262,7 +365,11 @@ networks:
   # order-service -> payment-service (gRPC) only.
   payment-network:
     internal: true
+  # Order service <-> its database only.
+  order-network:
+    internal: true
 
 volumes:
   product-db-data:
   user-db-data:
+  order-db-data:

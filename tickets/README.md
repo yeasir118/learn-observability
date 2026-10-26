@@ -30,7 +30,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
 | [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | In Review | 3 | TS-012 |
-| [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | To Do | 3 | TS-013, TS-021, TS-022 |
+| [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | In Progress | 3 | TS-013, TS-021, TS-022 |
 
 Keep this table in sync with each ticket's front matter.
 
