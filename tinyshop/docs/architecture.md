@@ -371,6 +371,7 @@ product-db ──healthy──► product-db-migrate ──exited 0──► pro
 - `product-service` starts only after `product-db-migrate` has **exited with code 0** (`condition: service_completed_successfully`). A failed migration (non-zero exit) leaves the service stopped, so it never serves requests against a missing or outdated schema.
 - The migration job has `restart: "no"`: it's a job, not a server, and a failure must stop the chain rather than loop.
 - Re-running is safe: migrations already applied are skipped ("No migrations were applied. The database is already up to date").
+- A service waits only for **its own** database and migration job, never for the services it calls. order-service's `depends_on` lists `order-db` and `order-db-migrate`, not user-, product- or payment-service: it starts and is ready without them and answers 502/504 while one is down (contracts.md §6). Waiting on them would let one unhealthy service keep another from starting, the cascade the readiness rule avoids (contracts.md §5.4). Decided in TS-023.
 - Services also cope with the database disappearing *later*: they don't connect at startup, and every request or readiness check simply fails (503) until it's back. So there's no retry loop at startup.
 
 ### Migrations: a bundle in a one-off container
@@ -385,7 +386,7 @@ How it's built: the service's Dockerfile has a `migrations` target. Its build st
 
 Two details:
 
-- `dotnet ef` runs `Program.cs` up to `builder.Build()` to find the `DbContext`, which triggers the service's "connection string is required" check. The bundle build doesn't connect anywhere, so the Dockerfile sets a placeholder connection string for that single `RUN` command only.
+- Without help, `dotnet ef` runs `Program.cs` up to `builder.Build()` to find the `DbContext`, which triggers the service's startup checks ("connection string is required"). product-service's Dockerfile therefore sets a placeholder connection string for that single `RUN` command. user-service and order-service have a design-time `DbContext` factory (`Api/DesignTime/`), so `dotnet ef` never starts the app's host and their Dockerfiles need no placeholder.
 - The migrations image is Debian-based (`aspnet:10.0`), unlike the Alpine runtime image, because the bundle is built in the Debian-based SDK image and targets its C library (glibc).
 
 ### Health check
@@ -409,7 +410,7 @@ Each service database has three roles with one job each. The superuser exists on
 |---|---|---|
 | `postgres` (superuser) | Database initialisation; a human, in an emergency | Everything |
 | `<service>_migrator`, e.g. `product_migrator` | The `<service>-db-migrate` job | Owns the `public` schema, so it can create, alter and drop tables there. Not a superuser, can't create roles or databases |
-| `<service>_app`, e.g. `product_app` | The service | `CONNECT`, `USAGE` on the schema, and only the table privileges its contract needs: `SELECT` for product-service (read-only), `SELECT, INSERT, UPDATE` later for order-service. No DDL, no temporary tables |
+| `<service>_app`, e.g. `product_app` | The service | `CONNECT`, `USAGE` on the schema, and only the table privileges its contract needs: `SELECT` for product-service and user-service (read-only), `SELECT, INSERT, UPDATE` for order-service (orders are never deleted). No DDL, no temporary tables |
 
 How it's set up: one shared script, `infrastructure/postgres/initdb/10-create-service-roles.sh`, is mounted into every service database's `/docker-entrypoint-initdb.d`. Each database configures it through its container's environment (`DB_ROLE_PREFIX`, `MIGRATOR_PASSWORD`, `APP_PASSWORD`, `APP_TABLE_PRIVILEGES`). It:
 

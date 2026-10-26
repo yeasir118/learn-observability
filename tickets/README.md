@@ -20,7 +20,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-010](TS-010-containerize-product-service.md) | Story | Containerize the product service | Done | 5 | TS-009 |
 | [TS-011](TS-011-user-service.md) | Story | User service | Done | 5 | TS-010 |
 | [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | In Review | 5 | TS-010 |
-| [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | To Do | 8 | TS-011, TS-012 |
+| [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | In Review | 8 | TS-011, TS-012 |
 | [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | To Do | 5 | TS-013 |
 | [TS-015](TS-015-frontend-container.md) | Task | Frontend container and nginx reverse proxy | To Do | 3 | TS-014 |
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | To Do | 3 | TS-015 |
@@ -30,6 +30,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
 | [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | In Review | 3 | TS-012 |
+| [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | In Progress | 3 | TS-013, TS-021, TS-022 |
 
 Keep this table in sync with each ticket's front matter.
 

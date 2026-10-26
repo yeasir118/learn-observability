@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TinyShop.OrderService.Api/TinyShop.OrderService.Api.csproj" />
+    <Project Path="src/TinyShop.OrderService.Application/TinyShop.OrderService.Application.csproj" />
+    <Project Path="src/TinyShop.OrderService.Domain/TinyShop.OrderService.Domain.csproj" />
+    <Project Path="src/TinyShop.OrderService.Infrastructure/TinyShop.OrderService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TinyShop.OrderService.IntegrationTests/TinyShop.OrderService.IntegrationTests.csproj" />
+    <Project Path="tests/TinyShop.OrderService.UnitTests/TinyShop.OrderService.UnitTests.csproj" />
+  </Folder>
+</Solution>
