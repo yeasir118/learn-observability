@@ -1,0 +1,23 @@
+<!--
+  Application: the order use cases. Declares the interfaces it needs (orders storage, the user
+  directory, the product catalog, the payment gateway) and leaves their implementation to
+  Infrastructure, so it knows nothing about HTTP, gRPC or PostgreSQL.
+  References only Domain.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.OrderService.Domain\TinyShop.OrderService.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Service implementations are internal; the unit tests may still construct them directly. -->
+    <InternalsVisibleTo Include="TinyShop.OrderService.UnitTests" />
+  </ItemGroup>
+
+</Project>

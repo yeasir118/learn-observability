@@ -329,7 +329,7 @@ Create an order and attempt payment. The flow is shown step by step in [architec
   | 504 | `dependency_timeout` | user-service or product-service timed out | not created |
   | 502 | `payment_unavailable` | payment-service failed or couldn't be reached | `FAILED` |
   | 504 | `payment_timeout` | the payment call timed out | stays `PENDING` |
-  | 503 | `service_unavailable` | order-db unreachable | not created, or see [§8](#8-known-gaps) |
+  | 503 | `service_unavailable` | order-db unreachable | not created; or, if the status update after payment failed, stays `PENDING` and the error includes `orderId` (see [§8](#8-known-gaps)) |
   | 500 | `internal_error` | unexpected error | depends on where it failed |
 
   Validation error example:
@@ -409,11 +409,13 @@ Each row is one outcome of one call that order-service makes during `POST /order
 | payment-service | `UNAVAILABLE` (couldn't connect) | 502 | `payment_unavailable` | `FAILED` |
 | payment-service | `INTERNAL` or any other non-OK status | 502 | `payment_unavailable` | `FAILED` |
 | payment-service | `DEADLINE_EXCEEDED` / timeout | 504 | `payment_timeout` | stays `PENDING` |
-| order-db | status update fails (after payment) | 503 | `service_unavailable` | stays `PENDING` (see [§8](#8-known-gaps)) |
+| order-db | status update fails (after payment) | 503, with `orderId` | `service_unavailable` | stays `PENDING` (see [§8](#8-known-gaps)) |
 
 Why:
 
 - **A 400 from user-service or product-service is order-service's own bug.** Order-service built a bad request, so it isn't the client's fault and isn't the dependency's fault either. It's an internal error.
+- **A 404 means "not found" only when it carries the dependency's not-found `code`** (`user_not_found`, `product_not_found`). A 404 `not_found` means no route matched: order-service called the wrong URL, which is "other 4xx" (500), not a 422 for the client.
+- **A 200 whose body isn't a valid resource** (unparseable, wrong ID, missing or out-of-range fields) is an unexpected response from the dependency: 502 `dependency_failed` (§2.2).
 - **A connection failure to payment-service marks the order `FAILED`.** The request never reached payment-service, so nothing was charged. The same is assumed for `INTERNAL`, since payment-service is a simulation with no side effects.
 - **A payment timeout leaves the order `PENDING`.** The request may have reached payment-service and been processed after the caller stopped waiting, so the outcome is unknown and `FAILED` could be a lie.
 

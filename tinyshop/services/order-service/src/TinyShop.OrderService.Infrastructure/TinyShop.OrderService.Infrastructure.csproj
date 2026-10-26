@@ -1,0 +1,43 @@
+<!--
+  Infrastructure: implementations of Application's interfaces using external technology:
+  EF Core and Npgsql (order-db), typed HttpClients (user-service, product-service) and a
+  generated gRPC client (payment-service).
+  References Application (and through it, Domain). Nothing references Infrastructure except the Api,
+  which uses it only to register services.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.OrderService.Application\TinyShop.OrderService.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <!-- gRPC client: the runtime (Google.Protobuf, Grpc.Net.ClientFactory) plus the build-time
+         code generator (Grpc.Tools), which isn't needed by anything that references this project. -->
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Net.ClientFactory" />
+    <PackageReference Include="Grpc.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same contract payment-service implements, referenced from tinyshop/proto, never copied.
+         "Client": only PaymentService.PaymentServiceClient and the messages are generated (into obj/). -->
+    <Protobuf Include="..\..\..\..\proto\tinyshop\payment\v1\payment.proto"
+              ProtoRoot="..\..\..\..\proto"
+              GrpcServices="Client"
+              Link="Protos\payment.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.OrderService.UnitTests" />
+  </ItemGroup>
+
+</Project>

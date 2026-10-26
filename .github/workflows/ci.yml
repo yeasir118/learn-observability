@@ -91,6 +91,8 @@ jobs:
             solution: TinyShop.UserService.slnx
           - service: payment-service
             solution: TinyShop.PaymentService.slnx
+          - service: order-service
+            solution: TinyShop.OrderService.slnx
     defaults:
       run:
         working-directory: tinyshop/services/${{ matrix.service }}
