@@ -53,6 +53,7 @@ Decisions made during implementation (the refinement points from the original ti
 - **Where the translation lives:** in Infrastructure (`Clients/DependencyHttp.cs` for HTTP, `Clients/PaymentGateway.cs` for gRPC). Transport details stop there; the use case (`OrderPlacement`) sees values, `null`, or Application exceptions, and the Api maps those to status codes.
 - **Couldn't connect vs. timeout in .NET:** `HttpRequestException` (its `HttpRequestError` says ConnectionError, NameResolutionError, ResponseEnded…) means no response; `OperationCanceledException` while *our* token isn't cancelled means `HttpClient.Timeout` fired. If our token is cancelled, our caller left: that's a cancellation, not a timeout.
 - **gRPC:** `DEADLINE_EXCEEDED` → timeout (order stays `PENDING`); `CANCELLED` caused by our own caller → cancellation; any other status → `payment_unavailable` (order `FAILED`).
+- **Duplication:** the files listed in [TS-011's duplication list](TS-011-user-service.md#what-was-copied-from-product-service-input-for-the-share-it-discussion) were copied a third time (with a generalised exception handler and a few new error codes). The shared-library question TS-011 raised is still open; it wasn't decided before this ticket.
 - Ambiguous responses, now written into contracts.md §6: a 404 is "not found" only with the expected `code`; a 200 with an invalid body is a 502; a failed status update after payment is a 503 **with** `orderId`.
 
 ## Definition of done
