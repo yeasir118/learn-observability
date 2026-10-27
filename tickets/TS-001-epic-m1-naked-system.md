@@ -74,6 +74,7 @@ These are final unless a new ticket reopens one.
 | 5 | TS-013 | Order service and the order flow (.NET solution) |
 | 5 | TS-023 | Containerize the order service |
 | 5 | TS-024 | Extract shared service plumbing (`TinyShop.ServiceDefaults`) |
+| 5 | TS-025 | Remove repetition from compose.yaml with templates |
 | 6 | TS-014 | Gateway and network segmentation |
 | 7 | TS-015 | Frontend container and nginx reverse proxy (React components written by Claude) |
 | 8 | TS-016 | Fault injection switches |
@@ -107,3 +108,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-25: TS-012 rescoped to the .NET solution; container work split into TS-022
 - 2026-10-26: TS-013 rescoped to the .NET solution; container work split into TS-023
 - 2026-10-27: Added TS-024 (shared service plumbing) and decision D25; TS-014 now depends on it
+- 2026-10-27: Added TS-025 (Compose templates); Dockerfiles deliberately stay explicit
