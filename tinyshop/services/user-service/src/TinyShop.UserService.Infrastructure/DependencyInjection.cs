@@ -9,9 +9,6 @@ namespace TinyShop.UserService.Infrastructure;
 
 public static class DependencyInjection
 {
-    /// <summary>Health-check tag for checks that decide readiness (see contracts.md §5.4).</summary>
-    public const string ReadyTag = "ready";
-
     /// <summary>Name of the configuration entry under ConnectionStrings.</summary>
     private const string ConnectionStringName = "UserDb";
 
@@ -34,8 +31,9 @@ public static class DependencyInjection
 
         // Readiness = "can this service do its job", which for user-service means
         // "can it reach its own database". Liveness checks nothing (contracts.md §5.4).
+        // No tag needed: /health/ready runs every registered check (TinyShop.ServiceDefaults).
         services.AddHealthChecks()
-            .AddDbContextCheck<UserDbContext>(name: DatabaseHealthCheckName, tags: [ReadyTag]);
+            .AddDbContextCheck<UserDbContext>(name: DatabaseHealthCheckName);
 
         return services;
     }

@@ -15,6 +15,8 @@
   <ItemGroup>
     <ProjectReference Include="..\TinyShop.UserService.Application\TinyShop.UserService.Application.csproj" />
     <ProjectReference Include="..\TinyShop.UserService.Infrastructure\TinyShop.UserService.Infrastructure.csproj" />
+    <!-- Shared plumbing (D25): health endpoints, ... Allowed by the service-boundary check. -->
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults\TinyShop.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>

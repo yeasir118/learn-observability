@@ -1,5 +1,4 @@
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using TinyShop.UserService.Infrastructure;
+using TinyShop.ServiceDefaults.Health;
 
 namespace TinyShop.UserService.Api.Extensions;
 
@@ -29,25 +28,9 @@ internal static class WebApplicationExtensions
         }
 
         app.MapControllers();
-        app.MapHealthEndpoints();
+        // /health/live and /health/ready (contracts.md §5.4), the same in every service.
+        app.MapDefaultHealthEndpoints();
 
         return app;
-    }
-
-    /// <summary>
-    /// Liveness runs no checks: it only proves the process answers HTTP.
-    /// Readiness runs the checks tagged "ready" (the database). See contracts.md §5.4.
-    /// </summary>
-    private static void MapHealthEndpoints(this WebApplication app)
-    {
-        app.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = _ => false,
-        });
-
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = check => check.Tags.Contains(DependencyInjection.ReadyTag),
-        });
     }
 }

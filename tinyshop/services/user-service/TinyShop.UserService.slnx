@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/shared/">
+    <Project Path="../../shared/TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/TinyShop.UserService.Api/TinyShop.UserService.Api.csproj" />
     <Project Path="src/TinyShop.UserService.Application/TinyShop.UserService.Application.csproj" />

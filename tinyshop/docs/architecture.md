@@ -36,6 +36,8 @@ tinyshop/
 │   ├── payment-service/
 │   ├── gateway/
 │   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
+├── shared/                       plumbing every .NET service uses the same way (D25, TS-024; rules in its README)
+│   └── TinyShop.ServiceDefaults/ health endpoints, ...; referenced by each service's Api project only
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...
 └── infrastructure/               everything that runs the system but isn't application code
@@ -51,7 +53,8 @@ tinyshop/
 
 Rules:
 
-- **Each service is one self-contained folder:** its solution, Dockerfile, code (`src/`) and tests (`tests/`). A service's projects may reference only projects inside its own folder; services depend on each other through contracts (`proto/`, contracts.md), never through code. CI enforces this with `infrastructure/scripts/check-service-boundaries.sh`.
+- **Each service is one self-contained folder:** its solution, Dockerfile, code (`src/`) and tests (`tests/`). A service's projects may reference only projects inside its own folder and in `shared/`; services depend on each other through contracts (`proto/`, contracts.md), never through code. CI enforces this with `infrastructure/scripts/check-service-boundaries.sh`.
+- **Shared code is plumbing only** (decision D25): `shared/` holds technical concerns that are the same in every service (error responses, health endpoints, test support), never domain types, DTOs, service-specific error codes or clients for other services. A `shared/` project may never reference a service. See `shared/README.md`.
 - **Files shared by all .NET services stay at `tinyshop/`** (`global.json`, `Directory.*.props`, `.editorconfig`). MSBuild and the SDK find them by searching upward from each project, so they apply to every service without being referenced.
 - **A file that's baked into an image lives with that image's code.** A file that's mounted into a container at run time, or that drives the system from outside, lives under `infrastructure/`. So nginx's config is in `services/frontend/`, while a Grafana dashboard mounted into the stock Grafana image belongs in `infrastructure/observability/`.
 - **Folders are created when their first file arrives,** not in advance. The tree above shows where things will go, not what exists today.

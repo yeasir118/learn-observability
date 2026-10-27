@@ -30,4 +30,5 @@ infrastructure/
 
 # NOT excluded on purpose:
 #   proto/              the gRPC services (payment, order) compile their code from it
+#   shared/             the services' Api projects reference its projects (decision D25)
 #   dotnet-tools.json   migration images restore dotnet-ef from it

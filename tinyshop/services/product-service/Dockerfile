@@ -2,7 +2,8 @@
 #   runtime     (default, last stage) the service itself
 #   migrations  a one-off container that applies EF Core migrations, then exits
 # Build context: tinyshop/ (not this folder), because the build needs the shared files there
-# (Directory.Build.props, Directory.Packages.props, global.json, dotnet-tools.json). From tinyshop/:
+# (Directory.Build.props, Directory.Packages.props, global.json, dotnet-tools.json) and the shared
+# projects (shared/). From tinyshop/:
 #   docker build -f services/product-service/Dockerfile -t tinyshop/product-service:local .
 #   docker build -f services/product-service/Dockerfile --target migrations -t tinyshop/product-service-migrations:local .
 
@@ -20,12 +21,17 @@ COPY services/product-service/src/TinyShop.ProductService.Api/TinyShop.ProductSe
 COPY services/product-service/src/TinyShop.ProductService.Application/TinyShop.ProductService.Application.csproj services/product-service/src/TinyShop.ProductService.Application/
 COPY services/product-service/src/TinyShop.ProductService.Domain/TinyShop.ProductService.Domain.csproj services/product-service/src/TinyShop.ProductService.Domain/
 COPY services/product-service/src/TinyShop.ProductService.Infrastructure/TinyShop.ProductService.Infrastructure.csproj services/product-service/src/TinyShop.ProductService.Infrastructure/
+# Shared plumbing (tinyshop/shared, decision D25), which the Api project references: its project
+# file is needed for restore, like the service's own.
+COPY shared/TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj shared/TinyShop.ServiceDefaults/
 
 # Restore the Api project, not the solution: tests/ isn't in the build context (.dockerignore),
 # and the Api project brings in the other three through its project references.
 RUN dotnet restore services/product-service/src/TinyShop.ProductService.Api/TinyShop.ProductService.Api.csproj
 
-# Now the source code
+# Now the source code. shared/ first: it changes less often than the service, so its layer is
+# more often reused from the cache.
+COPY shared/ shared/
 COPY services/product-service/src/ services/product-service/src/
 
 # UseAppHost=false: skip the native launcher executable; the image starts the app with "dotnet".

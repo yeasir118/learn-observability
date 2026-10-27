@@ -1,0 +1,16 @@
+<!--
+  TinyShop.ServiceDefaults: technical plumbing every TinyShop HTTP service uses the same way
+  (decision D25; the rules for what may go in are in ../README.md).
+  Referenced only by each service's Api project, the composition root. Application, Domain and
+  Infrastructure never reference it: it's an ASP.NET Core library, and those layers aren't web code.
+  Target framework, nullable and code style come from tinyshop/Directory.Build.props, like every project.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- ASP.NET Core itself (health checks, routing, MVC, ...), the same shared framework the
+         services run on. A class library gets it through this, not through a package. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

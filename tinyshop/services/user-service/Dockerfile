@@ -2,7 +2,8 @@
 #   runtime     (default, last stage) the service itself
 #   migrations  a one-off container that applies EF Core migrations, then exits
 # Build context: tinyshop/ (not this folder), because the build needs the shared files there
-# (Directory.Build.props, Directory.Packages.props, global.json, dotnet-tools.json). From tinyshop/:
+# (Directory.Build.props, Directory.Packages.props, global.json, dotnet-tools.json) and the shared
+# projects (shared/). From tinyshop/:
 #   docker build -f services/user-service/Dockerfile -t tinyshop/user-service:local .
 #   docker build -f services/user-service/Dockerfile --target migrations -t tinyshop/user-service-migrations:local .
 
@@ -20,12 +21,17 @@ COPY services/user-service/src/TinyShop.UserService.Api/TinyShop.UserService.Api
 COPY services/user-service/src/TinyShop.UserService.Application/TinyShop.UserService.Application.csproj services/user-service/src/TinyShop.UserService.Application/
 COPY services/user-service/src/TinyShop.UserService.Domain/TinyShop.UserService.Domain.csproj services/user-service/src/TinyShop.UserService.Domain/
 COPY services/user-service/src/TinyShop.UserService.Infrastructure/TinyShop.UserService.Infrastructure.csproj services/user-service/src/TinyShop.UserService.Infrastructure/
+# Shared plumbing (tinyshop/shared, decision D25), which the Api project references: its project
+# file is needed for restore, like the service's own.
+COPY shared/TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj shared/TinyShop.ServiceDefaults/
 
 # Restore the Api project, not the solution: tests/ isn't in the build context (.dockerignore),
 # and the Api project brings in the other three through its project references.
 RUN dotnet restore services/user-service/src/TinyShop.UserService.Api/TinyShop.UserService.Api.csproj
 
-# Now the source code
+# Now the source code. shared/ first: it changes less often than the service, so its layer is
+# more often reused from the cache.
+COPY shared/ shared/
 COPY services/user-service/src/ services/user-service/src/
 
 # UseAppHost=false: skip the native launcher executable; the image starts the app with "dotnet".
