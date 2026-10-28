@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TinyShop.OrderService.Application.Common.Exceptions;
+using TinyShop.ServiceDefaults.Errors;
 
 namespace TinyShop.OrderService.Api.Errors;
 
@@ -26,11 +27,11 @@ internal sealed class ApplicationExceptionHandler(
     {
         (int Status, string Code, string Detail)? mapping = exception switch
         {
-            DataStoreUnavailableException => (StatusCodes.Status503ServiceUnavailable, ErrorCatalog.ServiceUnavailable,
+            DataStoreUnavailableException => (StatusCodes.Status503ServiceUnavailable, ErrorCodes.ServiceUnavailable,
                 "The service is temporarily unavailable. Try again later."),
-            DependencyUnavailableException => (StatusCodes.Status502BadGateway, ErrorCatalog.DependencyFailed,
+            DependencyUnavailableException => (StatusCodes.Status502BadGateway, OrderErrorCodes.DependencyFailed,
                 "A service this request depends on failed. Try again later."),
-            DependencyTimeoutException => (StatusCodes.Status504GatewayTimeout, ErrorCatalog.DependencyTimeout,
+            DependencyTimeoutException => (StatusCodes.Status504GatewayTimeout, OrderErrorCodes.DependencyTimeout,
                 "A service this request depends on did not answer in time. Try again later."),
             _ => null,
         };
@@ -53,7 +54,7 @@ internal sealed class ApplicationExceptionHandler(
             ProblemDetails = new ProblemDetails
             {
                 Status = map.Status,
-                Type = ErrorCatalog.TypeUri(map.Code),
+                Type = ProblemType.For(map.Code),
                 Detail = map.Detail,
             },
         });

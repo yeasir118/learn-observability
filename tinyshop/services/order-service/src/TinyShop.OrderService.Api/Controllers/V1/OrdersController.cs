@@ -5,6 +5,7 @@ using TinyShop.OrderService.Api.Contracts;
 using TinyShop.OrderService.Api.Errors;
 using TinyShop.OrderService.Application.Models;
 using TinyShop.OrderService.Application.Services;
+using TinyShop.ServiceDefaults.Errors;
 
 namespace TinyShop.OrderService.Api.Controllers.V1;
 
@@ -50,30 +51,30 @@ public sealed class OrdersController(IOrderPlacement placement, IOrderQueries qu
 
             PlaceOrderResult.UserNotFound userNotFound => Problem(
                 statusCode: StatusCodes.Status422UnprocessableEntity,
-                type: ErrorCatalog.TypeUri(ErrorCatalog.UserNotFound),
+                type: ProblemType.For(OrderErrorCodes.UserNotFound),
                 detail: $"User {userNotFound.UserId} does not exist."),
 
             PlaceOrderResult.ProductNotFound productNotFound => Problem(
                 statusCode: StatusCodes.Status422UnprocessableEntity,
-                type: ErrorCatalog.TypeUri(ErrorCatalog.ProductNotFound),
+                type: ProblemType.For(OrderErrorCodes.ProductNotFound),
                 detail: $"Product {productNotFound.ProductId} does not exist."),
 
             PlaceOrderResult.PaymentUnavailable unavailable => OrderProblem(
                 StatusCodes.Status502BadGateway,
-                ErrorCatalog.PaymentUnavailable,
+                OrderErrorCodes.PaymentUnavailable,
                 $"Order {unavailable.Order.Id} was created, but payment could not be processed. The order is FAILED.",
                 unavailable.Order.Id),
 
             PlaceOrderResult.PaymentTimedOut timedOut => OrderProblem(
                 StatusCodes.Status504GatewayTimeout,
-                ErrorCatalog.PaymentTimeout,
+                OrderErrorCodes.PaymentTimeout,
                 $"Order {timedOut.Order.Id} was created, but the payment did not complete in time. "
                     + "Its outcome is unknown and the order stays PENDING.",
                 timedOut.Order.Id),
 
             PlaceOrderResult.StatusNotRecorded notRecorded => OrderProblem(
                 StatusCodes.Status503ServiceUnavailable,
-                ErrorCatalog.ServiceUnavailable,
+                ErrorCodes.ServiceUnavailable,
                 $"Order {notRecorded.OrderId} was created, but its payment result could not be saved. "
                     + "The order stays PENDING.",
                 notRecorded.OrderId),
@@ -100,7 +101,7 @@ public sealed class OrdersController(IOrderPlacement placement, IOrderQueries qu
             // customizer fills in the matching title and "code".
             return Problem(
                 statusCode: StatusCodes.Status404NotFound,
-                type: ErrorCatalog.TypeUri(ErrorCatalog.OrderNotFound),
+                type: ProblemType.For(OrderErrorCodes.OrderNotFound),
                 detail: $"Order {id} does not exist.");
         }
 
@@ -131,7 +132,7 @@ public sealed class OrdersController(IOrderPlacement placement, IOrderQueries qu
         // ProblemDetailsFactory applies the same customization as Problem() (type, title, code,
         // instance, traceId); Problem() itself can't add extension fields.
         var problem = ProblemDetailsFactory.CreateProblemDetails(
-            HttpContext, statusCode, type: ErrorCatalog.TypeUri(code), detail: detail);
+            HttpContext, statusCode, type: ProblemType.For(code), detail: detail);
         problem.Extensions[OrderIdExtension] = orderId;
 
         return new ObjectResult(problem) { StatusCode = statusCode };

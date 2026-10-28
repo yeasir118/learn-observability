@@ -37,7 +37,9 @@ tinyshop/
 │   ├── gateway/
 │   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
 ├── shared/                       plumbing every .NET service uses the same way (D25, TS-024; rules in its README)
-│   └── TinyShop.ServiceDefaults/ health endpoints, ...; referenced by each service's Api project only
+│   ├── TinyShop.Shared.slnx      builds and tests everything in shared/ (CI job "dotnet (shared)")
+│   ├── TinyShop.ServiceDefaults/ health endpoints, Problem Details, ...; referenced by each service's Api project only
+│   └── tests/                    unit tests for the shared code
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...
 └── infrastructure/               everything that runs the system but isn't application code

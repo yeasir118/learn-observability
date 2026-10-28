@@ -13,4 +13,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.ServiceDefaults.UnitTests" />
+  </ItemGroup>
+
 </Project>

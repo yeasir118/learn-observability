@@ -6,7 +6,29 @@ same way.
 
 | Project | What it holds | Referenced by |
 |---|---|---|
-| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: health endpoints (more is added in TS-024's later phases) | Each service's **Api** project only |
+| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: health endpoints, Problem Details (the generic error codes, the customizer, the error catalog). More is added in TS-024's later phases | Each service's **Api** project only |
+| `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | Nothing (CI job `dotnet (shared)`) |
+
+`TinyShop.Shared.slnx` builds and tests everything in this folder. Each service's solution also
+lists the shared projects it references, so the IDE and `dotnet format` cover them there too.
+
+## Error codes: what's shared and what each service adds
+
+The codes every service returns (`validation_failed`, `not_found`, `service_unavailable`, ...) and
+the rules for building a Problem Details response are shared. Codes only one service returns stay in
+that service, in `Api/Errors/<Service>ErrorCodes.cs`, which adds them at startup:
+
+```csharp
+services.AddDefaultProblemDetails(ProductErrorCodes.Register);
+
+// ProductErrorCodes.Register:
+catalog.Add(ProductNotFound, "Product not found");
+// A service can also claim a status nobody else maps (order-service: 502 is dependency_failed):
+catalog.Add(DependencyFailed, "Dependency failed", forStatus: StatusCodes.Status502BadGateway);
+```
+
+A controller picks a code by setting its type URI: `Problem(type: ProblemType.For(code))`.
+Adding a code that already exists, or mapping a status that's already mapped, throws at startup.
 
 ## What may go in
 

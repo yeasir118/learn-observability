@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using TinyShop.OrderService.Api.Contracts;
 using TinyShop.OrderService.Api.Errors;
 using TinyShop.OrderService.Api.OpenApi;
+using TinyShop.ServiceDefaults.Errors;
 
 namespace TinyShop.OrderService.Api.Extensions;
 
@@ -25,8 +26,8 @@ internal static class ServiceCollectionExtensions
                 options.AllowInputFormatterExceptionMessages = false;
             });
 
-        services.AddProblemDetails(options =>
-            options.CustomizeProblemDetails = ProblemDetailsCustomizer.Customize);
+        // Every error response as Problem Details (contracts.md §2.1), with this service's codes added.
+        services.AddDefaultProblemDetails(OrderErrorCodes.Register);
         services.AddExceptionHandler<ApplicationExceptionHandler>();
 
         services.AddVersioning();

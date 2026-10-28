@@ -2,6 +2,7 @@ using System.Reflection;
 using Asp.Versioning;
 using TinyShop.ProductService.Api.Errors;
 using TinyShop.ProductService.Api.OpenApi;
+using TinyShop.ServiceDefaults.Errors;
 
 namespace TinyShop.ProductService.Api.Extensions;
 
@@ -12,8 +13,8 @@ internal static class ServiceCollectionExtensions
     {
         services.AddControllers();
 
-        services.AddProblemDetails(options =>
-            options.CustomizeProblemDetails = ProblemDetailsCustomizer.Customize);
+        // Every error response as Problem Details (contracts.md §2.1), with this service's codes added.
+        services.AddDefaultProblemDetails(ProductErrorCodes.Register);
         services.AddExceptionHandler<DataStoreUnavailableExceptionHandler>();
 
         services.AddVersioning();

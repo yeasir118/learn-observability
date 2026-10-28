@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using TinyShop.ServiceDefaults.Errors;
 using TinyShop.UserService.Api.Errors;
 using TinyShop.UserService.Application.Models;
 using TinyShop.UserService.Application.Services;
@@ -32,7 +33,7 @@ public sealed class UsersController(IUserDirectoryService directory) : Controlle
             // customizer fills in the matching title and "code".
             return Problem(
                 statusCode: StatusCodes.Status404NotFound,
-                type: ErrorCatalog.TypeUri(ErrorCatalog.UserNotFound),
+                type: ProblemType.For(UserErrorCodes.UserNotFound),
                 detail: $"User {id} does not exist.");
         }
 

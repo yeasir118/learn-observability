@@ -74,28 +74,37 @@ jobs:
         # service would pass.
         run: docker compose --env-file .env.example --profile '*' config --quiet
 
-  # One job per .NET service, each built and tested from its own solution.
-  # Adding a service means adding one line to the matrix.
+  # One job per .NET solution: each service's, and the shared projects' (tinyshop/shared, which
+  # holds the tests for the shared code). Adding a service means adding one entry to the matrix.
+  # Every service's solution also builds the shared projects it references, so a change in
+  # shared/ is checked against every service, not only by its own tests.
   dotnet:
-    name: dotnet (${{ matrix.service }})
+    name: dotnet (${{ matrix.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
-      # Let every service finish, so one failure doesn't hide another.
+      # Let every solution finish, so one failure doesn't hide another.
       fail-fast: false
       matrix:
         include:
-          - service: product-service
+          - name: shared
+            directory: tinyshop/shared
+            solution: TinyShop.Shared.slnx
+          - name: product-service
+            directory: tinyshop/services/product-service
             solution: TinyShop.ProductService.slnx
-          - service: user-service
+          - name: user-service
+            directory: tinyshop/services/user-service
             solution: TinyShop.UserService.slnx
-          - service: payment-service
+          - name: payment-service
+            directory: tinyshop/services/payment-service
             solution: TinyShop.PaymentService.slnx
-          - service: order-service
+          - name: order-service
+            directory: tinyshop/services/order-service
             solution: TinyShop.OrderService.slnx
     defaults:
       run:
-        working-directory: tinyshop/services/${{ matrix.service }}
+        working-directory: ${{ matrix.directory }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -106,7 +115,7 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           # Installs exactly the SDK that global.json pins, the same one used locally.
-          # dotnet finds tinyshop/global.json by searching upward from the service folder.
+          # dotnet finds tinyshop/global.json by searching upward from the solution's folder.
           global-json-file: tinyshop/global.json
 
       - name: Restore

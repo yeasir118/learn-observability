@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using TinyShop.ServiceDefaults.Errors;
 using TinyShop.UserService.Application.Common.Exceptions;
 
 namespace TinyShop.UserService.Api.Errors;
@@ -35,7 +36,7 @@ internal sealed class DataStoreUnavailableExceptionHandler(
             ProblemDetails = new ProblemDetails
             {
                 Status = StatusCodes.Status503ServiceUnavailable,
-                Type = ErrorCatalog.TypeUri(ErrorCatalog.ServiceUnavailable),
+                Type = ProblemType.For(ErrorCodes.ServiceUnavailable),
                 Detail = "The service is temporarily unavailable. Try again later.",
             },
         });
