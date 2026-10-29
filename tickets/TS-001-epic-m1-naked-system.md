@@ -53,7 +53,7 @@ These are final unless a new ticket reopens one.
 | D22 | .NET services run on `aspnet:10.0-alpine` and have a Compose health check on `/health/ready` using BusyBox `wget` | Decided in TS-010; architecture.md §10 |
 | D23 | Images: official base images pinned to a major version, small third-party images to an exact version, Actions to a commit SHA; Dependabot watches all of them, plus NuGet | Decided in TS-010; architecture.md §2 |
 | D24 | Every service database has three roles: the superuser (initialisation only), `<service>_migrator` (owns the schema, used by the migration job) and `<service>_app` (only the DML the service needs), created by the shared `infrastructure/postgres/initdb` script | Decided in TS-020; architecture.md §10, Database roles |
-| D25 | Technical plumbing shared by the .NET services (Problem Details, versioning, Swagger, health endpoints, database exception translation, test support; later telemetry) lives in projects under `tinyshop/shared/`, referenced as project references. Business logic, DTOs, contracts, service-specific error codes and clients for other services are never shared | The microservice chassis pattern. Project references, not a NuGet package: one repository, one team, no registry. Decided 2026-10-27; implemented in TS-024 |
+| D25 | Technical plumbing shared by the .NET services (Problem Details, versioning, Swagger, health endpoints, database exception translation, test support; later telemetry) lives in projects under `tinyshop/shared/`, referenced as project references. Business logic, DTOs, contracts, service-specific error codes and clients for other services are never shared | The microservice chassis pattern. Project references, not a NuGet package: one repository, one team, no registry. Decided 2026-10-27; implemented in TS-024 as four projects, each allowed only from one layer (checked in CI): `TinyShop.ServiceDefaults` (web, from Api: `AddServiceDefaults`/`UseServiceDefaults`), `.Data` (Npgsql, from Infrastructure), `.Abstractions` (no dependencies, any layer) and `TinyShop.Testing` (test projects only). payment-service (gRPC, no database) uses none of them; see `tinyshop/shared/README.md` |
 
 ## Child tickets
 | Step | Key | Title |
@@ -109,3 +109,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-26: TS-013 rescoped to the .NET solution; container work split into TS-023
 - 2026-10-27: Added TS-024 (shared service plumbing) and decision D25; TS-014 now depends on it
 - 2026-10-27: Added TS-025 (Compose templates); Dockerfiles deliberately stay explicit
+- 2026-10-29: TS-024 implemented (in review); D25 updated with the four shared projects and their layers
