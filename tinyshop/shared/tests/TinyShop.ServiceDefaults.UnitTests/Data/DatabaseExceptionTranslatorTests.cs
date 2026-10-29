@@ -1,9 +1,9 @@
 using System.Net.Sockets;
 using Npgsql;
-using TinyShop.OrderService.Application.Common.Exceptions;
-using TinyShop.OrderService.Infrastructure.Persistence;
+using TinyShop.ServiceDefaults.Abstractions;
+using TinyShop.ServiceDefaults.Data;
 
-namespace TinyShop.OrderService.UnitTests.Infrastructure;
+namespace TinyShop.ServiceDefaults.UnitTests.Data;
 
 public class DatabaseExceptionTranslatorTests
 {

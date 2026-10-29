@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- DataStoreUnavailableException, which the 503 handler maps. -->
+    <ProjectReference Include="..\TinyShop.ServiceDefaults.Abstractions\TinyShop.ServiceDefaults.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Versions in tinyshop/Directory.Packages.props. The services get these through their
          reference to this project; an Api project references Asp.Versioning.Mvc itself only
          because its controllers use [ApiVersion]. -->

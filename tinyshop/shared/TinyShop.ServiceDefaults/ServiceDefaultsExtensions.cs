@@ -18,8 +18,8 @@ public static class ServiceDefaultsExtensions
 {
     /// <summary>
     /// Registers controllers (with the contract's JSON conventions), Problem Details (with the
-    /// service's own error codes), API versioning, Swagger and health checks. The service adds only
-    /// what is its own (its exception handlers).
+    /// service's own error codes and the database-unavailable handler), API versioning, Swagger and
+    /// health checks. The service adds only what is its own (order-service: its dependency-failure handler).
     /// </summary>
     public static IServiceCollection AddServiceDefaults(
         this IServiceCollection services,
@@ -29,6 +29,9 @@ public static class ServiceDefaultsExtensions
 
         services.AddDefaultControllers();
         services.AddDefaultProblemDetails(options.AddErrorCodes);
+        // Exception handlers run in registration order, so this one comes before any the
+        // service registers after calling AddServiceDefaults.
+        services.AddExceptionHandler<DataStoreUnavailableExceptionHandler>();
         services.AddDefaultApiVersioning();
         services.AddDefaultSwagger();
 

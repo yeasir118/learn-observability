@@ -8,6 +8,8 @@
 # The rules (decision D25; tinyshop/shared/README.md):
 #   services/<service>/...  may reference  services/<service>/...  and  shared/...
 #   shared/...              may reference  shared/...  only (shared code can't depend on any service)
+#   shared/TinyShop.ServiceDefaults       only from a service's *.Api project
+#   shared/TinyShop.ServiceDefaults.Data  only from a service's *.Infrastructure project
 #
 # Usage (from anywhere): tinyshop/infrastructure/scripts/check-service-boundaries.sh
 set -euo pipefail
@@ -42,12 +44,31 @@ check_references() {
   done < <(grep -o '<ProjectReference Include="[^"]*"' "$project" | sed 's/.*Include="\(.*\)"/\1/' || true)
 }
 
+# check_shared_layer <project> <shared project name> <required project-name suffix>
+# Reports a reference to shared/<shared project name> from a service project whose name doesn't end
+# in <suffix>: each shared project belongs to one layer (tinyshop/shared/README.md).
+check_shared_layer() {
+  local project="$1" shared_project="$2" suffix="$3"
+  local name
+  name="$(basename "$project" .csproj)"
+  # [\\/]: the path separator, "\" (as Visual Studio writes it) or "/".
+  if grep -q "shared[\\/]${shared_project}[\\/]" "$project" && [[ "$name" != *"$suffix" ]]; then
+    echo "::error file=${project#"$tinyshop_dir"/}::$name may not reference $shared_project (only *$suffix projects may)"
+    violations=$((violations + 1))
+  fi
+}
+
 # Service projects: their own service folder, or shared/.
 while IFS= read -r project; do
   # The service a project belongs to is the first folder below services/.
   relative="${project#"$services_dir"/}"
   service="${relative%%/*}"
   check_references "$project" "'$service'" "$services_dir/$service" "$shared_dir"
+
+  # And each shared project only from its layer: the web plumbing from Api, the database plumbing
+  # from Infrastructure. TinyShop.ServiceDefaults.Abstractions has no dependencies, so any layer may.
+  check_shared_layer "$project" "TinyShop.ServiceDefaults" ".Api"
+  check_shared_layer "$project" "TinyShop.ServiceDefaults.Data" ".Infrastructure"
 done < <(find "$services_dir" -name '*.csproj' -not -path '*/bin/*' -not -path '*/obj/*' | sort)
 
 # Shared projects: shared/ only.
@@ -62,4 +83,4 @@ if (( violations > 0 )); then
   exit 1
 fi
 
-echo "OK: services reference only their own projects and shared/; shared/ references no service."
+echo "OK: services reference only their own projects and shared/ (each shared project from its layer); shared/ references no service."

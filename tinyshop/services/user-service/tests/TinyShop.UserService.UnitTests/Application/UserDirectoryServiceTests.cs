@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using TinyShop.ServiceDefaults.Abstractions;
 using TinyShop.UserService.Application.Abstractions.Persistence;
-using TinyShop.UserService.Application.Common.Exceptions;
 using TinyShop.UserService.Application.Models;
 using TinyShop.UserService.Application.Services;
 using TinyShop.UserService.Domain.Entities;

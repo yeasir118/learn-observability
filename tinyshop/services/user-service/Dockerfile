@@ -21,8 +21,10 @@ COPY services/user-service/src/TinyShop.UserService.Api/TinyShop.UserService.Api
 COPY services/user-service/src/TinyShop.UserService.Application/TinyShop.UserService.Application.csproj services/user-service/src/TinyShop.UserService.Application/
 COPY services/user-service/src/TinyShop.UserService.Domain/TinyShop.UserService.Domain.csproj services/user-service/src/TinyShop.UserService.Domain/
 COPY services/user-service/src/TinyShop.UserService.Infrastructure/TinyShop.UserService.Infrastructure.csproj services/user-service/src/TinyShop.UserService.Infrastructure/
-# Shared plumbing (tinyshop/shared, decision D25), which the Api project references: its project
-# file is needed for restore, like the service's own.
+# Shared plumbing (tinyshop/shared, decision D25), which the service's projects reference: their
+# project files are needed for restore, like the service's own.
+COPY shared/TinyShop.ServiceDefaults.Abstractions/TinyShop.ServiceDefaults.Abstractions.csproj shared/TinyShop.ServiceDefaults.Abstractions/
+COPY shared/TinyShop.ServiceDefaults.Data/TinyShop.ServiceDefaults.Data.csproj shared/TinyShop.ServiceDefaults.Data/
 COPY shared/TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj shared/TinyShop.ServiceDefaults/
 
 # Restore the Api project, not the solution: tests/ isn't in the build context (.dockerignore),

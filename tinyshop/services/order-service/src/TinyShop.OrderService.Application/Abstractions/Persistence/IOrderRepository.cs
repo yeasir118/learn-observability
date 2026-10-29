@@ -6,7 +6,7 @@ namespace TinyShop.OrderService.Application.Abstractions.Persistence;
 /// Stored orders. Declared here, implemented in Infrastructure.
 /// </summary>
 /// <remarks>
-/// Implementations throw <see cref="Common.Exceptions.DataStoreUnavailableException"/> when the
+/// Implementations throw <see cref="TinyShop.ServiceDefaults.Abstractions.DataStoreUnavailableException"/> when the
 /// data store can't be reached.
 /// </remarks>
 public interface IOrderRepository

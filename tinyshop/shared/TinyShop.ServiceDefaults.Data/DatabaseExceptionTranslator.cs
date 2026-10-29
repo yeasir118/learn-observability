@@ -1,13 +1,14 @@
 using Npgsql;
-using TinyShop.OrderService.Application.Common.Exceptions;
+using TinyShop.ServiceDefaults.Abstractions;
 
-namespace TinyShop.OrderService.Infrastructure.Persistence;
+namespace TinyShop.ServiceDefaults.Data;
 
 /// <summary>
-/// Turns Npgsql-specific failures into Application exceptions, so nothing outside Infrastructure
-/// needs to know which database driver is in use.
+/// Turns Npgsql-specific failures into <see cref="DataStoreUnavailableException"/>, so nothing
+/// outside a service's Infrastructure layer needs to know which database driver is in use.
+/// Wrap every database call in a repository: <c>DatabaseExceptionTranslator.ExecuteAsync(() => ...)</c>.
 /// </summary>
-internal static class DatabaseExceptionTranslator
+public static class DatabaseExceptionTranslator
 {
     public static async Task<T> ExecuteAsync<T>(Func<Task<T>> operation)
     {
@@ -17,7 +18,9 @@ internal static class DatabaseExceptionTranslator
         }
         catch (Exception exception) when (IsUnavailable(exception))
         {
-            throw new DataStoreUnavailableException("The order database is unavailable.", exception);
+            // Only logged, never sent to clients. The log line already names the service (each
+            // container logs separately) and the inner exception names the host.
+            throw new DataStoreUnavailableException("The database is unavailable.", exception);
         }
     }
 

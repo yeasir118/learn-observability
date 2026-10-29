@@ -1,4 +1,4 @@
-namespace TinyShop.UserService.Application.Common.Exceptions;
+namespace TinyShop.ServiceDefaults.Abstractions;
 
 /// <summary>
 /// The data store couldn't be reached (connection refused, timeout, server shutting down).

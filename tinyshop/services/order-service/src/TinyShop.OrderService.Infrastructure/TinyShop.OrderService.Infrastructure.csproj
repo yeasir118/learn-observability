@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TinyShop.OrderService.Application\TinyShop.OrderService.Application.csproj" />
+    <!-- DatabaseExceptionTranslator (D25). -->
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults.Data\TinyShop.ServiceDefaults.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

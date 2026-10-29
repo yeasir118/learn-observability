@@ -5,6 +5,7 @@ using TinyShop.OrderService.Application.Common.Exceptions;
 using TinyShop.OrderService.Application.Mappings;
 using TinyShop.OrderService.Application.Models;
 using TinyShop.OrderService.Domain.Entities;
+using TinyShop.ServiceDefaults.Abstractions;
 
 namespace TinyShop.OrderService.Application.Services;
 

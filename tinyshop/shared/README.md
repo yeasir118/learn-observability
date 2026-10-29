@@ -4,10 +4,21 @@ Technical plumbing shared by the .NET services (decision D25, ticket TS-024). Th
 *microservice chassis*: one place for cross-cutting concerns, so every service handles them the
 same way.
 
-| Project | What it holds | Referenced by |
-|---|---|---|
-| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: controllers and their JSON conventions, Problem Details (the generic error codes, the customizer, the error catalog), API versioning, Swagger, health endpoints, and the request pipeline. More is added in TS-024's later phases | Each service's **Api** project only |
-| `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | Nothing (CI job `dotnet (shared)`) |
+| Project | What it holds | Dependencies | Referenced by |
+|---|---|---|---|
+| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: controllers and their JSON conventions, Problem Details (the generic error codes, the customizer, the error catalog, the "database unavailable" → 503 handler), API versioning, Swagger, health endpoints, and the request pipeline | ASP.NET Core, Asp.Versioning, Swashbuckle | Each service's **Api** project only |
+| `TinyShop.ServiceDefaults.Data` | Database plumbing: `DatabaseExceptionTranslator` (Npgsql failures → `DataStoreUnavailableException`) | Npgsql | Each service's **Infrastructure** project only |
+| `TinyShop.ServiceDefaults.Abstractions` | Types every layer may see: `DataStoreUnavailableException` | none, on purpose | Any layer, including **Application** |
+| `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | | Nothing (CI job `dotnet (shared)`) |
+
+### Why three projects, not one
+
+Each shared project belongs to the layer that may use its dependencies, the same rule the services'
+own layers follow. One project would have dragged ASP.NET Core and Npgsql into every layer that
+needs any of it. `DataStoreUnavailableException` shows why: Infrastructure throws it, Application
+catches it (order-service) and Api turns it into a 503, so it lives in the one project with no
+dependencies, the way `Microsoft.Extensions.Logging.Abstractions` works. A service without a
+database (payment-service, the gateway) never references `.Data`, so it never pulls in Npgsql.
 
 `TinyShop.Shared.slnx` builds and tests everything in this folder. Each service's solution also
 lists the shared projects it references, so the IDE and `dotnet format` cover them there too.
@@ -25,7 +36,12 @@ services.AddServiceDefaults(new ServiceDefaultsOptions
     ApiDescription = "Internal API for the product catalogue. ...",
     AddErrorCodes = ProductErrorCodes.Register,            // this service's own error codes
 });
-services.AddExceptionHandler<DataStoreUnavailableExceptionHandler>();   // service-specific additions
+// Anything really the service's own comes after, for example order-service's handler for failed
+// calls to other services:
+services.AddExceptionHandler<ApplicationExceptionHandler>();
+
+// Infrastructure: every database call in a repository
+DatabaseExceptionTranslator.ExecuteAsync(() => dbContext.Products.ToListAsync(cancellationToken));
 
 // Program.cs
 app.UseServiceDefaults();   // exception handler, status-code pages, Swagger (Development), controllers, health
@@ -82,6 +98,8 @@ behaviour or contract?* If yes, it belongs in that service.
 - A service's projects may reference projects in their own service folder and in `shared/`.
 - They may never reference another service's projects.
 - A `shared/` project may never reference a service: shared code can't depend on any one service.
+- Each shared project only from its layer: `TinyShop.ServiceDefaults` from `*.Api` projects,
+  `TinyShop.ServiceDefaults.Data` from `*.Infrastructure` projects. `.Abstractions` from any.
 
 ## Consequences of sharing by project reference
 

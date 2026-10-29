@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using TinyShop.ServiceDefaults.Abstractions;
 
 namespace TinyShop.ServiceDefaults.UnitTests;
 
@@ -28,6 +29,9 @@ public sealed class ServiceDefaultsPipelineTests : IAsyncLifetime
 
         _app = builder.Build();
         _app.UseServiceDefaults();
+        // Stands in for a repository call whose database is down.
+        _app.MapGet("/database-down", () =>
+            Task.FromException(new DataStoreUnavailableException("The database is unavailable.", new TimeoutException())));
         await _app.StartAsync(TestContext.Current.CancellationToken);
         _client = _app.GetTestClient();
     }
@@ -53,6 +57,19 @@ public sealed class ServiceDefaultsPipelineTests : IAsyncLifetime
         using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
         Assert.Equal("not_found", body.RootElement.GetProperty("code").GetString());
         Assert.Equal("/no-such-route", body.RootElement.GetProperty("instance").GetString());
+    }
+
+    [Fact]
+    public async Task DataStoreUnavailable_Becomes503ServiceUnavailable()
+    {
+        var response = await _client.GetAsync("/database-down", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+
+        using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        Assert.Equal("service_unavailable", body.RootElement.GetProperty("code").GetString());
+        // The exception's message and the inner exception never reach the client.
+        Assert.Equal("The service is temporarily unavailable. Try again later.", body.RootElement.GetProperty("detail").GetString());
     }
 
     public async ValueTask DisposeAsync()

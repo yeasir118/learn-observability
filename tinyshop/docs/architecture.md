@@ -38,7 +38,9 @@ tinyshop/
 │   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
 ├── shared/                       plumbing every .NET service uses the same way (D25, TS-024; rules in its README)
 │   ├── TinyShop.Shared.slnx      builds and tests everything in shared/ (CI job "dotnet (shared)")
-│   ├── TinyShop.ServiceDefaults/ health endpoints, Problem Details, ...; referenced by each service's Api project only
+│   ├── TinyShop.ServiceDefaults/ web plumbing (AddServiceDefaults/UseServiceDefaults); referenced by Api projects only
+│   ├── TinyShop.ServiceDefaults.Data/          database plumbing (Npgsql); Infrastructure projects only
+│   ├── TinyShop.ServiceDefaults.Abstractions/  dependency-free types (DataStoreUnavailableException); any layer
 │   └── tests/                    unit tests for the shared code
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...

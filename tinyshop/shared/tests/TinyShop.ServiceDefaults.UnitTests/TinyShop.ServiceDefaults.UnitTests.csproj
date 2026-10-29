@@ -1,5 +1,5 @@
 <!--
-  Fast tests for TinyShop.ServiceDefaults. No server, no database: the shared plumbing is tested
+  Fast tests for TinyShop.ServiceDefaults and .Data. No server, no database: the shared plumbing is tested
   here once, instead of once per service. Each service's own tests cover only what it adds
   (its error codes) and, end to end, the responses it actually sends (integration tests).
 -->
@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TinyShop.ServiceDefaults\TinyShop.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\TinyShop.ServiceDefaults.Data\TinyShop.ServiceDefaults.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TinyShop.ServiceDefaults.Errors;
-using TinyShop.UserService.Application.Common.Exceptions;
+using Microsoft.Extensions.Logging;
+using TinyShop.ServiceDefaults.Abstractions;
 
-namespace TinyShop.UserService.Api.Errors;
+namespace TinyShop.ServiceDefaults.Errors;
 
 /// <summary>
 /// Maps "the database is unreachable" to 503 service_unavailable (contracts.md §2.2).
-/// Any other exception isn't handled here; it falls through to the default handler and becomes
-/// a 500 internal_error. Neither response contains exception details.
+/// Any other exception isn't handled here: it goes to the service's own handlers, or to the default
+/// handler, which makes it a 500 internal_error. Neither response contains exception details.
+/// Registered for every service; in one without a database it simply never sees this exception.
 /// </summary>
 internal sealed class DataStoreUnavailableExceptionHandler(
     IProblemDetailsService problemDetailsService,

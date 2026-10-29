@@ -7,7 +7,7 @@ namespace TinyShop.UserService.Application.Abstractions.Persistence;
 /// what it needs, and doesn't know or care that the implementation uses EF Core and PostgreSQL.
 /// </summary>
 /// <remarks>
-/// Implementations throw <see cref="Common.Exceptions.DataStoreUnavailableException"/> when the
+/// Implementations throw <see cref="TinyShop.ServiceDefaults.Abstractions.DataStoreUnavailableException"/> when the
 /// data store can't be reached.
 /// </remarks>
 public interface IUserRepository
