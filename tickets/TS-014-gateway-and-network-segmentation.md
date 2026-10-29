@@ -9,7 +9,7 @@ assignee: yeasir118
 reporter: claude
 epic: TS-001
 labels: [m1, dotnet, gateway, networking, needs-refinement]
-depends_on: [TS-013]
+depends_on: [TS-013, TS-024]
 created: 2026-10-18
 ---
 

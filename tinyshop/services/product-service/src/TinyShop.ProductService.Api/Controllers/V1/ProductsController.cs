@@ -4,6 +4,7 @@ using TinyShop.ProductService.Api.Contracts;
 using TinyShop.ProductService.Api.Errors;
 using TinyShop.ProductService.Application.Models;
 using TinyShop.ProductService.Application.Services;
+using TinyShop.ServiceDefaults.Errors;
 
 namespace TinyShop.ProductService.Api.Controllers.V1;
 
@@ -43,7 +44,7 @@ public sealed class ProductsController(IProductCatalogService catalog) : Control
             // customizer fills in the matching title and "code".
             return Problem(
                 statusCode: StatusCodes.Status404NotFound,
-                type: ErrorCatalog.TypeUri(ErrorCatalog.ProductNotFound),
+                type: ProblemType.For(ProductErrorCodes.ProductNotFound),
                 detail: $"Product {id} does not exist.");
         }
 

@@ -3,7 +3,7 @@ using Npgsql;
 using TinyShop.OrderService.IntegrationTests.Infrastructure;
 using TinyShop.OrderService.IntegrationTests.Orders;
 using static TinyShop.OrderService.IntegrationTests.Database.SqlHelpers;
-using static TinyShop.OrderService.IntegrationTests.Support.ResponseAssertions;
+using static TinyShop.Testing.ResponseAssertions;
 
 namespace TinyShop.OrderService.IntegrationTests.Database;
 

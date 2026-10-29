@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TinyShop.OrderService.Domain\TinyShop.OrderService.Domain.csproj" />
+    <!-- DataStoreUnavailableException (D25). Dependency-free, so Application stays free of
+         web and database code. -->
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults.Abstractions\TinyShop.ServiceDefaults.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

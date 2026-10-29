@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TinyShop.ServiceDefaults.Data;
 using TinyShop.UserService.Application.Abstractions.Persistence;
 using TinyShop.UserService.Domain.Entities;
 

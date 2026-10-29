@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="TinyShop.ServiceDefaults.Abstractions/TinyShop.ServiceDefaults.Abstractions.csproj" />
+    <Project Path="TinyShop.ServiceDefaults.Data/TinyShop.ServiceDefaults.Data.csproj" />
+    <Project Path="TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj" />
+    <Project Path="TinyShop.Testing/TinyShop.Testing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TinyShop.ServiceDefaults.UnitTests/TinyShop.ServiceDefaults.UnitTests.csproj" />
+  </Folder>
+</Solution>

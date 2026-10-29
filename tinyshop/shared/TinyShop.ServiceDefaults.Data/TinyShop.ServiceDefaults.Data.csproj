@@ -1,0 +1,19 @@
+<!--
+  TinyShop.ServiceDefaults.Data: database plumbing every service with a PostgreSQL database uses the
+  same way (translating driver failures). Referenced only by each service's Infrastructure project.
+  A separate project from TinyShop.ServiceDefaults so that services without a database
+  (payment-service, the gateway) never pull in Npgsql.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TinyShop.ServiceDefaults.Abstractions\TinyShop.ServiceDefaults.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The driver alone; the services' EF Core provider depends on the same version
+         (tinyshop/Directory.Packages.props, kept in step by Dependabot's ef-core-and-npgsql group). -->
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+</Project>

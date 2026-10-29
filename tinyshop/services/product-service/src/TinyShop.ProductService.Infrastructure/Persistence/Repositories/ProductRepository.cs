@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TinyShop.ProductService.Application.Abstractions.Persistence;
 using TinyShop.ProductService.Domain.Entities;
+using TinyShop.ServiceDefaults.Data;
 
 namespace TinyShop.ProductService.Infrastructure.Persistence.Repositories;
 

@@ -21,7 +21,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-011](TS-011-user-service.md) | Story | User service | Done | 5 | TS-010 |
 | [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | In Review | 5 | TS-010 |
 | [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | In Review | 8 | TS-011, TS-012 |
-| [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | To Do | 5 | TS-013 |
+| [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | To Do | 5 | TS-013, TS-024 |
 | [TS-015](TS-015-frontend-container.md) | Task | Frontend container and nginx reverse proxy | To Do | 3 | TS-014 |
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | To Do | 3 | TS-015 |
 | [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | To Do | 2 | TS-015 |
@@ -31,6 +31,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
 | [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | In Review | 3 | TS-012 |
 | [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | In Progress | 3 | TS-013, TS-021, TS-022 |
+| [TS-024](TS-024-shared-service-defaults.md) | Task | Extract shared service plumbing into TinyShop.ServiceDefaults | In Review | 5 | TS-013 |
+| [TS-025](TS-025-compose-templates.md) | Task | Remove repetition from compose.yaml with templates | To Do | 2 | TS-024 |
 
 Keep this table in sync with each ticket's front matter.
 

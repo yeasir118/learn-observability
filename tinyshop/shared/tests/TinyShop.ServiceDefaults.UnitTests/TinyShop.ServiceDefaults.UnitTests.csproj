@@ -1,0 +1,31 @@
+<!--
+  Fast tests for TinyShop.ServiceDefaults and .Data. No server, no database: the shared plumbing is tested
+  here once, instead of once per service. Each service's own tests cover only what it adds
+  (its error codes) and, end to end, the responses it actually sends (integration tests).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- xUnit v3 test projects are executables that run on Microsoft.Testing.Platform
+         (enabled for "dotnet test" in global.json). -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TinyShop.ServiceDefaults\TinyShop.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\TinyShop.ServiceDefaults.Data\TinyShop.ServiceDefaults.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- For its in-memory test server (Microsoft.AspNetCore.TestHost), the same one the services'
+         integration tests use. -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

@@ -9,6 +9,7 @@ using TinyShop.OrderService.Application.Common.Exceptions;
 using TinyShop.OrderService.Application.Models;
 using TinyShop.OrderService.Application.Services;
 using TinyShop.OrderService.Domain.Entities;
+using TinyShop.ServiceDefaults.Abstractions;
 
 namespace TinyShop.OrderService.UnitTests.Application;
 

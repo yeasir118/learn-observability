@@ -1,8 +1,8 @@
 using System.Net;
-using System.Net.Sockets;
 using TinyShop.OrderService.IntegrationTests.Infrastructure;
 using TinyShop.OrderService.IntegrationTests.Orders;
-using static TinyShop.OrderService.IntegrationTests.Support.ResponseAssertions;
+using TinyShop.Testing;
+using static TinyShop.Testing.ResponseAssertions;
 
 namespace TinyShop.OrderService.IntegrationTests.Database;
 
@@ -14,28 +14,13 @@ public sealed class UnreachableDatabaseFixture : IDisposable
 {
     public UnreachableDatabaseFixture()
     {
-        // 127.0.0.1, not localhost: on Windows, localhost tries IPv6 first and each refused
-        // connection attempt costs about two seconds.
-        var connectionString =
-            $"Host=127.0.0.1;Port={GetClosedPort()};Database=tinyshop_orders;Username=x;Password=x";
+        var connectionString = UnreachableDatabase.ConnectionString("tinyshop_orders");
         Factory = new OrderServiceFactory(connectionString);
     }
 
     public OrderServiceFactory Factory { get; }
 
     public void Dispose() => Factory.Dispose();
-
-    /// <summary>
-    /// Asks the OS for a free port, then releases it, so nothing is listening there.
-    /// </summary>
-    private static int GetClosedPort()
-    {
-        var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
-    }
 }
 
 /// <summary>contracts.md §2.2, §5.4 and §6: an unreachable order-db is 503, and liveness stays up.</summary>

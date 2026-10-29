@@ -1,0 +1,27 @@
+<!--
+  TinyShop.Testing: test support every service's integration tests use the same way
+  (decision D25): Problem Details and JSON assertions, the PostgreSQL fixture base, and the
+  "unreachable database" connection string. Referenced only by test projects (the boundary check
+  enforces it), and never part of an image (tinyshop/.dockerignore).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- Not xunit.v3: that package turns any project into a test executable. These two are the
+         parts a library needs: Assert, and TestContext/IAsyncLifetime. -->
+    <PackageReference Include="xunit.v3.assert" />
+    <PackageReference Include="xunit.v3.extensibility.core" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same database init script Compose uses, copied next to the test binaries of every
+         project that references this one, so the test container creates the same least-privilege
+         roles. One script, tested on every CI run. -->
+    <None Include="..\..\infrastructure\postgres\initdb\*.sh"
+          Link="initdb\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

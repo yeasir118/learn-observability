@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using TinyShop.PaymentService.Api.Services;
 
 namespace TinyShop.PaymentService.Api.Extensions;
@@ -20,10 +21,16 @@ internal static class WebApplicationExtensions
             app.MapGrpcReflectionService();
         }
 
-        // The same /health/live and /health/ready as the HTTP services (contracts.md §5.4). Here
-        // they're served over HTTP/2 like everything else on this port. No dependencies, so both
-        // report the process itself.
-        app.MapHealthChecks("/health/live");
+        // The same /health/live and /health/ready as the HTTP services (contracts.md §5.4), served
+        // over HTTP/2 like everything else on this port. Same rule as TinyShop.ServiceDefaults'
+        // MapDefaultHealthEndpoints, written out here because this gRPC service doesn't reference
+        // that HTTP library (TS-024): liveness runs only checks tagged "live" (none), readiness runs
+        // every check (today just "self"). So a dependency check added later can make the service
+        // not ready, but never gets it restarted.
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("live"),
+        });
         app.MapHealthChecks("/health/ready");
 
         return app;

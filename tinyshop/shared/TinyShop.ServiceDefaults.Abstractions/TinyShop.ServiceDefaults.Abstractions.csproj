@@ -1,0 +1,10 @@
+<!--
+  TinyShop.ServiceDefaults.Abstractions: shared types that a service's inner layers use, such as
+  DataStoreUnavailableException, which Application catches and Infrastructure throws.
+  No dependencies at all, on purpose: any layer may reference it, including Application, without
+  pulling in web or database code. Keep it that way; anything with a dependency belongs in
+  TinyShop.ServiceDefaults (web) or TinyShop.ServiceDefaults.Data (database).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+</Project>
