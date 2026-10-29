@@ -15,7 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TinyShop.OrderService.Application\TinyShop.OrderService.Application.csproj" />
     <ProjectReference Include="..\TinyShop.OrderService.Infrastructure\TinyShop.OrderService.Infrastructure.csproj" />
-    <!-- Shared plumbing (D25): health endpoints, ... Allowed by the service-boundary check. -->
+    <!-- Shared plumbing (D25): AddServiceDefaults/UseServiceDefaults. Allowed by the service-boundary check. -->
     <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults\TinyShop.ServiceDefaults.csproj" />
   </ItemGroup>
 
@@ -24,9 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- [ApiVersion] on the controllers. Swagger and the rest of versioning come with TinyShop.ServiceDefaults. -->
     <PackageReference Include="Asp.Versioning.Mvc" />
-    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
     <!-- Needed by "dotnet ef" at design time (migrations); never shipped as a runtime dependency. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>

@@ -1,7 +1,7 @@
 using System.Text.Json;
-using TinyShop.OrderService.Api.Contracts;
+using TinyShop.ServiceDefaults.Json;
 
-namespace TinyShop.OrderService.UnitTests.Api;
+namespace TinyShop.ServiceDefaults.UnitTests.Json;
 
 /// <summary>contracts.md §1.3: UTC, "Z", exactly three fractional digits.</summary>
 public class UtcTimestampJsonConverterTests

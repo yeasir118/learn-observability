@@ -1,6 +1,7 @@
 using TinyShop.ProductService.Api.Extensions;
 using TinyShop.ProductService.Application;
 using TinyShop.ProductService.Infrastructure;
+using TinyShop.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,8 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseApi();
+// The shared pipeline: error handling, Swagger (Development), controllers, health endpoints.
+app.UseServiceDefaults();
 
 app.Run();
 

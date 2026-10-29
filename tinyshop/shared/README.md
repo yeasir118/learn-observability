@@ -6,21 +6,46 @@ same way.
 
 | Project | What it holds | Referenced by |
 |---|---|---|
-| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: health endpoints, Problem Details (the generic error codes, the customizer, the error catalog). More is added in TS-024's later phases | Each service's **Api** project only |
+| `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: controllers and their JSON conventions, Problem Details (the generic error codes, the customizer, the error catalog), API versioning, Swagger, health endpoints, and the request pipeline. More is added in TS-024's later phases | Each service's **Api** project only |
 | `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | Nothing (CI job `dotnet (shared)`) |
 
 `TinyShop.Shared.slnx` builds and tests everything in this folder. Each service's solution also
 lists the shared projects it references, so the IDE and `dotnet format` cover them there too.
 
+## How a service uses it
+
+Two calls: one registers the services, one builds the pipeline. Everything else a service passes
+in is what makes it different from the others.
+
+```csharp
+// Api/Extensions/ServiceCollectionExtensions.cs
+services.AddServiceDefaults(new ServiceDefaultsOptions
+{
+    ApiTitle = "TinyShop Product Service",                 // OpenAPI document
+    ApiDescription = "Internal API for the product catalogue. ...",
+    AddErrorCodes = ProductErrorCodes.Register,            // this service's own error codes
+});
+services.AddExceptionHandler<DataStoreUnavailableExceptionHandler>();   // service-specific additions
+
+// Program.cs
+app.UseServiceDefaults();   // exception handler, status-code pages, Swagger (Development), controllers, health
+```
+
+The JSON conventions from contracts.md §1 and §2.1 (camelCase validation keys, a generic message for
+malformed JSON, UTC timestamps with a `Z` and milliseconds) are part of the defaults, so they apply
+to every service, including one that has no request bodies or timestamps yet.
+
+A service can still add to the shared setup afterwards, for something that really is its own:
+calling `services.AddControllers(...)` again returns the same MVC builder (MVC is only registered once).
+
 ## Error codes: what's shared and what each service adds
 
 The codes every service returns (`validation_failed`, `not_found`, `service_unavailable`, ...) and
 the rules for building a Problem Details response are shared. Codes only one service returns stay in
-that service, in `Api/Errors/<Service>ErrorCodes.cs`, which adds them at startup:
+that service, in `Api/Errors/<Service>ErrorCodes.cs`, which adds them at startup through
+`AddErrorCodes` (above):
 
 ```csharp
-services.AddDefaultProblemDetails(ProductErrorCodes.Register);
-
 // ProductErrorCodes.Register:
 catalog.Add(ProductNotFound, "Product not found");
 // A service can also claim a status nobody else maps (order-service: 502 is dependency_failed):

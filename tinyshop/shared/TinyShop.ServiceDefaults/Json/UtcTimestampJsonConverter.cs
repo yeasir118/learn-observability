@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TinyShop.OrderService.Api.Contracts;
+namespace TinyShop.ServiceDefaults.Json;
 
 /// <summary>
 /// Writes timestamps as contracts.md §1.3 requires: UTC, a "Z" suffix and exactly three
