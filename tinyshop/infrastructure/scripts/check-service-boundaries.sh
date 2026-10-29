@@ -10,6 +10,7 @@
 #   shared/...              may reference  shared/...  only (shared code can't depend on any service)
 #   shared/TinyShop.ServiceDefaults       only from a service's *.Api project
 #   shared/TinyShop.ServiceDefaults.Data  only from a service's *.Infrastructure project
+#   shared/TinyShop.Testing               only from a service's test projects (*Tests)
 #
 # Usage (from anywhere): tinyshop/infrastructure/scripts/check-service-boundaries.sh
 set -euo pipefail
@@ -66,9 +67,12 @@ while IFS= read -r project; do
   check_references "$project" "'$service'" "$services_dir/$service" "$shared_dir"
 
   # And each shared project only from its layer: the web plumbing from Api, the database plumbing
-  # from Infrastructure. TinyShop.ServiceDefaults.Abstractions has no dependencies, so any layer may.
+  # from Infrastructure, test support from tests. TinyShop.ServiceDefaults.Abstractions has no
+  # dependencies, so any layer may.
   check_shared_layer "$project" "TinyShop.ServiceDefaults" ".Api"
   check_shared_layer "$project" "TinyShop.ServiceDefaults.Data" ".Infrastructure"
+  # Test support pulls in xUnit and Testcontainers: never in production code.
+  check_shared_layer "$project" "TinyShop.Testing" "Tests"
 done < <(find "$services_dir" -name '*.csproj' -not -path '*/bin/*' -not -path '*/obj/*' | sort)
 
 # Shared projects: shared/ only.

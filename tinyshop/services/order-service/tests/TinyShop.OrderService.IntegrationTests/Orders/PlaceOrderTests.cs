@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using TinyShop.OrderService.IntegrationTests.Infrastructure;
-using static TinyShop.OrderService.IntegrationTests.Support.ResponseAssertions;
+using static TinyShop.Testing.ResponseAssertions;
 
 namespace TinyShop.OrderService.IntegrationTests.Orders;
 

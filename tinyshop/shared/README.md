@@ -9,6 +9,7 @@ same way.
 | `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: controllers and their JSON conventions, Problem Details (the generic error codes, the customizer, the error catalog, the "database unavailable" → 503 handler), API versioning, Swagger, health endpoints, and the request pipeline | ASP.NET Core, Asp.Versioning, Swashbuckle | Each service's **Api** project only |
 | `TinyShop.ServiceDefaults.Data` | Database plumbing: `DatabaseExceptionTranslator` (Npgsql failures → `DataStoreUnavailableException`) | Npgsql | Each service's **Infrastructure** project only |
 | `TinyShop.ServiceDefaults.Abstractions` | Types every layer may see: `DataStoreUnavailableException` | none, on purpose | Any layer, including **Application** |
+| `TinyShop.Testing` | Test support: `ResponseAssertions` (Problem Details and exact-JSON checks), `PostgresFixtureBase` (a throwaway PostgreSQL with the real init script and roles), `UnreachableDatabase` (a connection string to a closed port). Never in an image (`.dockerignore`) | xUnit (assert, extensibility), Testcontainers, Npgsql | Test projects only (`*Tests`) |
 | `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | | Nothing (CI job `dotnet (shared)`) |
 
 ### Why three projects, not one
@@ -99,7 +100,25 @@ behaviour or contract?* If yes, it belongs in that service.
 - They may never reference another service's projects.
 - A `shared/` project may never reference a service: shared code can't depend on any one service.
 - Each shared project only from its layer: `TinyShop.ServiceDefaults` from `*.Api` projects,
-  `TinyShop.ServiceDefaults.Data` from `*.Infrastructure` projects. `.Abstractions` from any.
+  `TinyShop.ServiceDefaults.Data` from `*.Infrastructure` projects, `TinyShop.Testing` from test
+  projects (`*Tests`). `.Abstractions` from any.
+
+## A service's database fixture
+
+Each service's integration tests derive their fixture from `PostgresFixtureBase` and add only what
+is theirs: the database, the roles' privileges, how to migrate, and the app under test.
+
+```csharp
+public sealed class PostgresFixture() : PostgresFixtureBase(
+    database: "tinyshop_users", rolePrefix: "user", appTablePrivileges: "SELECT")
+{
+    public UserServiceFactory Factory { get; private set; } = null!;
+
+    protected override async Task MigrateAsync(string migratorConnectionString) { /* this service's DbContext */ }
+    protected override Task OnReadyAsync() { Factory = new UserServiceFactory(AppConnectionString); return Task.CompletedTask; }
+    public override async ValueTask DisposeAsync() { await Factory.DisposeAsync(); await base.DisposeAsync(); }
+}
+```
 
 ## Consequences of sharing by project reference
 

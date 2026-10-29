@@ -17,6 +17,8 @@
 
 # --- Not needed to build any image ----------------------------------------------------
 **/tests/
+# Test support (decision D25). Only test projects reference it, and tests never run in an image.
+shared/TinyShop.Testing/
 docs/
 infrastructure/
 .editorconfig
@@ -30,5 +32,6 @@ infrastructure/
 
 # NOT excluded on purpose:
 #   proto/              the gRPC services (payment, order) compile their code from it
-#   shared/             the services' Api projects reference its projects (decision D25)
+#   shared/             the services' projects reference its projects (decision D25),
+#                       except shared/TinyShop.Testing (above)
 #   dotnet-tools.json   migration images restore dotnet-ef from it

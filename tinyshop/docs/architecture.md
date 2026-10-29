@@ -41,6 +41,7 @@ tinyshop/
 │   ├── TinyShop.ServiceDefaults/ web plumbing (AddServiceDefaults/UseServiceDefaults); referenced by Api projects only
 │   ├── TinyShop.ServiceDefaults.Data/          database plumbing (Npgsql); Infrastructure projects only
 │   ├── TinyShop.ServiceDefaults.Abstractions/  dependency-free types (DataStoreUnavailableException); any layer
+│   ├── TinyShop.Testing/         test support (assertions, Postgres fixture base); test projects only
 │   └── tests/                    unit tests for the shared code
 ├── proto/                        protobuf contracts (buf module root)
 ├── docs/                         this document, contracts.md, ...

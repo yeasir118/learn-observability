@@ -1,6 +1,6 @@
 using System.Net;
 using TinyShop.OrderService.IntegrationTests.Infrastructure;
-using static TinyShop.OrderService.IntegrationTests.Support.ResponseAssertions;
+using static TinyShop.Testing.ResponseAssertions;
 
 namespace TinyShop.OrderService.IntegrationTests.Routing;
 

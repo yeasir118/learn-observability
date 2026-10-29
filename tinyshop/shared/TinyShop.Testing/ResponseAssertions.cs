@@ -1,14 +1,15 @@
 using System.Net;
 using System.Text.Json.Nodes;
+using Xunit;
 
-namespace TinyShop.UserService.IntegrationTests.Support;
+namespace TinyShop.Testing;
 
 /// <summary>
 /// Assertions on the HTTP response as it's actually sent: raw status, headers and JSON text.
 /// Tests never deserialize into the service's own C# types; that would hide wrong field names
 /// or casing, because the same serializer settings would be used to read them back.
 /// </summary>
-internal static class ResponseAssertions
+public static class ResponseAssertions
 {
     /// <summary>
     /// Asserts the body is exactly <paramref name="expectedJson"/>: same property names

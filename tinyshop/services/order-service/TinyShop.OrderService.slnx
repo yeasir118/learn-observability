@@ -3,6 +3,7 @@
     <Project Path="../../shared/TinyShop.ServiceDefaults.Abstractions/TinyShop.ServiceDefaults.Abstractions.csproj" />
     <Project Path="../../shared/TinyShop.ServiceDefaults.Data/TinyShop.ServiceDefaults.Data.csproj" />
     <Project Path="../../shared/TinyShop.ServiceDefaults/TinyShop.ServiceDefaults.csproj" />
+    <Project Path="../../shared/TinyShop.Testing/TinyShop.Testing.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/TinyShop.OrderService.Api/TinyShop.OrderService.Api.csproj" />
