@@ -79,7 +79,7 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
 | `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
-| `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
+| `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
 | `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
