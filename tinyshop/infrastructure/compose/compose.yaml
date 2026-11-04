@@ -7,9 +7,15 @@
 # Without this, the project would be named after this folder ("compose").
 name: tinyshop
 
-# Top-level "x-" keys are ignored by Compose, which makes them a place to define values once and
-# reuse them with YAML anchors (&name) and aliases (*name).
-# Least privilege (architecture.md §10, "Database roles"): each migration job connects as the role
+# --- Shared values and templates (TS-025) --------------------------------------------------------
+# Compose ignores top-level "x-" keys; YAML reuses them: "&name" names a value or block, "*name"
+# inserts it, "<<: *name" copies a block's keys into a service (keys the service writes win).
+# "<<:" is shallow: a key the service writes REPLACES the template's value, it isn't combined. So a
+# partly shared block (build) has its own template, merged one level down, and lists (volumes,
+# networks) are written out in each service. "docker compose --profile '*' config" shows the file
+# expanded: compare its output before and after changing anything here.
+
+# Connection strings. Least privilege (architecture.md §10, "Database roles"): each migration job connects as the role
 # that owns its schema, each service as a role with only the table privileges it needs (read-only,
 # except order_app, which also inserts and updates). None uses the superuser.
 x-product-db-migrator-connection: &product-db-migrator-connection "Host=product-db;Port=5432;Database=tinyshop_products;Username=product_migrator;Password=${PRODUCT_DB_MIGRATOR_PASSWORD:?set PRODUCT_DB_MIGRATOR_PASSWORD in .env}"
@@ -19,11 +25,59 @@ x-user-db-app-connection: &user-db-app-connection "Host=user-db;Port=5432;Databa
 x-order-db-migrator-connection: &order-db-migrator-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_migrator;Password=${ORDER_DB_MIGRATOR_PASSWORD:?set ORDER_DB_MIGRATOR_PASSWORD in .env}"
 x-order-db-app-connection: &order-db-app-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_app;Password=${ORDER_DB_APP_PASSWORD:?set ORDER_DB_APP_PASSWORD in .env}"
 
+# Health check of the .NET HTTP services (product, user, order). Not payment-service: its port
+# speaks only HTTP/2, so it has its own check.
+x-dotnet-healthcheck: &dotnet-healthcheck
+  # Runs INSIDE the container against its own port, so no Docker port forwarding is involved.
+  # /health/ready (not /live): "healthy" means "can serve requests", including reaching the
+  # database. BusyBox wget exits non-zero on an HTTP error status such as 503.
+  test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
+  interval: 10s
+  timeout: 3s
+  retries: 3
+  # Grace period after start: failures here don't count against "retries", and checks run
+  # every start_interval instead of every interval, so the service turns healthy quickly.
+  start_period: 20s
+  start_interval: 2s
+
+# What every service database shares. Each database writes its own environment, volumes and
+# networks (see product-db).
+x-postgres: &postgres
+  image: postgres:18-alpine
+  healthcheck:
+    # "$$" escapes Compose's own interpolation, so the variables are expanded
+    # by the shell inside the container, from the container's environment.
+    # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
+    # that only listens on a Unix socket; a socket check would report "ready" before the roles
+    # exist, and the migration job would start too early.
+    test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+    start_period: 10s
+
+# What every migration job shares (architecture.md §10).
+x-migration-job: &migration-job
+  # A job, not a server: run once and stay stopped. A failure must stop the chain, not loop.
+  restart: "no"
+
+# Every migration image: built from tinyshop/ (paths resolve from this folder; "dockerfile" is
+# relative to the context), from the Dockerfile's "migrations" stage. Each job adds its dockerfile.
+x-migration-build: &migration-build
+  context: ../..
+  target: migrations
+
+# What every debug proxy shares (architecture.md §8). In the template so that no proxy can forget
+# the profile: a proxy in the default stack would publish a database port on every "up".
+x-debug-proxy: &debug-proxy
+  image: alpine/socat:1.8.1.1
+  profiles: [debug]
+
 services:
   # Service names are DNS names on the Docker networks. Hostnames may not
   # contain underscores, so names use hyphens.
   product-db:
-    image: postgres:18-alpine
+    <<: *postgres
     environment:
       # The database name and role names are part of the design, not configuration.
       POSTGRES_DB: tinyshop_products
@@ -46,21 +100,10 @@ services:
       - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - product-network
-    healthcheck:
-      # "$$" escapes Compose's own interpolation, so the variables are expanded
-      # by the shell inside the container, from the container's environment.
-      # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
-      # that only listens on a Unix socket; a socket check would report "ready" before the roles
-      # exist, and the migration job would start too early.
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
 
   # Same setup as product-db above (see its comments); only the names and passwords differ.
   user-db:
-    image: postgres:18-alpine
+    <<: *postgres
     environment:
       # The database name and role names are part of the design, not configuration.
       POSTGRES_DB: tinyshop_users
@@ -83,21 +126,10 @@ services:
       - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - user-network
-    healthcheck:
-      # "$$" escapes Compose's own interpolation, so the variables are expanded
-      # by the shell inside the container, from the container's environment.
-      # -h 127.0.0.1 checks over TCP. While init scripts run, the image runs a temporary server
-      # that only listens on a Unix socket; a socket check would report "ready" before the roles
-      # exist, and the migration job would start too early.
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
 
   # Same setup as product-db above (see its comments), except the app role's privileges.
   order-db:
-    image: postgres:18-alpine
+    <<: *postgres
     environment:
       POSTGRES_DB: tinyshop_orders
       POSTGRES_USER: postgres
@@ -115,17 +147,10 @@ services:
       - ../postgres/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - order-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
 
   # Debug-only entry point from the host to product-db (architecture.md §8).
   product-db-proxy:
-    image: alpine/socat:1.8.1.1
-    profiles: [debug]
+    <<: *debug-proxy
     # The image's entrypoint is socat, so this is just socat's arguments:
     #   TCP-LISTEN:5432        listen on 5432 inside the container
     #   fork                   handle each connection in a child process, so several clients can connect
@@ -147,8 +172,7 @@ services:
   # One proxy per database, never one proxy on several database networks: that container would be
   # the one place able to reach every database, undoing the per-database isolation.
   user-db-proxy:
-    image: alpine/socat:1.8.1.1
-    profiles: [debug]
+    <<: *debug-proxy
     # Same as product-db-proxy, forwarding to user-db instead.
     command: TCP-LISTEN:5432,fork,reuseaddr TCP:user-db:5432
     ports:
@@ -162,8 +186,7 @@ services:
 
   # Debug-only entry point from the host to order-db, at 127.0.0.1:5435 (architecture.md §8).
   order-db-proxy:
-    image: alpine/socat:1.8.1.1
-    profiles: [debug]
+    <<: *debug-proxy
     # Same as product-db-proxy, forwarding to order-db instead.
     command: TCP-LISTEN:5432,fork,reuseaddr TCP:order-db:5432
     ports:
@@ -178,12 +201,11 @@ services:
   # One-off job: applies product-service's EF Core migrations, then exits (architecture.md §10).
   # Startup chain: product-db (healthy) -> product-db-migrate (exit 0) -> product-service.
   product-db-migrate:
+    <<: *migration-job
     image: tinyshop/product-service-migrations:local
     build:
-      # Paths resolve from this folder: ../.. is tinyshop/. "dockerfile" is relative to the context.
-      context: ../..
+      <<: *migration-build
       dockerfile: services/product-service/Dockerfile
-      target: migrations
     environment:
       ConnectionStrings__ProductDb: *product-db-migrator-connection
     networks:
@@ -191,16 +213,14 @@ services:
     depends_on:
       product-db:
         condition: service_healthy
-    # A job, not a server: run once and stay stopped. A failure must stop the chain, not loop.
-    restart: "no"
 
   # Same as product-db-migrate: user-db (healthy) -> user-db-migrate (exit 0) -> user-service.
   user-db-migrate:
+    <<: *migration-job
     image: tinyshop/user-service-migrations:local
     build:
-      context: ../..
+      <<: *migration-build
       dockerfile: services/user-service/Dockerfile
-      target: migrations
     environment:
       ConnectionStrings__UserDb: *user-db-migrator-connection
     networks:
@@ -208,15 +228,14 @@ services:
     depends_on:
       user-db:
         condition: service_healthy
-    restart: "no"
 
   # Same as product-db-migrate: order-db (healthy) -> order-db-migrate (exit 0) -> order-service.
   order-db-migrate:
+    <<: *migration-job
     image: tinyshop/order-service-migrations:local
     build:
-      context: ../..
+      <<: *migration-build
       dockerfile: services/order-service/Dockerfile
-      target: migrations
     environment:
       ConnectionStrings__OrderDb: *order-db-migrator-connection
     networks:
@@ -224,7 +243,6 @@ services:
     depends_on:
       order-db:
         condition: service_healthy
-    restart: "no"
 
   product-service:
     image: tinyshop/product-service:local
@@ -244,18 +262,7 @@ services:
       # Start only after the schema is in place; a failed migration keeps the service down.
       product-db-migrate:
         condition: service_completed_successfully
-    healthcheck:
-      # Runs INSIDE the container against its own port, so no Docker port forwarding is involved.
-      # /health/ready (not /live): "healthy" means "can serve requests", including reaching the
-      # database. BusyBox wget exits non-zero on an HTTP error status such as 503.
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      # Grace period after start: failures here don't count against "retries", and checks run
-      # every start_interval instead of every interval, so the service turns healthy quickly.
-      start_period: 20s
-      start_interval: 2s
+    healthcheck: *dotnet-healthcheck
 
   # Same setup as product-service above (see its comments): no published ports, starts after its
   # migration job, healthy only when it can reach its database.
@@ -275,13 +282,7 @@ services:
         condition: service_healthy
       user-db-migrate:
         condition: service_completed_successfully
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 20s
-      start_interval: 2s
+    healthcheck: *dotnet-healthcheck
 
   # The order flow (architecture.md §6): calls user- and product-service over HTTP/1.1 on
   # backend-network, and payment-service over gRPC (HTTP/2) on payment-network. Same setup as
@@ -315,15 +316,9 @@ services:
         condition: service_healthy
       order-db-migrate:
         condition: service_completed_successfully
-    healthcheck:
-      # /health/ready checks order-db only (contracts.md §5.4). The port speaks HTTP/1.1,
-      # so the same wget check as product-service works.
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health/ready || exit 1"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 20s
-      start_interval: 2s
+    # /health/ready checks order-db only (contracts.md §5.4). The port speaks HTTP/1.1, so the
+    # shared wget check works.
+    healthcheck: *dotnet-healthcheck
 
   # gRPC only (tinyshop.payment.v1.PaymentService), HTTP/2 only on 8080. No database, so no
   # migration job and no dependencies to wait for.
@@ -340,6 +335,8 @@ services:
       # Its own network, NOT backend-network: only order-service shares it, so the gateway and
       # the other services can't call payments directly (architecture.md §3).
       - payment-network
+    # Not *dotnet-healthcheck, deliberately: another probe, and a 5s timeout (the probe's 2s connect
+    # + 2s call). Merging that template and overriding "test" would silently make it 3s.
     healthcheck:
       # The port refuses HTTP/1.1, so wget can't check it. grpc_health_probe (in the image) calls
       # the standard grpc.health.v1 Check over HTTP/2 and exits 0 only on SERVING.
