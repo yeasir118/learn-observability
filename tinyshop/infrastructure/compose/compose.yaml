@@ -25,7 +25,7 @@ x-user-db-app-connection: &user-db-app-connection "Host=user-db;Port=5432;Databa
 x-order-db-migrator-connection: &order-db-migrator-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_migrator;Password=${ORDER_DB_MIGRATOR_PASSWORD:?set ORDER_DB_MIGRATOR_PASSWORD in .env}"
 x-order-db-app-connection: &order-db-app-connection "Host=order-db;Port=5432;Database=tinyshop_orders;Username=order_app;Password=${ORDER_DB_APP_PASSWORD:?set ORDER_DB_APP_PASSWORD in .env}"
 
-# Health check of the .NET HTTP services (product, user, order). Not payment-service: its port
+# Health check of the .NET HTTP services (product, user, order, gateway). Not payment-service: its port
 # speaks only HTTP/2, so it has its own check.
 x-dotnet-healthcheck: &dotnet-healthcheck
   # Runs INSIDE the container against its own port, so no Docker port forwarding is involved.
@@ -320,6 +320,33 @@ services:
     # shared wget check works.
     healthcheck: *dotnet-healthcheck
 
+  # The public API (/api/*, contracts.md §4): forwards each route to product-, user- or
+  # order-service over backend-network. Reached only from edge-network: nginx (TS-015) will
+  # proxy /api to it; until then, any container on edge-network can call it.
+  gateway:
+    image: tinyshop/gateway:local
+    build:
+      context: ../..
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      # The upstreams' addresses, resolved through Docker's DNS on backend-network. Required:
+      # the gateway fails at startup without them.
+      Services__ProductService__BaseUrl: http://product-service:8080
+      Services__UserService__BaseUrl: http://user-service:8080
+      Services__OrderService__BaseUrl: http://order-service:8080
+    networks:
+      - edge-network      # callers: the frontend (TS-015)
+      - backend-network   # the services it forwards to
+      # Never payment-network: payments are reachable only from order-service (architecture.md §3).
+    # No "ports": only the frontend publishes one (architecture.md §2). From the host, the
+    # gateway is reached through the frontend, never directly.
+    # No depends_on (TS-014, decision 8): the entry point starts and is ready without the
+    # services, and answers 502 for a route whose service is down. Waiting for them would let one
+    # unhealthy service keep the whole public API from starting.
+    # /health/ready checks nothing upstream, for the same reason (contracts.md §5.4).
+    healthcheck: *dotnet-healthcheck
+
   # gRPC only (tinyshop.payment.v1.PaymentService), HTTP/2 only on 8080. No database, so no
   # migration job and no dependencies to wait for.
   payment-service:
@@ -348,6 +375,10 @@ services:
       start_interval: 2s
 
 networks:
+  # frontend <-> gateway. The only network of the default stack that ISN'T internal: the
+  # frontend must publish its port to the host through it (architecture.md §3). Its members
+  # also get outbound internet access (architecture.md §3, "Egress").
+  edge-network: {}
   # Product service <-> its database only. No traffic to or from outside Docker.
   product-network:
     internal: true

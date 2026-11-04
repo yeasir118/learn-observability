@@ -2,7 +2,7 @@
 key: TS-025
 title: Remove repetition from compose.yaml with templates
 type: Task
-status: In Review
+status: Done
 priority: Medium
 points: 2
 assignee: yeasir118

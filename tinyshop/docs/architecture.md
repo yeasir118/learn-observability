@@ -79,10 +79,10 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
 | `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
-| `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
+| `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
-| `order-service` | build `tinyshop/services/order-service` | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
+| `order-service` | build `tinyshop/services/order-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Order creation and lookup, orchestrates the order flow | 8080 (HTTP/1.1) | none | `backend-network`, `order-network`, `payment-network` |
 | `payment-service` | build `tinyshop/services/payment-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`, plus `grpc_health_probe`) | Simulated payment processing (gRPC) | 8080 (HTTP/2 only, h2c) | none | `payment-network` |
 | `product-db` | `postgres:18-alpine` | Database `tinyshop_products` | 5432 | none | `product-network` |
 | `user-db` | `postgres:18-alpine` | Database `tinyshop_users` | 5432 | none | `user-network` |
@@ -94,6 +94,7 @@ One-off jobs: they run to completion during startup, then stay stopped (see [§1
 |---|---|---|---|---|---|
 | `product-db-migrate` | build `tinyshop/services/product-service`, target `migrations` (`aspnet:10.0`) | Applies product-service's EF Core migrations, then exits | none | none | `product-network` |
 | `user-db-migrate` | build `tinyshop/services/user-service`, target `migrations` (`aspnet:10.0`) | Applies user-service's EF Core migrations, then exits | none | none | `user-network` |
+| `order-db-migrate` | build `tinyshop/services/order-service`, target `migrations` (`aspnet:10.0`) | Applies order-service's EF Core migrations, then exits | none | none | `order-network` |
 
 Debug-only containers, started only with `docker compose --profile debug` (see [§8](#8-local-development)):
 
@@ -125,7 +126,7 @@ Notes:
 
 | Network | Internal | Members | Purpose |
 |---|---|---|---|
-| `edge-network` | no | `frontend`, `gateway` | The only network reachable from the host. Carries browser traffic in through the published frontend port, and nginx → gateway. |
+| `edge-network` | no | `frontend`, `gateway` | The only network reachable from the host. Carries browser traffic in through the published frontend port, and nginx → gateway. Created with the gateway in TS-014; the frontend joins it in TS-015. |
 | `backend-network` | yes | `gateway`, `product-service`, `user-service`, `order-service` | Service-to-service HTTP calls. |
 | `product-network` | yes | `product-service`, `product-db` | Product service ↔ its database only. |
 | `user-network` | yes | `user-service`, `user-db` | User service ↔ its database only. |
@@ -161,6 +162,21 @@ The databases never initiate connections, so they have no rows. Things to check:
 - The gateway can reach no database, and can't reach `payment-service`.
 - `order-service` can't reach `user-db` or `product-db`. It must go through the owning service.
 - The browser reaches nothing except the frontend's published port.
+
+### How the matrix is proven
+
+`infrastructure/scripts/check-reachability-matrix.sh` tests every cell against the running stack, and the CI job `network` runs it on every pull request (TS-014). It reads the table above from this file, so **this table is the test's input**: changing a cell changes what's checked.
+
+- **From a container:** a `nicolaka/netshoot` container joins the row container's network namespace (`--network container:<row>`), so it sees exactly that container's interfaces, routes and DNS. Each target is tried **by name and by IP** (every address it has, one per network). A name that doesn't resolve only shows that DNS hides the target; an IP that can't be reached shows there's no route. If the two disagree, the cell is a finding (`?`). Ports: 80 for the frontend, 5432 for the databases, 8080 for the rest. A TCP connection is the test, so ✓ and ◐ look the same; the script keeps whichever the table says.
+- **From the browser:** only through published ports, as a browser on another machine would reach the stack. On a Linux host (the CI runner), the host can also open connections to container IPs on non-internal networks directly. That's a property of the host's routing table, not a path anyone else has, so the browser row doesn't count it.
+- **Until TS-015**, a stand-in container plays the frontend: on `edge-network` only, with the DNS alias `frontend`, listening on 80 and publishing 8000.
+
+The script prints the matrix it observed in the same format as the table above and compares the two line by line. Any difference fails it: either `compose.yaml` or this table is wrong, and whichever it is gets fixed. Run it against the default stack (no debug profile):
+
+```bash
+cd tinyshop/infrastructure/compose && docker compose up -d --wait
+bash ../scripts/check-reachability-matrix.sh
+```
 
 ## 5. Component diagrams
 
@@ -363,7 +379,7 @@ The same database, reached by a different path, needs a different address. The p
 | Q2 | Image pinning: major tag (current), exact patch tag, or digest? | **Resolved in TS-010**: see [§2](#2-container-inventory), notes |
 | Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
 | Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |
-| Q5 | Does `nginx` strip the `/api` prefix, or does the gateway own `/api/*`? (Assumed in this document: the gateway owns `/api/*` and nginx forwards the path unchanged.) | Step 6/7 |
+| Q5 | Does `nginx` strip the `/api` prefix, or does the gateway own `/api/*`? | **Resolved in TS-014**: the gateway owns `/api/*`, and nginx forwards the path unchanged. The gateway maps each public route to its internal path (`/api/orders/1001` → `/orders/1001`) and rewrites `Location` back (contracts.md §4). One component knows the public paths, so nginx stays a plain proxy |
 
 ## 10. Startup, migrations and health checks
 
@@ -372,7 +388,7 @@ Decided in TS-010 for product-service. User-service and order-service, which als
 ### Startup chain
 
 ```text
-product-db ──healthy──► product-db-migrate ──exited 0──► product-service ──healthy──► (gateway, later)
+product-db ──healthy──► product-db-migrate ──exited 0──► product-service
 ```
 
 - `product-db-migrate` starts once `product-db` is **healthy** (`depends_on: condition: service_healthy`).
@@ -380,6 +396,7 @@ product-db ──healthy──► product-db-migrate ──exited 0──► pro
 - The migration job has `restart: "no"`: it's a job, not a server, and a failure must stop the chain rather than loop.
 - Re-running is safe: migrations already applied are skipped ("No migrations were applied. The database is already up to date").
 - A service waits only for **its own** database and migration job, never for the services it calls. order-service's `depends_on` lists `order-db` and `order-db-migrate`, not user-, product- or payment-service: it starts and is ready without them and answers 502/504 while one is down (contracts.md §6). Waiting on them would let one unhealthy service keep another from starting, the cascade the readiness rule avoids (contracts.md §5.4). Decided in TS-023.
+- The gateway waits for nothing: no `depends_on`, and its `/health/ready` checks nothing upstream. It starts and is ready on its own, and answers 502 `upstream_unreachable` for a route whose service is down. Otherwise one unhealthy service would take the whole public API down with it. Decided in TS-014.
 - Services also cope with the database disappearing *later*: they don't connect at startup, and every request or readiness check simply fails (503) until it's back. So there's no retry loop at startup.
 
 ### Migrations: a bundle in a one-off container

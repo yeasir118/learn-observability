@@ -41,6 +41,7 @@ updates:
       - /tinyshop/services/user-service
       - /tinyshop/services/payment-service
       - /tinyshop/services/order-service
+      - /tinyshop/services/gateway
     schedule:
       interval: weekly
     commit-message:
