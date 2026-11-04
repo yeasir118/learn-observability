@@ -2,7 +2,7 @@
 key: TS-025
 title: Remove repetition from compose.yaml with templates
 type: Task
-status: To Do
+status: In Review
 priority: Medium
 points: 2
 assignee: yeasir118
@@ -36,9 +36,9 @@ Collapse the near-identical blocks in `compose.yaml` (three Postgres databases, 
 - Any change to what runs: images, networks, ports, health checks, dependencies
 
 ## Acceptance criteria
-- [ ] AC1: `docker compose --profile '*' config` produces the same output before and after (the fully expanded model is identical; save both and diff them).
-- [ ] AC2: The file is shorter, and every service can still be understood without reading more than its own block and the template it names.
-- [ ] AC3: `docker compose up` on empty volumes brings every service up healthy, as before. CI's `compose` job passes.
+- [x] AC1: `docker compose --profile '*' config` produces the same output before and after (the fully expanded model is identical; save both and diff them).
+- [x] AC2: The file is shorter, and every service can still be understood without reading more than its own block and the template it names.
+- [x] AC3: `docker compose up` on empty volumes brings every service up healthy, as before. CI's `compose` job passes.
 
 ## Technical notes
 - **The merge key `<<: *template` is shallow.** It merges top-level keys only: if a service declares its own `environment:` (or `networks:`, `healthcheck:`), that replaces the template's whole block; the entries aren't combined. This is the most common way templated Compose files lose settings silently, and why AC1 compares the expanded output.
@@ -64,3 +64,4 @@ Write the answers in `notes/`.
 
 ## Activity log
 - 2026-10-27: Created, from the discussion before TS-024 (Compose repetition; Dockerfiles deliberately left explicit)
+- 2026-11-04: Implemented with merge keys, not `extends`: in one file, `extends` needs a real base service, which either runs as a container or, hidden behind a profile, passes that profile on to every service extending it (tested). Five templates: `x-dotnet-healthcheck` (alias for the whole block; not payment-service, whose probe and 5s timeout differ), `x-postgres` (image, health check), `x-migration-job` (`restart: "no"`), `x-migration-build` (context, target; merged inside each job's `build`, because a job's own `build` would otherwise replace the template's), `x-debug-proxy` (image, `profiles: [debug]`). Not templated: `POSTGRES_USER` and `ASPNETCORE_ENVIRONMENT` (one shared key each: a nested merge costs more lines than it saves), lists, and values inside strings (YAML has no parameters). The migration-job and proxy templates don't save lines; they're kept because they enforce rules a copy could forget (a job never restarts, a proxy never runs in the default stack). Comments: the mechanism once at the templates, the explanations moved from the copies onto the templates. 375 → 372 lines (code 254 → 235). Verified: the expanded `config --profile '*'` identical to master's apart from the `x-` keys themselves; CI's compose check; the full stack (`--profile '*'`, throwaway project, empty volumes) healthy with `up --wait`, migrations exited 0, the three proxies reach their databases
