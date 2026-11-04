@@ -1,0 +1,30 @@
+<!--
+  Integration tests: the real HTTP pipeline, in memory (WebApplicationFactory). From phase 2 on,
+  also real upstream servers on local ports (TS-014, decision 10). No Docker needed.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- xUnit v3 test projects are executables that run on Microsoft.Testing.Platform
+         (enabled for "dotnet test" in global.json). -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The app under test. -->
+    <ProjectReference Include="..\..\src\TinyShop.Gateway.Api\TinyShop.Gateway.Api.csproj" />
+    <!-- Shared test support (D25): ResponseAssertions, later the closed-port helper. -->
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.Testing\TinyShop.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

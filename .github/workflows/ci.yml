@@ -102,6 +102,9 @@ jobs:
           - name: order-service
             directory: tinyshop/services/order-service
             solution: TinyShop.OrderService.slnx
+          - name: gateway
+            directory: tinyshop/services/gateway
+            solution: TinyShop.Gateway.slnx
     defaults:
       run:
         working-directory: ${{ matrix.directory }}

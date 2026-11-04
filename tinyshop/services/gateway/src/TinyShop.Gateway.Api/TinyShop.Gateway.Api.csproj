@@ -1,0 +1,25 @@
+<!--
+  The gateway: the public API (/api/*), forwarded to the internal services (contracts.md §4).
+  One project, not four layers: it has no domain, no use cases and no database (TS-014, decision 1).
+  Named *.Api so the boundary check lets it reference TinyShop.ServiceDefaults.
+  Target framework, nullable and code style come from tinyshop/Directory.Build.props.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- Required by the shared Swagger setup, which reads <assembly>.xml (TinyShop.ServiceDefaults). -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: missing XML comment. Only public API surface that matters gets documented. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Shared plumbing (D25): AddServiceDefaults/UseServiceDefaults. -->
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults\TinyShop.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.Gateway.UnitTests" />
+  </ItemGroup>
+
+</Project>
