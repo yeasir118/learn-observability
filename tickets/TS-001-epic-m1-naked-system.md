@@ -110,3 +110,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-27: Added TS-024 (shared service plumbing) and decision D25; TS-014 now depends on it
 - 2026-10-27: Added TS-025 (Compose templates); Dockerfiles deliberately stay explicit
 - 2026-10-29: TS-024 implemented (in review); D25 updated with the four shared projects and their layers
+- 2026-11-04: TS-024 and TS-025 done. TS-014 refined: one ticket including containerization and the network proof; 8 points

@@ -2,7 +2,7 @@
 key: TS-024
 title: Extract shared service plumbing into TinyShop.ServiceDefaults
 type: Task
-status: In Review
+status: Done
 priority: High
 points: 5
 assignee: yeasir118
