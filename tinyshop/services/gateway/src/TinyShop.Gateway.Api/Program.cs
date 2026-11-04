@@ -1,5 +1,4 @@
 using TinyShop.Gateway.Api.Extensions;
-using TinyShop.Gateway.Api.Forwarding;
 using TinyShop.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,9 +10,7 @@ var app = builder.Build();
 // The shared pipeline: error handling, Swagger (Development), health endpoints.
 app.UseServiceDefaults();
 
-// The public routes, each forwarded to an internal service (contracts.md §4).
-app.MapGet("/api/products", (HttpContext context, RequestForwarder forwarder) =>
-    forwarder.ForwardAsync(context, "product-service", "products"));
+app.MapGatewayRoutes();
 
 app.Run();
 

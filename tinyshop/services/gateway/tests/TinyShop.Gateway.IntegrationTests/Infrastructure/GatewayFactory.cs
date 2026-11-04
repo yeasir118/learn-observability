@@ -23,6 +23,12 @@ public sealed class GatewayFactory : WebApplicationFactory<Program>
     /// </summary>
     public string ProductServiceUrl { get; init; } = "http://127.0.0.1:9/";
 
+    /// <summary>Where the gateway finds user-service. Same default as <see cref="ProductServiceUrl"/>.</summary>
+    public string UserServiceUrl { get; init; } = "http://127.0.0.1:9/";
+
+    /// <summary>Where the gateway finds order-service. Same default as <see cref="ProductServiceUrl"/>.</summary>
+    public string OrderServiceUrl { get; init; } = "http://127.0.0.1:9/";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Not "Development": that would enable Swagger. Tests must not depend on whoever runs them.
@@ -31,6 +37,8 @@ public sealed class GatewayFactory : WebApplicationFactory<Program>
         // UseSetting, not ConfigureAppConfiguration: the gateway reads these while Program.cs runs,
         // before ConfigureAppConfiguration callbacks would.
         builder.UseSetting("Services:ProductService:BaseUrl", ProductServiceUrl);
+        builder.UseSetting("Services:UserService:BaseUrl", UserServiceUrl);
+        builder.UseSetting("Services:OrderService:BaseUrl", OrderServiceUrl);
     }
 
     /// <summary>A broken response must fail the test in seconds, not after HttpClient's default 100 s.</summary>

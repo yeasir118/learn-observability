@@ -7,6 +7,8 @@ namespace TinyShop.Gateway.Api.Extensions;
 internal static class ServiceCollectionExtensions
 {
     private const string ProductServiceUrlKey = "Services:ProductService:BaseUrl";
+    private const string UserServiceUrlKey = "Services:UserService:BaseUrl";
+    private const string OrderServiceUrlKey = "Services:OrderService:BaseUrl";
 
     /// <summary>Registers everything the gateway needs.</summary>
     public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration)
@@ -20,16 +22,22 @@ internal static class ServiceCollectionExtensions
             AddErrorCodes = GatewayErrorCodes.Register,
         });
 
+        // Singleton: it holds no per-request state, and IHttpClientFactory is a singleton too.
         services.AddSingleton<RequestForwarder>();
 
-        // Read before registering anything: a missing or malformed address stops the gateway at
-        // startup, instead of on the first request.
+        // Read all three before registering anything: a missing or malformed address stops the
+        // gateway at startup, instead of on the first request.
         var productServiceUrl = GetRequiredUrl(configuration, ProductServiceUrlKey);
+        var userServiceUrl = GetRequiredUrl(configuration, UserServiceUrlKey);
+        var orderServiceUrl = GetRequiredUrl(configuration, OrderServiceUrlKey);
 
-        // A named client: the gateway treats every upstream the same way, so it needs a
+        // Named clients: the gateway treats every upstream the same way, so it needs a
         // per-upstream base address, not per-upstream methods. IHttpClientFactory pools the
         // connections underneath. No Timeout is set: the default 100 s applies (decision D5).
-        services.AddHttpClient("product-service", client => client.BaseAddress = productServiceUrl);
+        // The names are the ones the routes use (GatewayRoutes), so the two can't drift apart.
+        services.AddHttpClient(GatewayRoutes.ProductService, client => client.BaseAddress = productServiceUrl);
+        services.AddHttpClient(GatewayRoutes.UserService, client => client.BaseAddress = userServiceUrl);
+        services.AddHttpClient(GatewayRoutes.OrderService, client => client.BaseAddress = orderServiceUrl);
 
         return services;
     }
