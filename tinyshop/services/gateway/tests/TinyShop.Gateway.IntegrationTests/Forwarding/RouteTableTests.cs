@@ -65,16 +65,20 @@ public sealed class RouteTableTests : GatewayWithUpstreams
     }
 
     [Theory]
-    [InlineData("POST", "/api/products")]
-    [InlineData("DELETE", "/api/orders/1001")]
-    [InlineData("PUT", "/api/users/42")]
-    public async Task WrongMethod_Returns405MethodNotAllowed(string method, string path)
+    [InlineData("POST", "/api/products", "GET")]
+    [InlineData("DELETE", "/api/orders/1001", "GET")]
+    [InlineData("PUT", "/api/users/42", "GET")]
+    [InlineData("DELETE", "/api/orders", "GET, POST")]   // two routes share the path
+    public async Task WrongMethod_Returns405MethodNotAllowed(string method, string path, string allow)
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), path);
 
         var response = await Client.SendAsync(request, TestContext.Current.CancellationToken);
 
         await AssertProblemAsync(response, HttpStatusCode.MethodNotAllowed, "method_not_allowed", path);
+        // RFC 9110 §15.5.6: a 405 must say which methods the path does accept (contracts.md §4).
+        // In .NET, Allow is a content header.
+        Assert.Equal(allow, string.Join(", ", response.Content.Headers.Allow.Order(StringComparer.Ordinal)));
         AssertNoUpstreamWasCalled();
     }
 

@@ -210,6 +210,44 @@ jobs:
           --tag tinyshop/${{ matrix.service }}-migrations:ci
           tinyshop
 
+  # Starts the real stack and proves the reachability matrix (architecture.md §4) against it: every
+  # cell, by name and by IP (TS-014). The networks are the system's security boundary, so a Compose
+  # change that opens a route the document says is blocked must fail here, not be found later.
+  network:
+    name: network
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tinyshop/infrastructure/compose
+    # .env is git-ignored: the committed template's passwords are fine for a stack that lives for
+    # one job. Read by every docker compose command below.
+    env:
+      COMPOSE_ENV_FILES: .env.example
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build and start the stack
+        # --wait: return once every service is healthy and every migration job has exited 0; fail if
+        # one doesn't get there within the timeout. The default stack only, no debug profile.
+        run: docker compose up --build --wait --wait-timeout 300
+
+      - name: Check the reachability matrix
+        run: bash ../scripts/check-reachability-matrix.sh
+
+      - name: Show container status and logs
+        if: failure()
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --timestamps
+
+      - name: Remove the stack
+        if: always()
+        run: docker compose down --volumes --remove-orphans
+
   # The only check the master ruleset requires. It passes only if every job above passed,
   # so adding a job (or a matrix entry) never means editing the ruleset, only "needs" below.
   ci-passed:
@@ -217,7 +255,7 @@ jobs:
     # Run even when a needed job failed or was skipped. Without this, ci-passed would itself be
     # skipped, and GitHub treats a skipped required check as passing.
     if: always()
-    needs: [proto, compose, dotnet, service-boundaries, image, shell]
+    needs: [proto, compose, dotnet, service-boundaries, image, shell, network]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

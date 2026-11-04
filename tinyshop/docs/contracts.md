@@ -216,7 +216,12 @@ The browser calls these, through nginx at `http://localhost:8000`. Each public r
 | `GET /api/orders/{id}` | order-service `GET /orders/{id}` |
 | `GET /api/orders?userId={id}` | order-service `GET /orders?userId={id}` |
 
-Internal endpoints that aren't in this table (for example `GET /products/{id}`, and the health endpoints) aren't reachable from the browser.
+Internal endpoints that aren't in this table (for example `GET /products/{id}`, and the health endpoints) aren't reachable from the browser. The gateway has exactly these five routes (TS-014):
+
+- Any other path, under `/api/` or not, gets the gateway's own 404 `not_found`, without calling a service. That includes internal paths such as `/products/1` and `/api/products/1`, and a service's `/health/ready`. The gateway's own `/health/live` and `/health/ready` are for Docker, not the browser: nginx forwards only `/api/*`.
+- A route's path with another method (for example `DELETE /api/orders/1001`) gets 405 `method_not_allowed`, with an `Allow` header listing the methods that route accepts.
+
+Both are Problem Details in the [§2.1](#21-problem-details) shape, like the gateway's other errors.
 
 Because the gateway passes responses through ([§2.4](#24-how-errors-pass-between-services)), each public endpoint returns:
 
