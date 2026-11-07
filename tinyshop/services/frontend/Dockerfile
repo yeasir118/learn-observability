@@ -25,3 +25,7 @@ RUN npm run build
 FROM nginxinc/nginx-unprivileged:1.30-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Our server block replaces the image's default one (decision 6). Not nginx.conf: that one
+# holds the unprivileged image's PID file and temp paths.
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
