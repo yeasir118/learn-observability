@@ -2,7 +2,7 @@
 key: TS-026
 title: React frontend app (runs locally)
 type: Story
-status: To Do
+status: In Review
 priority: High
 points: 3
 assignee: claude
@@ -36,7 +36,7 @@ Write the TinyShop web app in `tinyshop/services/frontend/`: a small React appli
 - Loading, empty and error states on every page
 - Vite dev proxy: `/api` → `http://localhost:5100`, overridable with the environment variable `GATEWAY_URL`
 - Tests (Vitest, Testing Library): the API client (success, Problem Details, a non-JSON error body, network failure), money formatting, and one page against a mocked `fetch`
-- ESLint and a type check
+- Linting (oxlint) and a type check
 - CI: a `frontend` job (`npm ci`, lint, type check, tests, build), added to `ci-passed`; Dependabot `npm` entry
 - `services/frontend/README.md`: how to run it locally and against what
 - Docs: architecture.md repository layout entry for `services/frontend/`
@@ -55,7 +55,7 @@ Write the TinyShop web app in `tinyshop/services/frontend/`: a small React appli
 | 4 | **Node: the current Active LTS major**, pinned in `.nvmrc` and used by CI (`node-version-file`). TS-015's build stage uses the same major. | One Node version everywhere, as `global.json` does for .NET. |
 
 ## Acceptance criteria
-- [ ] AC1: With the services and the gateway running on the host, `npm run dev` gives a working shop at `http://localhost:5173`: list products, look up a user, place an order (paid and declined), view it, list a user's orders.
+- [ ] AC1: With the services and the gateway running on the host, `npm run dev` gives a working shop at `http://localhost:5173`: list products, look up a user, place an order, view it, list a user's orders. Payment always approves until TS-016's fault switches, so a declined order (`FAILED` with its reason) is covered by a test.
 - [ ] AC2: Every API call in the browser's Network tab goes to `localhost:5173/api/...`; the code contains no host, port or absolute API URL.
 - [ ] AC3: Errors are shown with title, code and `traceId`: an unknown user (422 `user_not_found`), an unknown order (404), and a stopped upstream (502 `upstream_unreachable`).
 - [ ] AC4: `npm ci`, lint, type check, tests and `npm run build` pass locally and in the CI `frontend` job, which `ci-passed` requires.
@@ -77,3 +77,4 @@ Write the answers in `notes/`.
 
 ## Activity log
 - 2026-11-04: Created, split from TS-015: the app (Claude) and its container (TS-015, together) are separate tickets
+- 2026-11-04: Implemented by Claude (in review). Linting is oxlint (what the current Vite template uses) rather than ESLint; Node 26 is the Active LTS. AC1 adjusted: payment always approves until TS-016, so the declined order is covered by a test

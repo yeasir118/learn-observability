@@ -33,6 +33,20 @@ updates:
       testing:
         patterns: ["xunit*", "NSubstitute", "Testcontainers*"]
 
+  # npm packages of the React app. Versions are pinned by its package-lock.json.
+  - package-ecosystem: npm
+    directory: /tinyshop/services/frontend
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    groups:
+      # Packages released together are upgraded together.
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      build-and-test:
+        patterns: ["vite", "@vitejs/*", "vitest", "jsdom", "@testing-library/*"]
+
   # Base images in each service's Dockerfile (FROM lines).
   # Add a service's folder here when it gets a Dockerfile.
   - package-ecosystem: docker
