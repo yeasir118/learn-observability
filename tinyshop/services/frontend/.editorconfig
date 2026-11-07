@@ -1,0 +1,4 @@
+# Extends tinyshop/.editorconfig (no "root = true" here): 2-space indents, the JavaScript and
+# TypeScript convention, for the web app's files.
+[*.{ts,tsx,js,css,html,json,svg}]
+indent_size = 2

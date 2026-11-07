@@ -40,7 +40,7 @@ These are final unless a new ticket reopens one.
 | D9 | One product per order, with a quantity. Orders store a snapshot of the product name and unit price | |
 | D10 | Database per service: three Postgres containers, isolated from each other by Docker networks | |
 | D11 | Fault injection is controlled by environment variables, and all faults are off by default | Its own ticket later |
-| D12 | The frontend (React components) is written by Claude. Its Dockerfile and nginx config are written by the assignee | |
+| D12 | The React app is written by Claude and runs on its own with the Vite dev server (TS-026). Its container, nginx config and place in the stack are built together (TS-015): the assignee drafts each phase, Claude completes and reviews it | Changed 2026-11-04: the app and its container are separate tickets |
 | D13 | TLS is out of scope for M1 and is planned as epic M1.5 | |
 | D14 | Containers, ports and networks follow [architecture.md](../tinyshop/docs/architecture.md); HTTP and gRPC behaviour follows [contracts.md](../tinyshop/docs/contracts.md) | Step-0 output |
 | D15 | One Compose file at `tinyshop/infrastructure/compose/compose.yaml`, extended ticket by ticket. Infrastructure files live under `tinyshop/infrastructure/`; each Dockerfile lives next to the code it builds ([layout](../tinyshop/docs/architecture.md#repository-layout)) | `compose.yaml` is the filename the Compose specification prefers. Keeps `tinyshop/` uncluttered |
@@ -76,7 +76,8 @@ These are final unless a new ticket reopens one.
 | 5 | TS-024 | Extract shared service plumbing (`TinyShop.ServiceDefaults`) |
 | 5 | TS-025 | Remove repetition from compose.yaml with templates |
 | 6 | TS-014 | Gateway and network segmentation |
-| 7 | TS-015 | Frontend container and nginx reverse proxy (React components written by Claude) |
+| 7 | TS-026 | React frontend app, runs locally (written by Claude) |
+| 7 | TS-015 | Frontend container and nginx reverse proxy |
 | 8 | TS-016 | Fault injection switches |
 | 8 | TS-017 | Load generator (k6) |
 | 9 | TS-018 | End-to-end smoke test in CI and `phase-1-baseline` tag |
@@ -112,3 +113,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-10-29: TS-024 implemented (in review); D25 updated with the four shared projects and their layers
 - 2026-11-04: TS-024 and TS-025 done. TS-014 refined: one ticket including containerization and the network proof; 8 points
 - 2026-11-04: D16 records the gateway's exception: one project, minimal API endpoints (TS-014)
+- 2026-11-04: TS-015 refined and split: TS-026 (the React app, Claude) and TS-015 (container and nginx, together; 5 points). D12 updated

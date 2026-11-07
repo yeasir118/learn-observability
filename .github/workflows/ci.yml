@@ -133,6 +133,44 @@ jobs:
       - name: Unit tests
         run: dotnet test --solution ${{ matrix.solution }} --no-build --configuration Release
 
+  # The React app (TS-026): the same checks as "npm run" locally, from a clean install.
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tinyshop/services/frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # The same major as locally: .nvmrc plays the part global.json plays for .NET.
+          node-version-file: tinyshop/services/frontend/.nvmrc
+          # Caches npm's download cache, keyed on the lock file; node_modules is always rebuilt.
+          cache: npm
+          cache-dependency-path: tinyshop/services/frontend/package-lock.json
+
+      - name: Install (exactly what package-lock.json says)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
   # Services may depend on each other only through contracts, never through project references.
   service-boundaries:
     name: service-boundaries
@@ -255,7 +293,7 @@ jobs:
     # Run even when a needed job failed or was skipped. Without this, ci-passed would itself be
     # skipped, and GitHub treats a skipped required check as passing.
     if: always()
-    needs: [proto, compose, dotnet, service-boundaries, image, shell, network]
+    needs: [proto, compose, dotnet, frontend, service-boundaries, image, shell, network]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -35,7 +35,11 @@ tinyshop/
 │   ├── order-service/
 │   ├── payment-service/
 │   ├── gateway/
-│   └── frontend/                 React app, plus its Dockerfile and nginx config (baked into the image)
+│   └── frontend/                 React app (Vite, TypeScript; TS-026); its Dockerfile and nginx config arrive in TS-015
+│       ├── package.json          dependencies and scripts (dev, build, lint, typecheck, test); package-lock.json pins them
+│       ├── .nvmrc                the Node.js major (local and CI), like global.json for .NET
+│       ├── vite.config.ts        dev server and its /api proxy to the gateway, build, tests
+│       └── src/                  api/ (client, the five routes), pages/, components/, lib/, tests next to the code
 ├── shared/                       plumbing every .NET service uses the same way (D25, TS-024; rules in its README)
 │   ├── TinyShop.Shared.slnx      builds and tests everything in shared/ (CI job "dotnet (shared)")
 │   ├── TinyShop.ServiceDefaults/ web plumbing (AddServiceDefaults/UseServiceDefaults); referenced by Api projects only
