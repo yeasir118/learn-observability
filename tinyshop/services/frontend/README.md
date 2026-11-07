@@ -17,6 +17,23 @@ The dev server answers `/api/...` itself by forwarding it to the gateway (the pr
 GATEWAY_URL=http://localhost:5200 npm run dev
 ```
 
+### Against the stack in Docker
+
+With the whole stack running in Docker (`docker compose up -d`), nothing answers on `localhost:5100`: the gateway publishes no port (TS-014), so the dev server answers every `/api` call with its own 502. Give the host a way in with a forwarder on `edge-network`, the one network the gateway is reachable on from outside. It publishes on loopback only, like the database debug proxies (architecture.md §8):
+
+```bash
+docker run -d --rm --name gateway-forward --network tinyshop_edge-network \
+  -p 127.0.0.1:5100:5100 alpine/socat:1.8.1.1 \
+  TCP-LISTEN:5100,fork,reuseaddr TCP:gateway:8080
+npm run dev
+```
+
+```text
+browser ─► Vite :5173 ─/api─► gateway-forward :5100 ─► gateway :8080
+```
+
+Stop it with `docker stop gateway-forward` (`--rm` removes it). While it runs, the stack publishes a second port, so don't run `check-reachability-matrix.sh` at the same time: the matrix checks exactly that. Once the frontend container exists (TS-015), use nginx instead and skip the forwarder.
+
 | Page | Calls |
 |---|---|
 | `/` shop: products, user lookup, order form | `GET /api/products`, `GET /api/users/{id}`, `POST /api/orders` |

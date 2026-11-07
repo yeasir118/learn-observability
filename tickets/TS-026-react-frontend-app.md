@@ -2,7 +2,7 @@
 key: TS-026
 title: React frontend app (runs locally)
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 3
 assignee: claude
@@ -55,11 +55,11 @@ Write the TinyShop web app in `tinyshop/services/frontend/`: a small React appli
 | 4 | **Node: the current Active LTS major**, pinned in `.nvmrc` and used by CI (`node-version-file`). TS-015's build stage uses the same major. | One Node version everywhere, as `global.json` does for .NET. |
 
 ## Acceptance criteria
-- [ ] AC1: With the services and the gateway running on the host, `npm run dev` gives a working shop at `http://localhost:5173`: list products, look up a user, place an order, view it, list a user's orders. Payment always approves until TS-016's fault switches, so a declined order (`FAILED` with its reason) is covered by a test.
-- [ ] AC2: Every API call in the browser's Network tab goes to `localhost:5173/api/...`; the code contains no host, port or absolute API URL.
-- [ ] AC3: Errors are shown with title, code and `traceId`: an unknown user (422 `user_not_found`), an unknown order (404), and a stopped upstream (502 `upstream_unreachable`).
-- [ ] AC4: `npm ci`, lint, type check, tests and `npm run build` pass locally and in the CI `frontend` job, which `ci-passed` requires.
-- [ ] AC5: `npm run build` produces static files only (`dist/`), with content-hashed asset names.
+- [x] AC1: With the services and the gateway running on the host, `npm run dev` gives a working shop at `http://localhost:5173`: list products, look up a user, place an order, view it, list a user's orders. Payment always approves until TS-016's fault switches, so a declined order (`FAILED` with its reason) is covered by a test.
+- [x] AC2: Every API call in the browser's Network tab goes to `localhost:5173/api/...`; the code contains no host, port or absolute API URL.
+- [x] AC3: Errors are shown with title, code and `traceId`: an unknown user (422 `user_not_found`), an unknown order (404), and a stopped upstream (502 `upstream_unreachable`).
+- [x] AC4: `npm ci`, lint, type check, tests and `npm run build` pass locally and in the CI `frontend` job, which `ci-passed` requires.
+- [x] AC5: `npm run build` produces static files only (`dist/`), with content-hashed asset names.
 
 ## Learning objectives (for the reviewer)
 - Phase 2 of loading a web app: what the browser fetches after `index.html`, and from where
@@ -71,10 +71,11 @@ Write the answers in `notes/`.
 2. `npm run dev` and the built app call the same `/api/...` URLs. Who answers them in each case?
 
 ## Definition of done
-- [ ] All acceptance criteria met
-- [ ] Questions answered in `notes/`
-- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
+- [x] All acceptance criteria met
+- [x] Questions answered in `notes/`
+- [x] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - 2026-11-04: Created, split from TS-015: the app (Claude) and its container (TS-015, together) are separate tickets
 - 2026-11-04: Implemented by Claude (in review). Linting is oxlint (what the current Vite template uses) rather than ESLint; Node 26 is the Active LTS. AC1 adjusted: payment always approves until TS-016, so the declined order is covered by a test
+- 2026-11-07: Merged (PR #22). Done. Questions answered in `notes/m1.md`. The frontend README documents developing against the stack in Docker through a temporary `gateway-forward` container, until TS-015 lets the dev server go through nginx
