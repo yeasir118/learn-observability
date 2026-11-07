@@ -1,0 +1,23 @@
+# Build context: tinyshop/services/frontend/ (this image only).
+# Everything listed is never sent to the Docker engine, so it can't end up in an image
+# or invalidate a cached layer.
+
+# --- Installed and built inside the image -------------------------------------------------
+# A host node_modules would overwrite the one npm ci just installed, and its native
+# packages (Rolldown, oxlint) are built for the host's OS, not Alpine Linux.
+node_modules/
+dist/
+coverage/
+
+# --- Secrets and local configuration --------------------------------------------------
+# Vite reads .env files at build time and writes every VITE_* value into the JavaScript
+# that any browser downloads. Nothing from the host may reach the build.
+.env
+.env.*
+
+# --- Not needed to build -------------------------------------------------------------------
+# Changing these would otherwise invalidate the COPY . . layer for nothing.
+Dockerfile
+.dockerignore
+README.md
+*.log
