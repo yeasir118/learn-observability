@@ -2,7 +2,7 @@
 key: TS-022
 title: Containerize the payment service
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 3
 assignee: yeasir118
@@ -51,3 +51,4 @@ Whether reflection should be on inside Compose (it describes the whole API to an
 - 2026-10-25: Created, split out of TS-012
 - 2026-10-25: Implemented by the assignee (Dockerfile, Compose), reviewed and completed by Claude. Fixed: the build failed (`proto/` wasn't copied into the build stage; Grpc.Tools needs it at publish); the wget health check could never pass on an HTTP/2-only port; the service was on `backend-network` (reachable by the gateway and every service) instead of its own `payment-network`. Q1 decided: `grpc_health_probe` (v0.4.59, multi-arch static binary from its official image, named stage for Dependabot) against `grpc.health.v1`. Reflection stays off in Compose; grpcurl uses `-import-path/-proto`. CI image matrix, Dependabot, architecture.md updated
 - 2026-10-25: Verified under a separate project: healthy within 3 s (first probe SERVING); from payment-network, `list` is refused (no reflection) and the call with the proto file approves; from backend-network the name doesn't resolve. AC4: capture kept in `notes/captures/ts022-payment-grpc-h2c.pcap` (preface, frames, `grpc-timeout`, the 9-byte request, `grpc-status 0` in trailers; see the README there)
+- 2026-11-09: Done: merged into master in PR #14 (with TS-012). Status corrected afterwards; the boxes above weren't ticked at the time

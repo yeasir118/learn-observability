@@ -119,3 +119,4 @@ Write the answers in `notes/`.
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-11-04: Refined. Kept as one ticket, containerization and the network proof included (not split like TS-011/021, TS-012/022, TS-013/023), because the assignee implements the gateway hands-on. Points 5 → 8. Decisions 1-12, phases 0-6, AC3-AC9 and questions added; `needs-refinement` removed
+- 2026-11-09: Done: merged into master in PR #20. Status corrected afterwards; the boxes above weren't ticked at the time

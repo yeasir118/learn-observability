@@ -2,7 +2,7 @@
 key: TS-023
 title: Containerize the order service
 type: Story
-status: In Progress
+status: Done
 priority: High
 points: 3
 assignee: yeasir118
@@ -49,3 +49,4 @@ To be refined before pickup. Most files will be near-copies of user-service's (T
 ## Activity log
 - 2026-10-26: Created, split out of TS-013
 - 2026-10-27: Implemented by the assignee (Dockerfile, Compose), reviewed and completed by Claude. Fixed: `APP_TABLE_PRIVILEGES` included `DELETE` (orders are never deleted; the integration tests assert it's refused); the migrations image ran as root; a leftover placeholder connection string (the design-time factory makes it unnecessary). Decided: order-service's `depends_on` covers only order-db and its migration job, not user-, product- or payment-service (it starts and is ready without them, and answers 502/504 while one is down). Added `.env.example` entries, CI image matrix, Dependabot. Verified under a separate project on empty volumes: every service healthy in 12 s, both order images run as UID 1654; AC1 201 `PAID` with the Keyboard snapshot from `backend-network`; AC2: from `backend-network` payment-service and every database don't resolve, from `payment-network` only order- and payment-service do; `order_app` has exactly SELECT, INSERT, UPDATE. AC3 and AC4 (experiments) are left to the assignee
+- 2026-11-09: Done: merged into master in PR #16 (with TS-013). Status corrected afterwards; the boxes above weren't ticked at the time

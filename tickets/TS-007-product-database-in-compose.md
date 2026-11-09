@@ -2,7 +2,7 @@
 key: TS-007
 title: Product database and debug proxy in Compose
 type: Task
-status: In Progress
+status: Done
 priority: High
 points: 2
 assignee: yeasir118
@@ -74,3 +74,4 @@ Create `tinyshop/infrastructure/compose/compose.yaml` with the first two contain
 - 2026-10-18: Created
 - 2026-10-18: Compose file and `.env` moved to `tinyshop/infrastructure/compose/` (decision D15, updated); added AC1a for the project name
 - 2026-10-18: In progress. compose.yaml, .env.example and the CI `compose` job written and verified
+- 2026-11-09: Done: merged into master in PR #7. Status corrected afterwards; the boxes above weren't ticked at the time

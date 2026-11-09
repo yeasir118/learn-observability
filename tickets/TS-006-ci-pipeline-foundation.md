@@ -2,7 +2,7 @@
 key: TS-006
 title: CI pipeline foundation (GitHub Actions)
 type: Task
-status: In Progress
+status: Done
 priority: Highest
 points: 3
 assignee: yeasir118
@@ -73,3 +73,4 @@ Create the repository's first CI workflow. It checks the protobuf contract (form
 ## Activity log
 - 2026-10-18: Created
 - 2026-10-18: In progress. Workflow and Dependabot config written; merge strategy changed to merge commits (decision D20)
+- 2026-11-09: Done: merged into master in PR #6. Status corrected afterwards; the boxes above weren't ticked at the time
