@@ -1,12 +1,14 @@
 <!--
   Application: the payment use case.
-  References only Domain. There's no Infrastructure project: payment-service talks to no
+  References Domain, and TinyShop.ServiceDefaults.Abstractions for the fault switches (TS-016):
+  the one shared project without dependencies, allowed from any layer (D25). There's no Infrastructure project: payment-service talks to no
   database or external system yet. It gets one when a real payment provider is integrated.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\TinyShop.PaymentService.Domain\TinyShop.PaymentService.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\shared\TinyShop.ServiceDefaults.Abstractions\TinyShop.ServiceDefaults.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
