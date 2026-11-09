@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TinyShop.ServiceDefaults.Data.Faults;
 using TinyShop.UserService.Application.Abstractions.Persistence;
 using TinyShop.UserService.Infrastructure.Persistence;
 using TinyShop.UserService.Infrastructure.Persistence.Repositories;
@@ -25,7 +26,11 @@ public static class DependencyInjection
                 $"Connection string '{ConnectionStringName}' is missing from configuration "
                 + $"(key ConnectionStrings:{ConnectionStringName}).");
 
-        services.AddDbContext<UserDbContext>(options => options.UseUserDatabase(connectionString));
+        // The database-delay fault (TS-016): every command of this DbContext goes through the
+        // interceptor, which does nothing unless Faults:DatabaseDelay is set (docs/faults.md).
+        services.AddDatabaseFaults();
+        services.AddDbContext<UserDbContext>((provider, options) =>
+            options.UseUserDatabase(connectionString).AddDatabaseFaults(provider));
 
         services.AddScoped<IUserRepository, UserRepository>();
 

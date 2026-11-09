@@ -11,7 +11,10 @@ namespace TinyShop.OrderService.IntegrationTests.Infrastructure;
 /// HttpClients and gRPC client, with an HTTP client that calls it without opening a network port.
 /// Only the network under the dependency clients is fake (<see cref="FakeDependencies"/>).
 /// </summary>
-public sealed class OrderServiceFactory(string connectionString, Func<Task>? duringPayment = null)
+public sealed class OrderServiceFactory(
+    string connectionString,
+    Func<Task>? duringPayment = null,
+    IReadOnlyDictionary<string, string?>? settings = null)
     : WebApplicationFactory<Program>
 {
     /// <summary>How long the fake "hung" user- or product-service is waited for (production: 100 s).</summary>
@@ -32,6 +35,12 @@ public sealed class OrderServiceFactory(string connectionString, Func<Task>? dur
         builder.UseSetting("Services:UserService:BaseUrl", FakeDependencies.UserServiceUrl.ToString());
         builder.UseSetting("Services:ProductService:BaseUrl", FakeDependencies.ProductServiceUrl.ToString());
         builder.UseSetting("Services:PaymentService:BaseUrl", FakeDependencies.PaymentServiceUrl.ToString());
+
+        // Extra configuration, for tests that need other settings (fault switches, TS-016).
+        foreach (var (key, value) in settings ?? new Dictionary<string, string?>())
+        {
+            builder.UseSetting(key, value);
+        }
 
         // Runs after Program.cs registered the real services, so these replace them.
         builder.ConfigureTestServices(services =>
