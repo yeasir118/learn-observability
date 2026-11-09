@@ -39,7 +39,7 @@ jobs:
           persist-credentials: false
 
       - name: Check protobuf contracts (format, lint, breaking)
-        uses: bufbuild/buf-action@85aebf73123b5c15fd5528aaecbf9129cddf7fa7 # v1.6.0
+        uses: bufbuild/buf-action@37ac33d8960807670a6e9719080e885197b09cc6 # v1.7.0
         with:
           # Same buf version as the local commands in tinyshop/docs/contracts.md §9.5.
           version: 1.50.0
@@ -115,7 +115,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           # Installs exactly the SDK that global.json pins, the same one used locally.
           # dotnet finds tinyshop/global.json by searching upward from the solution's folder.
