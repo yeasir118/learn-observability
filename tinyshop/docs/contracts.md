@@ -124,13 +124,13 @@ Implementation note: errors that the framework generates itself (malformed JSON,
 | `payment_unavailable` | 502 | order-service | The order was created, but the payment service failed or couldn't be reached. The order is `FAILED`; includes `orderId`. |
 | `payment_timeout` | 504 | order-service | The order was created, but the payment call timed out. The outcome is unknown and the order stays `PENDING`; includes `orderId`. |
 | `service_unavailable` | 503 | any service with a database | The service's own database is unreachable |
-| `upstream_unreachable` | 502 | gateway | The gateway couldn't connect to the internal service |
-| `upstream_timeout` | 504 | gateway | The internal service didn't answer in time |
+| `upstream_unreachable` | 502 | gateway, nginx | The gateway couldn't connect to the internal service, or nginx couldn't connect to the gateway |
+| `upstream_timeout` | 504 | gateway, nginx | The internal service didn't answer the gateway in time, or the gateway didn't answer nginx in time |
 | `internal_error` | 500 | any service | An unexpected error in the service itself |
 
 `user_not_found` and `product_not_found` keep the same `code` with different statuses: the code says what the problem is, and the status says how it relates to the URL that was called.
 
-The `upstream_*` codes come only from the gateway, and the `dependency_*` codes only from services behind it. So a client can tell whether the failure happened at the gateway or deeper in the system, but not which internal service failed. That's intentional (see Failure Exercise 1).
+The `upstream_*` codes come only from the edge (the gateway, or nginx in front of it), and the `dependency_*` codes only from services behind it. So a client can tell whether the failure happened at the edge or deeper in the system, but not which internal service failed, nor which of the two edge hops. Only nginx's version has no `traceId`, since no .NET code ran ([§4](#4-public-api-gateway)). That's intentional (see Failure Exercise 1).
 
 ### 2.4 How errors pass between services
 
@@ -233,6 +233,19 @@ Because the gateway passes responses through ([§2.4](#24-how-errors-pass-betwee
 | 502 | `upstream_unreachable` | The gateway couldn't connect to the internal service (connection refused, DNS failure) |
 | 504 | `upstream_timeout` | The internal service didn't answer within the gateway's timeout |
 | 500 | `internal_error` | Bug in the gateway itself |
+
+### nginx in front of the gateway (TS-015)
+
+nginx forwards every `/api/*` request to the gateway with the path and query unchanged, and passes every response back untouched, errors included. It adds two request headers, replacing any the client sent: `X-Forwarded-For` (the address that connected to nginx) and `X-Forwarded-Proto` (`http`). Nothing trusts them yet.
+
+When nginx gets no response from the gateway at all, it answers itself, in the [§2.1](#21-problem-details) shape with the gateway's own `code`, `title` and `detail`, but **no `traceId`**:
+
+| Status | `code` | When |
+|---|---|---|
+| 502 | `upstream_unreachable` | nginx couldn't connect to the gateway: it's stopped, or its name doesn't resolve |
+| 504 | `upstream_timeout` | The gateway didn't answer within nginx's 60 s ([§7](#7-default-timeouts-in-m1)) |
+
+`/api` without the trailing slash gets nginx's own `301` to the relative `Location: /api/`, which the gateway answers with 404 `not_found`. Any other path outside `/api/` is the React app's: nginx serves `index.html` and the app shows its own not-found page.
 
 ### Example: `POST /api/orders`
 
@@ -439,9 +452,10 @@ M1 sets no timeouts of its own (decision D5). These are the defaults in effect, 
 
 Consequences:
 
-- **The outermost timeout is the shortest.** nginx gives up after 60 s, while everything behind it waits up to 100 s. A slow request therefore ends with nginx's own HTML 504 page, which isn't Problem Details and has no `code`. The gateway's `upstream_timeout` never reaches the browser.
+- **The outermost timeout is the shortest.** nginx gives up after 60 s, while everything behind it waits up to 100 s. A slow request therefore ends with nginx's own 504 `upstream_timeout` ([§4](#nginx-in-front-of-the-gateway-ts-015), no `traceId`). The gateway's own `upstream_timeout` never reaches the browser.
 - **A hung payment-service hangs order-service indefinitely.** The caller times out, but order-service keeps waiting on the gRPC call and the order stays `PENDING`.
 - **A timeout upstream doesn't cancel the work downstream.** When the gateway gives up, order-service carries on unless it observes `HttpContext.RequestAborted`.
+- **But the cancellation does travel one hop.** The gateway sends its call with its own `RequestAborted`, so when nginx gives up at 60 s and closes its connection, the gateway abandons the call to the service at once, without waiting for its 100 s. A service that has already started on the request carries on (previous point). One that hasn't read it yet finds the connection closed and never runs it: in TS-015 a frozen order-service (`docker pause` for 120 s) created no order at all.
 
 These are fine for M1. Failure Exercise 2 (slow payment) will make them very visible.
 

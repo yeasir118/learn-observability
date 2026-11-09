@@ -19,20 +19,17 @@ GATEWAY_URL=http://localhost:5200 npm run dev
 
 ### Against the stack in Docker
 
-With the whole stack running in Docker (`docker compose up -d`), nothing answers on `localhost:5100`: the gateway publishes no port (TS-014), so the dev server answers every `/api` call with its own 502. Give the host a way in with a forwarder on `edge-network`, the one network the gateway is reachable on from outside. It publishes on loopback only, like the database debug proxies (architecture.md §8):
+With the whole stack running in Docker (`docker compose up -d`), the gateway publishes no port (TS-014), but the frontend container does: point the dev server at nginx, which forwards `/api/` to the gateway.
 
 ```bash
-docker run -d --rm --name gateway-forward --network tinyshop_edge-network \
-  -p 127.0.0.1:5100:5100 alpine/socat:1.8.1.1 \
-  TCP-LISTEN:5100,fork,reuseaddr TCP:gateway:8080
-npm run dev
+GATEWAY_URL=http://localhost:8000 npm run dev
 ```
 
 ```text
-browser ─► Vite :5173 ─/api─► gateway-forward :5100 ─► gateway :8080
+browser ─► Vite :5173 ─/api─► nginx :8000 ─► gateway :8080
 ```
 
-Stop it with `docker stop gateway-forward` (`--rm` removes it). While it runs, the stack publishes a second port, so don't run `check-reachability-matrix.sh` at the same time: the matrix checks exactly that. Once the frontend container exists (TS-015), use nginx instead and skip the forwarder.
+The app then comes from Vite (with hot reload), and only its API calls go through the container's nginx.
 
 | Page | Calls |
 |---|---|
@@ -60,4 +57,21 @@ npm run preview     # serves dist/ on http://localhost:4173, with the same /api 
 - **Money is display-only:** cents are divided by 100 for formatting and never used for arithmetic.
 - **Payment always approves** until TS-016's fault switches; a declined order (`FAILED`) is covered by a test.
 
-The container image and nginx come in TS-015.
+## The container (TS-015)
+
+The [`Dockerfile`](Dockerfile) builds `dist/` in a Node stage and copies it into an unprivileged nginx (uid 101, port 8080); nothing from Node reaches the final image. Its build context is this folder, so [`.dockerignore`](.dockerignore) here applies, not `tinyshop/.dockerignore`. [`nginx/default.conf`](nginx/default.conf) replaces the image's default server block:
+
+| Path | nginx does |
+|---|---|
+| `/assets/*` | the file, cached for a year (`immutable`: its name changes with its content); a missing file is a 404 |
+| `/api/*` | forwards to `gateway:8080` unchanged, resolving the name per request; sets `X-Forwarded-For` and `-Proto`; its own 502/504 as Problem Details |
+| anything else | the file if there is one, else `index.html` (client-side routes), with `no-cache` |
+
+In the stack, Compose builds and runs it as the service `frontend` on `http://localhost:8000`. On its own, without a gateway (`/api/` then answers 502):
+
+```bash
+docker build -t tinyshop/frontend:local .
+docker run --rm -p 8000:8080 tinyshop/frontend:local
+```
+
+`docker compose logs frontend` shows one line per request, with the gateway's address, status and time for `/api/` calls (`upstream_addr`, `upstream_status`, `upstream_time`).

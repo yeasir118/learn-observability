@@ -2,7 +2,7 @@
 key: TS-014
 title: Gateway and network segmentation
 type: Story
-status: In Progress
+status: Done
 priority: High
 points: 8
 assignee: yeasir118

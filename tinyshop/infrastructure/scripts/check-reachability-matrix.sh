@@ -20,19 +20,15 @@
 #     (TS-014, question 3). On a Linux host, the host can also reach container IPs on non-internal
 #     networks directly; that route isn't what the matrix's browser row means, so it isn't tested.
 #
-# Ports: 80 for the frontend, 5432 for the databases, 8080 for everything else. A TCP connection is
-# enough: reachability is a network question, not a protocol one.
-#
-# Until TS-015 adds the real frontend, a stand-in container plays it: on edge-network only, with the
-# DNS alias "frontend", listening on 80 and publishing FRONTEND_HOST_PORT like the real one will. It
-# is removed when the script ends. Once a "frontend" service runs in the project, that is used instead.
+# Ports: 5432 for the databases, 8080 for everything else (the frontend's unprivileged nginx
+# included, TS-015). A TCP connection is enough: reachability is a network question, not a
+# protocol one.
 #
 # Requires the default stack, running and healthy, without the debug profile:
 #   cd tinyshop/infrastructure/compose && docker compose up -d --wait
 #   tinyshop/infrastructure/scripts/check-reachability-matrix.sh
 # Environment:
 #   COMPOSE_PROJECT_NAME  the Compose project to test (default: tinyshop)
-#   FRONTEND_HOST_PORT    the stand-in frontend's published port (default: 8000, as architecture.md §2)
 set -euo pipefail
 
 # Exact version: a small third-party image (architecture.md §2, image pinning).
@@ -40,10 +36,8 @@ readonly NETSHOOT_IMAGE="nicolaka/netshoot:v0.16"
 readonly CONNECT_TIMEOUT_SECONDS=3
 
 project="${COMPOSE_PROJECT_NAME:-tinyshop}"
-frontend_host_port="${FRONTEND_HOST_PORT:-8000}"
 tinyshop_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 document="$tinyshop_dir/docs/architecture.md"
-standin="$project-frontend-standin"
 
 # Git Bash on Windows rewrites arguments that look like Unix paths ("/tmp/..." inside the probe
 # script below) into Windows paths before Docker sees them. No effect on Linux.
@@ -82,7 +76,6 @@ targets=("${header[@]:1}")
 
 port_of() {
   case "$1" in
-    frontend) echo 80 ;;
     *-db) echo 5432 ;;
     *) echo 8080 ;;
   esac
@@ -105,32 +98,10 @@ if grep -q -- '-db-proxy$' <<< "$running_services"; then
   exit 1
 fi
 
-cleanup() {
-  docker rm --force "$standin" > /dev/null 2>&1 || true
-}
-trap cleanup EXIT
-
 declare -A container
 for target in "${targets[@]}"; do
   container[$target]="$(container_of "$target")"
 done
-
-if [[ -z "${container[frontend]:-}" ]]; then
-  edge_network="$(docker network ls --quiet \
-    --filter "label=com.docker.compose.project=$project" \
-    --filter "label=com.docker.compose.network=edge-network")"
-  if [[ -z "$edge_network" ]]; then
-    echo "::error::Project '$project' has no edge-network. Start the stack first: docker compose up -d --wait"
-    exit 1
-  fi
-  echo "No frontend service in '$project' yet (TS-015): starting a stand-in on edge-network, published on :$frontend_host_port."
-  cleanup
-  # socat: accept every connection on 80 and answer one line. Enough for a TCP check.
-  container[frontend]="$(docker run --detach --rm --name "$standin" \
-    --network "$edge_network" --network-alias frontend \
-    --publish "$frontend_host_port:80" \
-    "$NETSHOOT_IMAGE" socat TCP-LISTEN:80,fork,reuseaddr SYSTEM:'echo frontend stand-in')"
-fi
 
 missing=()
 for target in "${targets[@]}"; do
@@ -234,7 +205,7 @@ for line in "${expected_table[@]:2}"; do
     for i in "${!targets[@]}"; do
       target="${targets[$i]}" expected="${expected_cells[$i]}"
       if [[ "$target" == frontend ]]; then
-        port="$(published_port_of "${container[frontend]}" 80/tcp)"
+        port="$(published_port_of "${container[frontend]}" "$(port_of frontend)/tcp")"
         if [[ -n "$port" ]] && timeout "$CONNECT_TIMEOUT_SECONDS" bash -c "exec 3<> /dev/tcp/127.0.0.1/$port" 2> /dev/null; then
           observed="✓ (via :$port)" evidence="published :$port, connection opened"
         else
