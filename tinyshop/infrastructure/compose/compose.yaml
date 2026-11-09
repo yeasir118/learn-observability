@@ -321,8 +321,8 @@ services:
     healthcheck: *dotnet-healthcheck
 
   # The public API (/api/*, contracts.md §4): forwards each route to product-, user- or
-  # order-service over backend-network. Reached only from edge-network: nginx (TS-015) will
-  # proxy /api to it; until then, any container on edge-network can call it.
+  # order-service over backend-network. Reached only from edge-network, where the frontend's
+  # nginx proxies /api/ to it (TS-015).
   gateway:
     image: tinyshop/gateway:local
     build:
@@ -346,6 +346,39 @@ services:
     # unhealthy service keep the whole public API from starting.
     # /health/ready checks nothing upstream, for the same reason (contracts.md §5.4).
     healthcheck: *dotnet-healthcheck
+
+  # The only container the browser talks to (TS-015): nginx serves the React app's static files
+  # and proxies /api/ to the gateway, so the app and its API share one origin (no CORS).
+  frontend:
+    image: tinyshop/frontend:local
+    build:
+      # The frontend's own folder, not tinyshop/ like the .NET services: it needs nothing shared,
+      # and services/frontend/.dockerignore (not tinyshop/.dockerignore) applies (decision 9).
+      context: ../../services/frontend
+    # The stack's one published port (architecture.md §2). On all interfaces, on purpose: other
+    # devices on your LAN can open the app (AC10). Unlike the debug proxies, which publish on
+    # 127.0.0.1 only. 8080 inside: the unprivileged nginx can't bind ports below 1024.
+    ports:
+      - "8000:8080"
+    networks:
+      # edge-network only: its one neighbour is the gateway. Not backend-network, so the browser's
+      # entry point can't reach a service or database directly (architecture.md §3).
+      - edge-network
+    # No depends_on (decision 3): nginx resolves "gateway" per request, so it starts without
+    # one, answers its own 502 upstream_unreachable for /api/ meanwhile, and follows a
+    # recreated gateway to its new IP without a restart.
+    healthcheck:
+      # Whether nginx serves the app; NOT whether the gateway answers (decision 7): a stopped
+      # gateway must not make the entry point unhealthy, like the gateway's own check.
+      # 127.0.0.1, not localhost: inside the container, localhost resolves to ::1 first, and nginx
+      # listens on IPv4 only (see default.conf). BusyBox wget would get "Connection refused".
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      # nginx starts in well under a second; the grace period only covers a slow host.
+      start_period: 10s
+      start_interval: 2s
 
   # gRPC only (tinyshop.payment.v1.PaymentService), HTTP/2 only on 8080. No database, so no
   # migration job and no dependencies to wait for.

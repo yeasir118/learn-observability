@@ -1,6 +1,8 @@
 # frontend image: the React app's static files, served by nginx (TS-015).
 # Build context: this folder (decision 9). Unlike the .NET services, the app needs nothing
-# from tinyshop/: no shared projects, no proto files.
+# from tinyshop/: no shared projects, no proto files. For the same reason, the .dockerignore
+# that applies is the one in this folder: Docker reads it from the context's root only, so
+# tinyshop/.dockerignore never sees this build.
 # From tinyshop/services/frontend/:
 #   docker build -t tinyshop/frontend:local .
 
