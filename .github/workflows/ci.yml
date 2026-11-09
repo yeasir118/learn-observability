@@ -205,8 +205,11 @@ jobs:
           echo "Checking ${#scripts[@]} script(s):" "${scripts[@]}"
           docker run --rm -v "$PWD:/mnt:ro" -w /mnt koalaman/shellcheck:v0.10.0 "${scripts[@]}"
 
-  # Builds each containerized service's image, exactly as Compose will (tinyshop/ as the
-  # build context). Images are only built, never pushed: there's no registry and no deployment.
+  # Builds each containerized service's image, exactly as Compose will: from the same build
+  # context, which is tinyshop/ for the .NET services (they need shared/ and proto/) and the
+  # frontend's own folder for the frontend (TS-015, decision 9). The Dockerfile is always
+  # services/<service>/Dockerfile. Images are only built, never pushed: there's no registry and
+  # no deployment.
   image:
     name: image (${{ matrix.service }})
     runs-on: ubuntu-latest
@@ -216,14 +219,22 @@ jobs:
       matrix:
         include:
           - service: product-service
+            context: tinyshop
             migrations: true
           - service: user-service
+            context: tinyshop
             migrations: true
           - service: payment-service
+            context: tinyshop
             migrations: false
           - service: order-service
+            context: tinyshop
             migrations: true
           - service: gateway
+            context: tinyshop
+            migrations: false
+          - service: frontend
+            context: tinyshop/services/frontend
             migrations: false
     steps:
       - name: Check out repository
@@ -236,7 +247,7 @@ jobs:
           docker build
           --file tinyshop/services/${{ matrix.service }}/Dockerfile
           --tag tinyshop/${{ matrix.service }}:ci
-          tinyshop
+          ${{ matrix.context }}
 
       # Only services that own a database have a "migrations" stage.
       - name: Build migrations image
@@ -246,7 +257,7 @@ jobs:
           --file tinyshop/services/${{ matrix.service }}/Dockerfile
           --target migrations
           --tag tinyshop/${{ matrix.service }}-migrations:ci
-          tinyshop
+          ${{ matrix.context }}
 
   # Starts the real stack and proves the reachability matrix (architecture.md §4) against it: every
   # cell, by name and by IP (TS-014). The networks are the system's security boundary, so a Compose

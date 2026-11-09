@@ -2,7 +2,7 @@
 key: TS-013
 title: Order service and the order flow
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 8
 assignee: claude
@@ -64,3 +64,4 @@ Decisions made during implementation (the refinement points from the original ti
 - 2026-10-18: Created
 - 2026-10-25: Noted that D21-D24 apply, and the app role's write privileges
 - 2026-10-26: Rescoped to the .NET solution (container work moved to TS-023) and implemented by Claude. Order IDs are `GENERATED ALWAYS AS IDENTITY` starting at 1001; status stored as `PENDING`/`PAID`/`FAILED` text with check constraints that mirror the domain rules (quantity range, total, transaction ID exactly when `PAID`, failure reason exactly when `FAILED`). `Location` is relative (`/orders/1001`): `CreatedAtAction` would have leaked `order-service:8080`. Timestamps get a converter for the contract's `…123Z` format. Verified: 103 unit and 76 integration tests (Testcontainers Postgres with the real role script; a TCP proxy cut mid-request for the status-update-fails row). Local run against user-, product- and payment-service from Compose (separate project, temporary socat proxies on 127.0.0.1): happy path `PAID` with snapshot; AC5: product-service stopped → 502 `dependency_failed`, no order; payment-service stopped → 502 `payment_unavailable` with `orderId`, order `FAILED`. Both took 12–35 s because the temporary proxy accepted the connection and then waited on DNS for the stopped container; compare with TS-023's run, where order-service resolves the name itself
+- 2026-11-09: Done: merged into master in PR #16. Status corrected afterwards; the boxes above weren't ticked at the time

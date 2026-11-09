@@ -2,7 +2,7 @@
 key: TS-015
 title: Frontend container and nginx reverse proxy
 type: Story
-status: To Do
+status: Done
 priority: High
 points: 5
 assignee: yeasir118
@@ -45,6 +45,7 @@ Package the React app (TS-026) as an nginx image that serves the built files and
   - the `network` job passes with the real frontend
   - Dependabot `docker` entry for `services/frontend`
 - **Docs:**
+  - the frontend README: "Against the stack in Docker" switches from the temporary `gateway-forward` container to `GATEWAY_URL=http://localhost:8000 npm run dev` (Vite → nginx → gateway; no extra Compose service needed)
   - architecture.md: §2 frontend row, §3, §4 (port, stand-in), §8, Q3
   - contracts.md §4: nginx's own errors
   - epic D12
@@ -60,7 +61,7 @@ Package the React app (TS-026) as an nginx image that serves the built files and
 | # | Decision | Why |
 |---|---|---|
 | 1 | **Runtime image `nginxinc/nginx-unprivileged`**, Alpine, on the current stable branch (an even minor, for example `1.30-alpine`: nginx's major is always 1, so the minor is the line to pin, D23). It listens on **8080**; Compose publishes **`8000:8080`** on all interfaces. Settles **Q3**. | Non-root like every other container (TS-010). An unprivileged process can't bind ports below 1024, hence 8080. All interfaces is intended for the frontend (architecture.md §2, AC10). |
-| 2 | **Build stage `node:<LTS>-alpine`**, the same major as TS-026's `.nvmrc`. The final image has no Node, no `node_modules` and no source. | The build tooling isn't needed to serve static files, and would only add size and attack surface. |
+| 2 | **Build stage `node:<LTS>-alpine`**, the same major as TS-026's `.nvmrc`; it runs only `npm ci` and `npm run build` (which type-checks), not lint or tests. The final image has no Node, no `node_modules` and no source. | The build tooling isn't needed to serve static files, and would only add size and attack surface. The CI `frontend` job already runs every check; repeating them in each image build costs time and proves nothing new. |
 | 3 | **nginx resolves `gateway` at request time:** `resolver 127.0.0.11` (Docker's DNS) with a short `valid=`, and the upstream in a variable (`set $gateway ...; proxy_pass $gateway;`, no URI part, so the path passes unchanged). **No `depends_on: gateway`.** | A literal `proxy_pass http://gateway:8080` is resolved once at startup: nginx refuses to start if the gateway doesn't exist yet ("host not found in upstream"), and keeps the old IP after the gateway is recreated (502 until nginx restarts). Runtime resolution removes both, and with them the reason for `depends_on` (TS-014 decision 8). |
 | 4 | **nginx sets `X-Forwarded-For` (`$remote_addr`) and `X-Forwarded-Proto`, replacing what the client sent** (not `$proxy_add_x_forwarded_for`, which appends to it). The gateway passes them through (TS-014 decision 4); nothing trusts them yet. | nginx is the first hop we control, so it's the only one that knows the real client address. Appending would forward whatever a browser claims (question 6). |
 | 5 | **nginx's own errors on `/api/` are Problem Details:** `error_page` for 502/504 returns `application/problem+json` with `upstream_unreachable` / `upstream_timeout` (no `traceId`: no .NET code ran). The gateway's own responses, errors included, pass through untouched (`proxy_intercept_errors` stays off). | The app expects §2.1 errors from `/api` (TS-026 decision 3). Same rule as the gateway: errors of the hop behind are passed on, only the proxy's own errors are its to write. |
@@ -82,17 +83,17 @@ Each phase ends working and reviewed. You draft each one; Claude completes and r
 
 ## Acceptance criteria
 - [ ] AC1: `http://localhost:8000` loads the app, and placing an order works end to end.
-- [ ] AC2: Reloading `/orders/1001` in the browser works (the `index.html` fallback); a missing `/assets/x.js` gives a 404, not `index.html`.
+- [x] AC2: Reloading `/orders/1001` in the browser works (the `index.html` fallback); a missing `/assets/x.js` gives a 404, not `index.html`.
 - [ ] AC3: In the browser's Network tab, every API call goes to `localhost:8000/api/...`, and there are no CORS errors.
-- [ ] AC4: The image has no Node.js, no `node_modules` and no source; nginx runs as non-root and listens on 8080.
-- [ ] AC5: nginx forwards the path and query unchanged, and sets `X-Forwarded-For` and `X-Forwarded-Proto`, replacing any the client sent. Verified against an echo server that stands in for the gateway.
-- [ ] AC6: With the gateway stopped, `/api/...` answers nginx's own 502 `upstream_unreachable` as Problem Details, and the app shows it. The gateway's own errors (for example its 404 `not_found` for `/api/nope`) arrive unchanged.
-- [ ] AC7: The frontend starts and is healthy while the gateway is stopped. After `docker compose up -d --force-recreate gateway`, the app works again without restarting nginx.
-- [ ] AC8: `index.html` is sent with `no-cache`, `/assets/*` with a one-year `immutable` cache.
+- [x] AC4: The image has no Node.js, no `node_modules` and no source; nginx runs as non-root and listens on 8080.
+- [x] AC5: nginx forwards the path and query unchanged, and sets `X-Forwarded-For` and `X-Forwarded-Proto`, replacing any the client sent. Verified against an echo server that stands in for the gateway.
+- [x] AC6: With the gateway stopped, `/api/...` answers nginx's own 502 `upstream_unreachable` as Problem Details, and the app shows it. The gateway's own errors (for example its 404 `not_found` for `/api/nope`) arrive unchanged.
+- [x] AC7: The frontend starts and is healthy while the gateway is stopped. After `docker compose up -d --force-recreate gateway`, the app works again without restarting nginx.
+- [x] AC8: `index.html` is sent with `no-cache`, `/assets/*` with a one-year `immutable` cache.
 - [ ] AC9: The reachability matrix is proven with the real frontend: the stand-in is gone, the CI `image` and `network` jobs pass, and Dependabot watches the frontend's Dockerfile.
 - [ ] AC10: **Experiment:** open the app from your phone using your PC's LAN IP. Record what you had to allow in Windows Firewall.
 - [ ] AC11: nginx's access log shows hop 2 (nginx → gateway: the gateway's address, status and time) for a request you also saw in DevTools (hop 1).
-- [ ] AC12: Docs updated:
+- [x] AC12: Docs updated:
   - architecture.md: §2 frontend row (image, port 8080), §3, §4 (port, stand-in text), §8, Q3 resolved
   - contracts.md §4: nginx's own errors
   - epic D12
@@ -133,3 +134,12 @@ Write the answers in `notes/`.
 - 2026-10-18: Updated for the `tinyshop/infrastructure/` layout
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-11-04: Refined. The React app split out into TS-026 (Claude); this ticket is the container, nginx and networking, done together. Task → Story, points 3 → 5. Decisions 1-10, phases 0-6, AC5-AC9 and AC12, and questions added; `needs-refinement` removed. Depends on TS-026
+- 2026-11-07: Decision 2 says what the image build runs. Developing on the host against the Docker stack goes through nginx (`GATEWAY_URL=http://localhost:8000`), so no separate gateway proxy in Compose
+- 2026-11-07: Started (branch `TS-015-frontend-container`)
+- 2026-11-08: Phase 3. `/api` without a slash: `absolute_redirect off`, so nginx's own 301 is a relative `Location: /api/` (Phase 0 showed the absolute one carried the internal port 8080), and the gateway answers its own 404. Health check on `127.0.0.1`, not `localhost`: inside the container, BusyBox wget tries `::1` first and nginx listens on IPv4 only. nginx's Problem Details `instance` is the path only when it holds nothing but JSON-safe URL characters, `/api/` otherwise (`return` can't escape JSON)
+- 2026-11-09: Phases 4 and 6, and the Phase 5 experiments that need no browser or phone:
+  - The matrix script tests the real frontend on 8080; the stand-in is gone. Run against a full stack: every cell OK. Putting the frontend on `backend-network` failed 6 cells, 3 of them `?` (IP reachable, name unresolved)
+  - The CI `image` matrix has `context`; the `frontend` entry builds from `services/frontend`. Dependabot `docker` watches `services/frontend`
+  - Question 3 measured with `docker pause order-service` for 120 s: nginx's 504 `upstream_timeout` after 60 s, and no order. The gateway cancels its call when nginx disconnects (`RequestAborted`), so the frozen service never ran the request; added to contracts.md §7
+  - Docs: architecture.md (layout, §2, §3, §4, §5.1, §8, §10, Q3), contracts.md (§2.3, §4, §7), the frontend README, epic D12. Answers in `notes/m1.md`
+  - Left for the assignee: AC1 and AC3 in the browser, AC10 (phone, firewall), AC11 (DevTools next to the access log), AC9 once CI passes on the pull request

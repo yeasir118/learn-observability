@@ -40,7 +40,7 @@ These are final unless a new ticket reopens one.
 | D9 | One product per order, with a quantity. Orders store a snapshot of the product name and unit price | |
 | D10 | Database per service: three Postgres containers, isolated from each other by Docker networks | |
 | D11 | Fault injection is controlled by environment variables, and all faults are off by default | Its own ticket later |
-| D12 | The React app is written by Claude and runs on its own with the Vite dev server (TS-026). Its container, nginx config and place in the stack are built together (TS-015): the assignee drafts each phase, Claude completes and reviews it | Changed 2026-11-04: the app and its container are separate tickets |
+| D12 | The React app is written by Claude and runs on its own with the Vite dev server (TS-026). Its container, nginx config and place in the stack are built together (TS-015): the assignee drafts each phase, Claude completes and reviews it. Result: an unprivileged nginx image (port 8080, published `8000:8080`) that serves `dist/` and proxies `/api/` to the gateway, resolving it per request | Changed 2026-11-04: the app and its container are separate tickets. Built in TS-015 |
 | D13 | TLS is out of scope for M1 and is planned as epic M1.5 | |
 | D14 | Containers, ports and networks follow [architecture.md](../tinyshop/docs/architecture.md); HTTP and gRPC behaviour follows [contracts.md](../tinyshop/docs/contracts.md) | Step-0 output |
 | D15 | One Compose file at `tinyshop/infrastructure/compose/compose.yaml`, extended ticket by ticket. Infrastructure files live under `tinyshop/infrastructure/`; each Dockerfile lives next to the code it builds ([layout](../tinyshop/docs/architecture.md#repository-layout)) | `compose.yaml` is the filename the Compose specification prefers. Keeps `tinyshop/` uncluttered |
@@ -114,3 +114,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-04: TS-024 and TS-025 done. TS-014 refined: one ticket including containerization and the network proof; 8 points
 - 2026-11-04: D16 records the gateway's exception: one project, minimal API endpoints (TS-014)
 - 2026-11-04: TS-015 refined and split: TS-026 (the React app, Claude) and TS-015 (container and nginx, together; 5 points). D12 updated
+- 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result

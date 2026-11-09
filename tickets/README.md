@@ -13,27 +13,27 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-003](TS-003-system-architecture-document.md) | Task | System architecture document | Done | 3 | TS-002 |
 | [TS-004](TS-004-http-api-contracts.md) | Task | HTTP API contracts | Done | 3 | TS-003 |
 | [TS-005](TS-005-payment-grpc-contract.md) | Task | Payment gRPC contract | Done | 2 | TS-004 |
-| [TS-006](TS-006-ci-pipeline-foundation.md) | Task | CI pipeline foundation (GitHub Actions) | In Progress | 3 | TS-005 |
-| [TS-007](TS-007-product-database-in-compose.md) | Task | Product database and debug proxy in Compose | In Progress | 2 | TS-006 |
+| [TS-006](TS-006-ci-pipeline-foundation.md) | Task | CI pipeline foundation (GitHub Actions) | Done | 3 | TS-005 |
+| [TS-007](TS-007-product-database-in-compose.md) | Task | Product database and debug proxy in Compose | Done | 2 | TS-006 |
 | [TS-008](TS-008-product-service-on-host.md) | Story | Product service on the host with EF Core | Done | 5 | TS-007 |
-| [TS-009](TS-009-product-service-integration-tests.md) | Task | Product service integration tests | In Progress | 3 | TS-008 |
+| [TS-009](TS-009-product-service-integration-tests.md) | Task | Product service integration tests | Done | 3 | TS-008 |
 | [TS-010](TS-010-containerize-product-service.md) | Story | Containerize the product service | Done | 5 | TS-009 |
 | [TS-011](TS-011-user-service.md) | Story | User service | Done | 5 | TS-010 |
-| [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | In Review | 5 | TS-010 |
-| [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | In Review | 8 | TS-011, TS-012 |
-| [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | In Progress | 8 | TS-013, TS-024 |
-| [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | To Do | 5 | TS-014, TS-026 |
+| [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | Done | 5 | TS-010 |
+| [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | Done | 8 | TS-011, TS-012 |
+| [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | Done | 8 | TS-013, TS-024 |
+| [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | In Progress | 5 | TS-014, TS-026 |
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | To Do | 3 | TS-015 |
 | [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | To Do | 2 | TS-015 |
 | [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
-| [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | In Review | 3 | TS-012 |
-| [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | In Progress | 3 | TS-013, TS-021, TS-022 |
+| [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | Done | 3 | TS-012 |
+| [TS-023](TS-023-containerize-order-service.md) | Story | Containerize the order service | Done | 3 | TS-013, TS-021, TS-022 |
 | [TS-024](TS-024-shared-service-defaults.md) | Task | Extract shared service plumbing into TinyShop.ServiceDefaults | Done | 5 | TS-013 |
 | [TS-025](TS-025-compose-templates.md) | Task | Remove repetition from compose.yaml with templates | Done | 2 | TS-024 |
-| [TS-026](TS-026-react-frontend-app.md) | Story | React frontend app (runs locally) | In Review | 3 | TS-014 |
+| [TS-026](TS-026-react-frontend-app.md) | Story | React frontend app (runs locally) | Done | 3 | TS-014 |
 
 Keep this table in sync with each ticket's front matter.
 

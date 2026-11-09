@@ -35,10 +35,13 @@ tinyshop/
 │   ├── order-service/
 │   ├── payment-service/
 │   ├── gateway/
-│   └── frontend/                 React app (Vite, TypeScript; TS-026); its Dockerfile and nginx config arrive in TS-015
+│   └── frontend/                 React app (Vite, TypeScript; TS-026), served by nginx in its own image (TS-015)
 │       ├── package.json          dependencies and scripts (dev, build, lint, typecheck, test); package-lock.json pins them
 │       ├── .nvmrc                the Node.js major (local and CI), like global.json for .NET
 │       ├── vite.config.ts        dev server and its /api proxy to the gateway, build, tests
+│       ├── Dockerfile            Node stage builds dist/, nginx stage serves it; build context is this folder
+│       ├── .dockerignore         applies to this image only (its context), not tinyshop/.dockerignore
+│       ├── nginx/default.conf    static files, caching, the /api/ proxy, nginx's own errors, access log
 │       └── src/                  api/ (client, the five routes), pages/, components/, lib/, tests next to the code
 ├── shared/                       plumbing every .NET service uses the same way (D25, TS-024; rules in its README)
 │   ├── TinyShop.Shared.slnx      builds and tests everything in shared/ (CI job "dotnet (shared)")
@@ -82,7 +85,7 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
-| `frontend` | build `tinyshop/services/frontend` (Node build stage → nginx) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 80 (HTTP/1.1) | **8000** | `edge-network` |
+| `frontend` | build `tinyshop/services/frontend` (build stage `node:26-alpine`, runtime `nginxinc/nginx-unprivileged:1.30-alpine`) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 8080 (HTTP/1.1) | **8000** | `edge-network` |
 | `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
@@ -110,16 +113,16 @@ Debug-only containers, started only with `docker compose --profile debug` (see [
 
 Notes:
 
-- **Published ports bind to every host interface by default.** `"8000:80"` is reachable at `localhost:8000` and also from any machine that can reach the host's LAN IP. That's intended for `frontend`. The debug proxies must never be exposed like that, so they bind to the loopback interface only (`"127.0.0.1:5433:5432"`).
+- **Published ports bind to every host interface by default.** `"8000:8080"` is reachable at `localhost:8000` and also from any machine that can reach the host's LAN IP. That's intended for `frontend`. The debug proxies must never be exposed like that, so they bind to the loopback interface only (`"127.0.0.1:5433:5432"`).
 
-- **8080** is the default port of .NET 8+ container images, so the services need no port configuration inside Docker. A non-privileged port also lets the services run as a non-root user.
+- **8080** is the default port of .NET 8+ container images, so the services need no port configuration inside Docker. A non-privileged port also lets the services run as a non-root user. The frontend's nginx listens on 8080 for the same reason: the unprivileged image runs as uid 101, which can't bind ports below 1024 (Q3).
 - **Payment's port 8080 speaks only HTTP/2.** gRPC requires HTTP/2, and without TLS a client can't negotiate the protocol, so the port is configured for HTTP/2 only (h2c).
 - **The three databases all listen on 5432 without conflict.** Each container has its own network namespace, so ports only collide when they are published on the same host.
 - **Image pinning (Q2, decided in TS-010):**
 
   | Image kind | Pinned to | Example | Why |
   |---|---|---|---|
-  | Official, actively maintained base images | Major version | `postgres:18-alpine`, `sdk:10.0`, `aspnet:10.0-alpine` | The publisher moves these tags to each new patch release, so a rebuild picks up security fixes automatically, but never a new major version |
+  | Official, actively maintained base images | Major version (nginx: the stable minor, since its major is always 1) | `postgres:18-alpine`, `sdk:10.0`, `aspnet:10.0-alpine`, `node:26-alpine`, `nginx-unprivileged:1.30-alpine` | The publisher moves these tags to each new patch release, so a rebuild picks up security fixes automatically, but never a new major version |
   | Small third-party images | Exact version | `alpine/socat:1.8.1.1` | Their tags aren't maintained as rolling major-version tags, so only an exact tag is predictable |
   | GitHub Actions | Commit SHA | `actions/checkout@3d3c42e…` | Actions run code with access to the repository, so a movable tag is a supply-chain risk (TS-006) |
 
@@ -130,7 +133,7 @@ Notes:
 
 | Network | Internal | Members | Purpose |
 |---|---|---|---|
-| `edge-network` | no | `frontend`, `gateway` | The only network reachable from the host. Carries browser traffic in through the published frontend port, and nginx → gateway. Created with the gateway in TS-014; the frontend joins it in TS-015. |
+| `edge-network` | no | `frontend`, `gateway` | The only network reachable from the host. Carries browser traffic in through the published frontend port, and nginx → gateway. |
 | `backend-network` | yes | `gateway`, `product-service`, `user-service`, `order-service` | Service-to-service HTTP calls. |
 | `product-network` | yes | `product-service`, `product-db` | Product service ↔ its database only. |
 | `user-network` | yes | `user-service`, `user-db` | User service ↔ its database only. |
@@ -171,9 +174,9 @@ The databases never initiate connections, so they have no rows. Things to check:
 
 `infrastructure/scripts/check-reachability-matrix.sh` tests every cell against the running stack, and the CI job `network` runs it on every pull request (TS-014). It reads the table above from this file, so **this table is the test's input**: changing a cell changes what's checked.
 
-- **From a container:** a `nicolaka/netshoot` container joins the row container's network namespace (`--network container:<row>`), so it sees exactly that container's interfaces, routes and DNS. Each target is tried **by name and by IP** (every address it has, one per network). A name that doesn't resolve only shows that DNS hides the target; an IP that can't be reached shows there's no route. If the two disagree, the cell is a finding (`?`). Ports: 80 for the frontend, 5432 for the databases, 8080 for the rest. A TCP connection is the test, so ✓ and ◐ look the same; the script keeps whichever the table says.
+- **From a container:** a `nicolaka/netshoot` container joins the row container's network namespace (`--network container:<row>`), so it sees exactly that container's interfaces, routes and DNS. Each target is tried **by name and by IP** (every address it has, one per network). A name that doesn't resolve only shows that DNS hides the target; an IP that can't be reached shows there's no route. If the two disagree, the cell is a finding (`?`). Ports: 5432 for the databases, 8080 for the rest. A TCP connection is the test, so ✓ and ◐ look the same; the script keeps whichever the table says.
 - **From the browser:** only through published ports, as a browser on another machine would reach the stack. On a Linux host (the CI runner), the host can also open connections to container IPs on non-internal networks directly. That's a property of the host's routing table, not a path anyone else has, so the browser row doesn't count it.
-- **Until TS-015**, a stand-in container plays the frontend: on `edge-network` only, with the DNS alias `frontend`, listening on 80 and publishing 8000.
+- **The real frontend** is tested, never a stand-in (TS-015 removed TS-014's): a stack without a running `frontend` fails the script.
 
 The script prints the matrix it observed in the same format as the table above and compares the two line by line. Any difference fails it: either `compose.yaml` or this table is wrong, and whichever it is gets fixed. Run it against the default stack (no debug profile):
 
@@ -201,7 +204,7 @@ flowchart LR
   onet{{"order-network (internal)"}}
   paynet{{"payment-network (internal)"}}
 
-  frontend[frontend :80]
+  frontend[frontend :8080]
   gateway[gateway :8080]
   product[product-service :8080]
   user[user-service :8080]
@@ -211,7 +214,7 @@ flowchart LR
   udb[(user-db :5432)]
   odb[(order-db :5432)]
 
-  host -->|published 8000 → 80| frontend
+  host -->|published 8000 → 8080| frontend
 
   frontend --- edge
   gateway --- edge
@@ -354,7 +357,7 @@ The chosen approach is the same idea as a bastion host or `kubectl port-forward`
 | `user-service` (`dotnet run`) | `http://localhost:5102` | `localhost:5434` (`user-db-proxy`) |
 | `order-service` (`dotnet run`) | `http://localhost:5103` | `localhost:5435` (`order-db-proxy`), and the other services' `dotnet run` ports |
 | `payment-service` (`dotnet run`) | `http://localhost:5104` (HTTP/2) | none |
-| frontend (Vite dev server) | `http://localhost:5173` | proxies `/api` to the gateway |
+| frontend (Vite dev server) | `http://localhost:5173` | proxies `/api` to `GATEWAY_URL`: the gateway's `dotnet run` port (`localhost:5100`, the default), or the stack in Docker through nginx (`localhost:8000`) |
 | `frontend` (container) | `http://localhost:8000` | `gateway:8080` |
 
 So moving a service from the host into Docker changes both where it listens and where it connects. For example, product-service:
@@ -381,7 +384,7 @@ The same database, reached by a different path, needs a different address. The p
 |---|---|---|
 | Q1 | How does Docker health-check `payment-service`, given its port speaks only HTTP/2? Options: the standard gRPC health protocol (`grpc.health.v1`) with a probe tool, or a second HTTP/1.1 port for `/health`. | **Resolved in TS-012/TS-022**: the service implements `grpc.health.v1`; the image contains `grpc_health_probe` (copied from its official image, a named stage so Dependabot tracks it), and Compose runs it. Rejected: a second HTTP/1.1 port (an extra port, and a check that doesn't exercise the gRPC stack). See [§10](#10-startup-migrations-and-health-checks) |
 | Q2 | Image pinning: major tag (current), exact patch tag, or digest? | **Resolved in TS-010**: see [§2](#2-container-inventory), notes |
-| Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | Step 7 |
+| Q3 | Run nginx as non-root (the unprivileged image listens on 8080 instead of 80)? | **Resolved in TS-015**: yes. `nginxinc/nginx-unprivileged` runs as uid 101 and listens on 8080; Compose publishes `8000:8080`. Like every other container, nothing in it runs as root |
 | Q4 | Startup order: `depends_on` with `condition: service_healthy` for each service–database pair, plus whether services should also retry their first database connection. | **Resolved in TS-010**: see [§10](#10-startup-migrations-and-health-checks) |
 | Q5 | Does `nginx` strip the `/api` prefix, or does the gateway own `/api/*`? | **Resolved in TS-014**: the gateway owns `/api/*`, and nginx forwards the path unchanged. The gateway maps each public route to its internal path (`/api/orders/1001` → `/orders/1001`) and rewrites `Location` back (contracts.md §4). One component knows the public paths, so nginx stays a plain proxy |
 
@@ -401,6 +404,7 @@ product-db ──healthy──► product-db-migrate ──exited 0──► pro
 - Re-running is safe: migrations already applied are skipped ("No migrations were applied. The database is already up to date").
 - A service waits only for **its own** database and migration job, never for the services it calls. order-service's `depends_on` lists `order-db` and `order-db-migrate`, not user-, product- or payment-service: it starts and is ready without them and answers 502/504 while one is down (contracts.md §6). Waiting on them would let one unhealthy service keep another from starting, the cascade the readiness rule avoids (contracts.md §5.4). Decided in TS-023.
 - The gateway waits for nothing: no `depends_on`, and its `/health/ready` checks nothing upstream. It starts and is ready on its own, and answers 502 `upstream_unreachable` for a route whose service is down. Otherwise one unhealthy service would take the whole public API down with it. Decided in TS-014.
+- The frontend waits for nothing either, not even the gateway (TS-015). nginx looks `gateway` up per request through Docker's DNS (`resolver 127.0.0.11 valid=10s`), so it starts without one, answers its own 502 `upstream_unreachable` for `/api/` meanwhile, and finds a recreated gateway at its new IP within 10 seconds, without a restart. A literal host name in `proxy_pass` would be resolved once, at startup: nginx would refuse to start without a gateway (`host not found in upstream`), and keep a recreated gateway's old IP until restarted.
 - Services also cope with the database disappearing *later*: they don't connect at startup, and every request or readiness check simply fails (503) until it's back. So there's no retry loop at startup.
 
 ### Migrations: a bundle in a one-off container
@@ -426,6 +430,7 @@ Two details:
 | `wget -q --spider http://localhost:8080/health/ready` | Runs inside the container against its own port, so Docker's port forwarding isn't involved. Checks **readiness**, so "healthy" means "can serve requests, including reaching the database" |
 | payment-service: `grpc_health_probe -addr=localhost:8080` | Its port is HTTP/2-only and refuses `wget`'s HTTP/1.1 with a 400. The probe calls the standard `grpc.health.v1` Check and exits 0 only on `SERVING`. The service answers health checks without a cache, so the first probe after startup already sees `SERVING` |
 | Defined in Compose, not as a Dockerfile `HEALTHCHECK` | Orchestration settings live with the orchestration. Other platforms (Kubernetes) ignore Dockerfile health checks and define their own probes anyway |
+| frontend: `wget -q --spider http://127.0.0.1:8080/` | Checks that nginx serves the app, not that the gateway answers: a stopped gateway mustn't make the entry point unhealthy (TS-015). `127.0.0.1`, not `localhost`: inside the container `localhost` resolves to `::1` first, and nginx listens on IPv4 only |
 | `interval: 10s`, `timeout: 3s`, `retries: 3` | Unhealthy within about 30 seconds of losing the database |
 | `start_period: 20s`, `start_interval: 2s` | Checks every 2 seconds while starting, so the service turns healthy within seconds; failures during that period don't count |
 

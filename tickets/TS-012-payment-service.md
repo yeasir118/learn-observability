@@ -2,7 +2,7 @@
 key: TS-012
 title: Payment service (gRPC)
 type: Story
-status: In Review
+status: Done
 priority: High
 points: 5
 assignee: claude
@@ -49,3 +49,4 @@ Implement `payment-service`: a gRPC server for `PaymentService.ProcessPayment`, 
 - 2026-10-18: Created
 - 2026-10-18: Paths updated for the per-service layout (`tinyshop/services/<service>/{src,tests}`)
 - 2026-10-25: Rescoped to the .NET solution (container work moved to TS-022) and implemented by Claude. Found and fixed during testing: (1) the exception interceptor reported a passed deadline as CANCELLED, which would have made order-service mark timed-out orders FAILED instead of keeping them PENDING (contracts.md §6); (2) the gRPC health service answered UNKNOWN: it needs at least one registered check and, by default, answers from a cache filled seconds after startup. Three CS0118 name clashes along the way (namespace TinyShop.Payment from the generated code; a Grpc folder shadowing the Grpc library), resolved by naming: the domain type is Charge, the folder is Services. Verified: 18 unit and 15 integration tests, and a local run with grpcurl (list, describe, approve, INVALID_ARGUMENT, health SERVING) and curl (the port refuses HTTP/1.1 with 400, answers HTTP/2)
+- 2026-11-09: Done: merged into master in PR #14. Status corrected afterwards; the boxes above weren't ticked at the time

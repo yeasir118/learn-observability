@@ -49,6 +49,10 @@ updates:
 
   # Base images in each service's Dockerfile (FROM lines).
   # Add a service's folder here when it gets a Dockerfile.
+  # The frontend's two images follow release lines, so not every proposed version is one to take:
+  #   node    only even (LTS) majors, and together with .nvmrc (TS-026), which CI reads.
+  #   nginx   only even minors: an odd minor (1.31) is the mainline branch, not stable (TS-015,
+  #           decision 1). Close such a pull request with "@dependabot ignore this minor version".
   - package-ecosystem: docker
     directories:
       - /tinyshop/services/product-service
@@ -56,12 +60,14 @@ updates:
       - /tinyshop/services/payment-service
       - /tinyshop/services/order-service
       - /tinyshop/services/gateway
+      - /tinyshop/services/frontend
     schedule:
       interval: weekly
     commit-message:
       prefix: deps
 
-  # Images used directly in compose.yaml (postgres, socat, later nginx, k6, ...).
+  # Images used directly in compose.yaml (postgres, socat, later k6, ...). Not nginx: it's the
+  # frontend's base image, so its Dockerfile entry above covers it.
   - package-ecosystem: docker-compose
     directory: /tinyshop/infrastructure/compose
     schedule:
