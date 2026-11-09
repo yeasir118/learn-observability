@@ -24,7 +24,7 @@ RUN npm run build
 
 # ---- Runtime stage: nginx serves dist/, nothing from Node survives -----------------------
 # Decision 1: the unprivileged variant runs as uid 101 and listens on 8080, not 80.
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
