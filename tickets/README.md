@@ -22,8 +22,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-012](TS-012-payment-service.md) | Story | Payment service (gRPC) | Done | 5 | TS-010 |
 | [TS-013](TS-013-order-service.md) | Story | Order service and the order flow | Done | 8 | TS-011, TS-012 |
 | [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | Done | 8 | TS-013, TS-024 |
-| [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | In Progress | 5 | TS-014, TS-026 |
-| [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | To Do | 3 | TS-015 |
+| [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | Done | 5 | TS-014, TS-026 |
+| [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | In Progress | 5 | TS-015 |
 | [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | To Do | 2 | TS-015 |
 | [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |

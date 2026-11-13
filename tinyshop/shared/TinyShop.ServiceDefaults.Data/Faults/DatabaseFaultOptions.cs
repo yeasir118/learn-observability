@@ -16,9 +16,11 @@ public sealed class DatabaseFaultOptions : IFaultSettings
     /// <summary>
     /// How much longer every database command of this service takes. Postgres itself waits
     /// (<see cref="DatabaseDelayInterceptor"/>), so the time is spent inside the database call.
-    /// Zero = off.
+    /// Zero = off. At most 25 s: Npgsql cancels a command after 30 s (its default command timeout),
+    /// and since the wait runs after the real statement, the cut-off wait would make the request
+    /// succeed after an arbitrary 30 s instead (found in TS-016's experiments).
     /// </summary>
-    [Range(typeof(TimeSpan), "00:00:00", "00:01:00")]
+    [Range(typeof(TimeSpan), "00:00:00", "00:00:25")]
     public TimeSpan DatabaseDelay { get; set; }
 
     public IEnumerable<string> DescribeActive()

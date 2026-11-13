@@ -64,7 +64,7 @@ public class DatabaseDelayTests(PostgresFixture fixture)
     }
 
     [Theory]
-    [InlineData("00:02:00")]
+    [InlineData("00:00:26")]   // over the cap, below Npgsql's 30 s command timeout
     [InlineData("-00:00:01")]
     public async Task InvalidDelay_StopsTheServiceAtStartup_NamingTheSetting(string delay)
     {

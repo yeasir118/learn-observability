@@ -51,7 +51,7 @@ tinyshop/
 │   ├── TinyShop.Testing/         test support (assertions, Postgres fixture base); test projects only
 │   └── tests/                    unit tests for the shared code
 ├── proto/                        protobuf contracts (buf module root)
-├── docs/                         this document, contracts.md, ...
+├── docs/                         this document, contracts.md, faults.md (the fault switches, TS-016), ...
 └── infrastructure/               everything that runs the system but isn't application code
     ├── compose/
     │   ├── compose.yaml          the single Compose file for the whole system
@@ -317,8 +317,9 @@ The other outcomes (unknown user or product, dependency failures, timeouts) are 
   - Connection strings: `ConnectionStrings__<Name>Db`, read with `GetConnectionString("<Name>Db")`. Example: `ConnectionStrings__ProductDb`.
   - Addresses of other services: `Services__<Name>Service__BaseUrl`, bound to `Services:<Name>Service:BaseUrl`. Example: `Services__ProductService__BaseUrl=http://product-service:8080`.
   - Listening port: `ASPNETCORE_HTTP_PORTS` (left at the image default of 8080 in containers).
+  - Fault switches: `Faults__<Name>`, bound to `Faults:<Name>`, all off by default. Example: `Faults__ErrorRate=0.2`. Every switch is listed in [faults.md](faults.md) (TS-016).
 - **Postgres images** use the image's own variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
-- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_APP_PASSWORD`, `FRONTEND_HOST_PORT`. `.env` is git-ignored, and `.env.example` documents every variable.
+- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_APP_PASSWORD`, `PAYMENT_SERVICE_FAULT_DECLINE_RATE`. `.env` is git-ignored, and `.env.example` documents every variable.
 
 ## 8. Local development
 
