@@ -65,7 +65,7 @@ RUN ConnectionStrings__ProductDb="Host=unused-at-build-time" \
 
 # ---- Migrations image: runs the bundle once, then exits -----------------------------------
 # Debian-based like the SDK, because the bundle is built for the SDK image's C library (glibc).
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS migrations
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS migrations
 
 WORKDIR /app
 COPY --from=migrations-build /app/efbundle .
@@ -81,7 +81,7 @@ ENTRYPOINT ["./efbundle"]
 # Alpine variant: much smaller, and it includes BusyBox wget, which the Compose health check
 # uses (the Debian-based aspnet image has neither curl nor wget). Trade-off: Alpine images run
 # with invariant globalization (no culture-specific formatting), which TinyShop doesn't need.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish/ .
