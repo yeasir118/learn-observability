@@ -49,7 +49,7 @@ RUN dotnet publish \
 # ---- Runtime stage: ASP.NET Core runtime only, no SDK, no source -------------------------
 # Must stay the LAST stage: "docker build" without --target builds the last one.
 # Alpine variant: much smaller; the same runtime image as the other services.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish/ .
