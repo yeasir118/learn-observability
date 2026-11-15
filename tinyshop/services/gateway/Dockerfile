@@ -42,7 +42,7 @@ RUN dotnet publish \
 # Must stay the LAST stage: "docker build" without --target builds the last one.
 # Alpine variant: much smaller, and it includes BusyBox wget, which the Compose health check
 # uses (TS-014, decision 9).
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish/ .
