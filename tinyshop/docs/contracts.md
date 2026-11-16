@@ -454,8 +454,9 @@ Consequences:
 
 - **The outermost timeout is the shortest.** nginx gives up after 60 s, while everything behind it waits up to 100 s. A slow request therefore ends with nginx's own 504 `upstream_timeout` ([§4](#nginx-in-front-of-the-gateway-ts-015), no `traceId`). The gateway's own `upstream_timeout` never reaches the browser.
 - **A hung payment-service hangs order-service indefinitely.** The caller times out, but order-service keeps waiting on the gRPC call and the order stays `PENDING`.
-- **A timeout upstream doesn't cancel the work downstream.** When the gateway gives up, order-service carries on unless it observes `HttpContext.RequestAborted`.
-- **But the cancellation does travel one hop.** The gateway sends its call with its own `RequestAborted`, so when nginx gives up at 60 s and closes its connection, the gateway abandons the call to the service at once, without waiting for its 100 s. A service that has already started on the request carries on (previous point). One that hasn't read it yet finds the connection closed and never runs it: in TS-015 a frozen order-service (`docker pause` for 120 s) created no order at all.
+- **A timeout upstream cancels the work downstream, all the way.** Each hop passes its caller's cancellation on: the gateway sends its call with `HttpContext.RequestAborted`, and order-service passes its own to the gRPC call. So when nginx gives up at 60 s and closes its connection, the gateway abandons its call at once (without waiting for its 100 s), order-service cancels the payment call, and payment-service stops.
+  - **A service that hasn't read the request yet never runs it.** In TS-015 a frozen order-service (`docker pause` for 120 s) created no order at all.
+  - **An order caught mid-payment stays `PENDING` for good.** In TS-016 a payment slowed to 60 s (a fault switch): order 1012 was inserted as `PENDING`, the payment call was cancelled, and order-service treats a cancelled call as "my caller left", not as a payment failure, so nothing ever updates it. Nothing retries or reconciles it either (§8).
 
 These are fine for M1. Failure Exercise 2 (slow payment) will make them very visible.
 

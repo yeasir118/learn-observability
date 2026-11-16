@@ -1,8 +1,9 @@
 <!--
   TinyShop.ServiceDefaults.Data: database plumbing every service with a PostgreSQL database uses the
-  same way (translating driver failures). Referenced only by each service's Infrastructure project.
+  same way (translating driver failures; the database-delay fault, TS-016). Referenced only by each
+  service's Infrastructure project.
   A separate project from TinyShop.ServiceDefaults so that services without a database
-  (payment-service, the gateway) never pull in Npgsql.
+  (payment-service, the gateway) never pull in Npgsql or EF Core.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -11,9 +12,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The driver alone; the services' EF Core provider depends on the same version
+    <!-- The driver; the services' EF Core provider depends on the same version
          (tinyshop/Directory.Packages.props, kept in step by Dependabot's ef-core-and-npgsql group). -->
     <PackageReference Include="Npgsql" />
+    <!-- EF Core's interceptors (DbCommandInterceptor), through the provider every service already
+         uses, so no second EF Core version can creep in. -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <!-- Binding and validating the "Faults" section. -->
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TinyShop.ServiceDefaults.UnitTests" />
   </ItemGroup>
 
 </Project>

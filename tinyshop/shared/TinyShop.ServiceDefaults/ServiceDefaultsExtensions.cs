@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using TinyShop.ServiceDefaults.Abstractions.Faults;
 using TinyShop.ServiceDefaults.Errors;
 using TinyShop.ServiceDefaults.Health;
 using TinyShop.ServiceDefaults.Json;
@@ -45,6 +47,8 @@ public static class ServiceDefaultsExtensions
     /// <summary>Builds the HTTP request pipeline. Order matters: middleware runs top to bottom.</summary>
     public static WebApplication UseServiceDefaults(this WebApplication app)
     {
+        app.LogActiveFaults();
+
         // Catches exceptions from everything registered after it and turns them into Problem Details.
         app.UseExceptionHandler();
 
@@ -70,6 +74,19 @@ public static class ServiceDefaultsExtensions
         app.MapDefaultHealthEndpoints();
 
         return app;
+    }
+
+    /// <summary>
+    /// One Warning per active fault switch, from every <see cref="IFaultSettings"/> the service
+    /// registered (TS-016, decision 8). Resolving them here also validates their options before the
+    /// first request, if ValidateOnStart hasn't already.
+    /// </summary>
+    private static void LogActiveFaults(this WebApplication app)
+    {
+        foreach (var fault in app.Services.GetServices<IFaultSettings>().SelectMany(settings => settings.DescribeActive()))
+        {
+            app.Logger.LogWarning("Fault injection is ON: {Fault}", fault);
+        }
     }
 
     /// <summary>

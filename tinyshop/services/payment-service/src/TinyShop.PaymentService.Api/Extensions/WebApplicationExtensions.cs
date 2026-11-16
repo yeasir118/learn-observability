@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using TinyShop.PaymentService.Api.Services;
+using TinyShop.ServiceDefaults.Abstractions.Faults;
 
 namespace TinyShop.PaymentService.Api.Extensions;
 
@@ -8,6 +9,13 @@ internal static class WebApplicationExtensions
     /// <summary>Maps the gRPC services and health endpoints.</summary>
     public static WebApplication UseApi(this WebApplication app)
     {
+        // One Warning per active fault switch (TS-016, decision 8). The same as
+        // TinyShop.ServiceDefaults does for the HTTP services, which this one doesn't reference.
+        foreach (var fault in app.Services.GetServices<IFaultSettings>().SelectMany(settings => settings.DescribeActive()))
+        {
+            app.Logger.LogWarning("Fault injection is ON: {Fault}", fault);
+        }
+
         app.MapGrpcService<PaymentGrpcService>();
 
         // grpc.health.v1.Health/Check and /Watch.

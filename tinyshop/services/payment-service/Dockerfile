@@ -25,6 +25,9 @@ COPY Directory.Build.props Directory.Packages.props global.json ./
 COPY services/payment-service/src/TinyShop.PaymentService.Api/TinyShop.PaymentService.Api.csproj services/payment-service/src/TinyShop.PaymentService.Api/
 COPY services/payment-service/src/TinyShop.PaymentService.Application/TinyShop.PaymentService.Application.csproj services/payment-service/src/TinyShop.PaymentService.Application/
 COPY services/payment-service/src/TinyShop.PaymentService.Domain/TinyShop.PaymentService.Domain.csproj services/payment-service/src/TinyShop.PaymentService.Domain/
+# The one shared project payment-service references (the fault switches' types, TS-016). Only this
+# one: payment-service has no database and isn't an HTTP API, so it needs no other shared plumbing.
+COPY shared/TinyShop.ServiceDefaults.Abstractions/TinyShop.ServiceDefaults.Abstractions.csproj shared/TinyShop.ServiceDefaults.Abstractions/
 
 # Restore the Api project, not the solution: tests/ isn't in the build context (.dockerignore),
 # and the Api project brings in the other two through its project references.
@@ -35,7 +38,8 @@ RUN dotnet restore services/payment-service/src/TinyShop.PaymentService.Api/Tiny
 # need it, so a contract change only invalidates the steps from here on.
 COPY proto/ proto/
 
-# Now the source code
+# Now the source code. The shared project first: it changes less often than the service.
+COPY shared/TinyShop.ServiceDefaults.Abstractions/ shared/TinyShop.ServiceDefaults.Abstractions/
 COPY services/payment-service/src/ services/payment-service/src/
 
 # UseAppHost=false: skip the native launcher executable; the image starts the app with "dotnet".

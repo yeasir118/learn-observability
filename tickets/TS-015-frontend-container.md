@@ -143,3 +143,4 @@ Write the answers in `notes/`.
   - Question 3 measured with `docker pause order-service` for 120 s: nginx's 504 `upstream_timeout` after 60 s, and no order. The gateway cancels its call when nginx disconnects (`RequestAborted`), so the frozen service never ran the request; added to contracts.md §7
   - Docs: architecture.md (layout, §2, §3, §4, §5.1, §8, §10, Q3), contracts.md (§2.3, §4, §7), the frontend README, epic D12. Answers in `notes/m1.md`
   - Left for the assignee: AC1 and AC3 in the browser, AC10 (phone, firewall), AC11 (DevTools next to the access log), AC9 once CI passes on the pull request
+- 2026-11-09: Merged (PR #25)

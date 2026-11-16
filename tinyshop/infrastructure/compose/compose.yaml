@@ -252,6 +252,12 @@ services:
     environment:
       ConnectionStrings__ProductDb: *product-db-app-connection
       ASPNETCORE_ENVIRONMENT: Production
+      # Fault switches (TS-016, tinyshop/docs/faults.md), all off unless set in .env. Changing one
+      # takes "docker compose up -d": Compose recreates the container, nothing is rebuilt.
+      # ":-" gives the off value when the variable is unset or empty.
+      Faults__ErrorRate: ${PRODUCT_SERVICE_FAULT_ERROR_RATE:-0}
+      Faults__ProductId: ${PRODUCT_SERVICE_FAULT_PRODUCT_ID:-}
+      Faults__DatabaseDelay: ${PRODUCT_SERVICE_FAULT_DATABASE_DELAY:-00:00:00}
     networks:
       - product-network
       - backend-network
@@ -274,6 +280,8 @@ services:
     environment:
       ConnectionStrings__UserDb: *user-db-app-connection
       ASPNETCORE_ENVIRONMENT: Production
+      # Fault switch (TS-016, tinyshop/docs/faults.md), off unless set in .env.
+      Faults__DatabaseDelay: ${USER_SERVICE_FAULT_DATABASE_DELAY:-00:00:00}
     networks:
       - user-network
       - backend-network
@@ -302,6 +310,8 @@ services:
       Services__UserService__BaseUrl: http://user-service:8080
       Services__ProductService__BaseUrl: http://product-service:8080
       Services__PaymentService__BaseUrl: http://payment-service:8080
+      # Fault switch (TS-016, tinyshop/docs/faults.md), off unless set in .env.
+      Faults__DatabaseDelay: ${ORDER_SERVICE_FAULT_DATABASE_DELAY:-00:00:00}
     networks:
       - order-network     # order-db
       - backend-network   # the gateway calls it; it calls user- and product-service
@@ -391,6 +401,11 @@ services:
       # Production: gRPC reflection stays off (it describes the whole API to anyone who can
       # connect). Tools then need the .proto file, e.g. grpcurl -import-path/-proto.
       ASPNETCORE_ENVIRONMENT: Production
+      # Fault switches (TS-016, tinyshop/docs/faults.md), all off unless set in .env.
+      Faults__Delay: ${PAYMENT_SERVICE_FAULT_DELAY:-00:00:00}
+      Faults__DeclineRate: ${PAYMENT_SERVICE_FAULT_DECLINE_RATE:-0}
+      Faults__ErrorRate: ${PAYMENT_SERVICE_FAULT_ERROR_RATE:-0}
+      Faults__UserId: ${PAYMENT_SERVICE_FAULT_USER_ID:-}
     networks:
       # Its own network, NOT backend-network: only order-service shares it, so the gateway and
       # the other services can't call payments directly (architecture.md §3).

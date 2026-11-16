@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using TinyShop.PaymentService.Application.Payments;
 using TinyShop.PaymentService.Domain.Payments;
+using TinyShop.ServiceDefaults.Abstractions.Faults;
 
 namespace TinyShop.PaymentService.UnitTests.Application;
 
@@ -19,11 +20,24 @@ public partial class PaymentProcessorTests
 
     public PaymentProcessorTests()
     {
-        _processor = new PaymentProcessor(
-            _time,
-            Options.Create(new PaymentProcessingOptions { ProcessingDelay = Delay }),
-            NullLogger<PaymentProcessor>.Instance);
+        _processor = CreateProcessor(_time, Delay);
     }
+
+    /// <summary>
+    /// A processor with the given normal delay, and fault switches as configured (all off unless
+    /// passed, as in production). <paramref name="random"/> decides the rate-based faults.
+    /// </summary>
+    internal static PaymentProcessor CreateProcessor(
+        TimeProvider time,
+        TimeSpan processingDelay,
+        PaymentFaultOptions? faults = null,
+        IFaultRandom? random = null) =>
+        new(
+            time,
+            Options.Create(new PaymentProcessingOptions { ProcessingDelay = processingDelay }),
+            Options.Create(faults ?? new PaymentFaultOptions()),
+            random ?? new SharedFaultRandom(),
+            NullLogger<PaymentProcessor>.Instance);
 
     [Fact]
     public async Task ProcessAsync_WaitsForTheProcessingDelay_ThenApproves()
@@ -70,10 +84,7 @@ public partial class PaymentProcessorTests
     [Fact]
     public async Task ProcessAsync_WithZeroDelay_ApprovesImmediately()
     {
-        var processor = new PaymentProcessor(
-            _time,
-            Options.Create(new PaymentProcessingOptions { ProcessingDelay = TimeSpan.Zero }),
-            NullLogger<PaymentProcessor>.Instance);
+        var processor = CreateProcessor(_time, TimeSpan.Zero);
 
         var result = await processor.ProcessAsync(AnyCharge, TestContext.Current.CancellationToken);
 

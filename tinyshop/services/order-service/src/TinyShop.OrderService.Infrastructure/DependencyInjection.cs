@@ -6,6 +6,7 @@ using TinyShop.OrderService.Application.Abstractions.Persistence;
 using TinyShop.OrderService.Infrastructure.Clients;
 using TinyShop.OrderService.Infrastructure.Persistence;
 using TinyShop.OrderService.Infrastructure.Persistence.Repositories;
+using TinyShop.ServiceDefaults.Data.Faults;
 using V1 = TinyShop.Payment.V1;
 
 namespace TinyShop.OrderService.Infrastructure;
@@ -36,7 +37,11 @@ public static class DependencyInjection
         var productServiceUrl = GetRequiredUrl(configuration, ProductServiceUrlKey);
         var paymentServiceUrl = GetRequiredUrl(configuration, PaymentServiceUrlKey);
 
-        services.AddDbContext<OrderDbContext>(options => options.UseOrderDatabase(connectionString));
+        // The database-delay fault (TS-016): every command of this DbContext goes through the
+        // interceptor, which does nothing unless Faults:DatabaseDelay is set (docs/faults.md).
+        services.AddDatabaseFaults();
+        services.AddDbContext<OrderDbContext>((provider, options) =>
+            options.UseOrderDatabase(connectionString).AddDatabaseFaults(provider));
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         // Typed clients: IHttpClientFactory creates the HttpClient each one is given and pools the

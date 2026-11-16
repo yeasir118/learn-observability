@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TinyShop.ProductService.Application.Abstractions.Persistence;
 using TinyShop.ProductService.Infrastructure.Persistence;
 using TinyShop.ProductService.Infrastructure.Persistence.Repositories;
+using TinyShop.ServiceDefaults.Data.Faults;
 
 namespace TinyShop.ProductService.Infrastructure;
 
@@ -25,10 +26,14 @@ public static class DependencyInjection
                 $"Connection string '{ConnectionStringName}' is missing from configuration "
                 + $"(key ConnectionStrings:{ConnectionStringName}).");
 
-        services.AddDbContext<ProductDbContext>(options =>
+        // The database-delay fault (TS-016): every command of this DbContext goes through the
+        // interceptor, which does nothing unless Faults:DatabaseDelay is set (docs/faults.md).
+        services.AddDatabaseFaults();
+        services.AddDbContext<ProductDbContext>((provider, options) =>
             options
                 .UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention()
+                .AddDatabaseFaults(provider));
 
         services.AddScoped<IProductRepository, ProductRepository>();
 

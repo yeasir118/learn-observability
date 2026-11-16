@@ -7,8 +7,8 @@ same way.
 | Project | What it holds | Dependencies | Referenced by |
 |---|---|---|---|
 | `TinyShop.ServiceDefaults` | ASP.NET Core plumbing: controllers and their JSON conventions, Problem Details (the generic error codes, the customizer, the error catalog, the "database unavailable" → 503 handler), API versioning, Swagger, health endpoints, and the request pipeline | ASP.NET Core, Asp.Versioning, Swashbuckle | Each service's **Api** project only |
-| `TinyShop.ServiceDefaults.Data` | Database plumbing: `DatabaseExceptionTranslator` (Npgsql failures → `DataStoreUnavailableException`) | Npgsql | Each service's **Infrastructure** project only |
-| `TinyShop.ServiceDefaults.Abstractions` | Types every layer may see: `DataStoreUnavailableException` | none, on purpose | Any layer, including **Application** |
+| `TinyShop.ServiceDefaults.Data` | Database plumbing: `DatabaseExceptionTranslator` (Npgsql failures → `DataStoreUnavailableException`), and the database-delay fault (`Faults/`: `AddDatabaseFaults`, an EF Core command interceptor; TS-016) | Npgsql, EF Core (through the Npgsql provider) | Each service's **Infrastructure** project only |
+| `TinyShop.ServiceDefaults.Abstractions` | Types every layer may see: `DataStoreUnavailableException`, and the fault switches' building blocks (`Faults/`: `IFaultRandom`, `FaultRate`, `InjectedFaultException`, `IFaultSettings`; TS-016) | none, on purpose | Any layer, including **Application**. The only shared project payment-service references |
 | `TinyShop.Testing` | Test support: `ResponseAssertions` (Problem Details and exact-JSON checks), `PostgresFixtureBase` (a throwaway PostgreSQL with the real init script and roles), `UnreachableDatabase` (a connection string to a closed port). Never in an image (`.dockerignore`) | xUnit (assert, extensibility), Testcontainers, Npgsql | Test projects only (`*Tests`) |
 | `tests/TinyShop.ServiceDefaults.UnitTests` | Tests for the shared code, run once here instead of once per service | | Nothing (CI job `dotnet (shared)`) |
 

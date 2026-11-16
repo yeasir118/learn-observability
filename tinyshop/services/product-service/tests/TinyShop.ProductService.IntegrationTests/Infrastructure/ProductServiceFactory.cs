@@ -7,7 +7,11 @@ namespace TinyShop.ProductService.IntegrationTests.Infrastructure;
 /// Hosts product-service in memory: the real Program.cs, middleware, controllers and EF Core,
 /// with an HTTP client that calls it without opening a network port.
 /// </summary>
-public sealed class ProductServiceFactory(string connectionString) : WebApplicationFactory<Program>
+/// <param name="connectionString">The database the service connects to.</param>
+/// <param name="settings">Extra configuration, for tests that need other settings (fault switches).</param>
+public sealed class ProductServiceFactory(
+    string connectionString,
+    IReadOnlyDictionary<string, string?>? settings = null) : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -19,5 +23,10 @@ public sealed class ProductServiceFactory(string connectionString) : WebApplicat
         // while Program.cs runs. UseSetting values are already in builder.Configuration at that
         // point; ConfigureAppConfiguration callbacks only run later, inside builder.Build().
         builder.UseSetting("ConnectionStrings:ProductDb", connectionString);
+
+        foreach (var (key, value) in settings ?? new Dictionary<string, string?>())
+        {
+            builder.UseSetting(key, value);
+        }
     }
 }

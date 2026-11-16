@@ -53,7 +53,7 @@ These are final unless a new ticket reopens one.
 | D22 | .NET services run on `aspnet:10.0-alpine` and have a Compose health check on `/health/ready` using BusyBox `wget` | Decided in TS-010; architecture.md §10 |
 | D23 | Images: official base images pinned to a major version, small third-party images to an exact version, Actions to a commit SHA; Dependabot watches all of them, plus NuGet | Decided in TS-010; architecture.md §2 |
 | D24 | Every service database has three roles: the superuser (initialisation only), `<service>_migrator` (owns the schema, used by the migration job) and `<service>_app` (only the DML the service needs), created by the shared `infrastructure/postgres/initdb` script | Decided in TS-020; architecture.md §10, Database roles |
-| D25 | Technical plumbing shared by the .NET services (Problem Details, versioning, Swagger, health endpoints, database exception translation, test support; later telemetry) lives in projects under `tinyshop/shared/`, referenced as project references. Business logic, DTOs, contracts, service-specific error codes and clients for other services are never shared | The microservice chassis pattern. Project references, not a NuGet package: one repository, one team, no registry. Decided 2026-10-27; implemented in TS-024 as four projects, each allowed only from one layer (checked in CI): `TinyShop.ServiceDefaults` (web, from Api: `AddServiceDefaults`/`UseServiceDefaults`), `.Data` (Npgsql, from Infrastructure), `.Abstractions` (no dependencies, any layer) and `TinyShop.Testing` (test projects only). payment-service (gRPC, no database) uses none of them; see `tinyshop/shared/README.md` |
+| D25 | Technical plumbing shared by the .NET services (Problem Details, versioning, Swagger, health endpoints, database exception translation, test support; later telemetry) lives in projects under `tinyshop/shared/`, referenced as project references. Business logic, DTOs, contracts, service-specific error codes and clients for other services are never shared | The microservice chassis pattern. Project references, not a NuGet package: one repository, one team, no registry. Decided 2026-10-27; implemented in TS-024 as four projects, each allowed only from one layer (checked in CI): `TinyShop.ServiceDefaults` (web, from Api: `AddServiceDefaults`/`UseServiceDefaults`), `.Data` (Npgsql, from Infrastructure), `.Abstractions` (no dependencies, any layer) and `TinyShop.Testing` (test projects only). payment-service (gRPC, no database) uses only `.Abstractions`, for the fault switches (TS-016); see `tinyshop/shared/README.md` |
 
 ## Child tickets
 | Step | Key | Title |
@@ -92,7 +92,7 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - [ ] Each of the User, Product and Order services owns its own Postgres database, and no service can reach another service's database over the network.
 - [ ] Only the frontend publishes a port to the host by default.
 - [ ] All services implement the contracts in `tinyshop/docs/contracts.md`.
-- [ ] Faults can be turned on through environment variables without rebuilding any image.
+- [x] Faults can be turned on through environment variables without rebuilding any image.
 - [ ] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
 - [ ] Failure Exercise 1 is written up.
 - [ ] `master` is tagged `phase-1-baseline`.
@@ -115,3 +115,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-04: D16 records the gateway's exception: one project, minimal API endpoints (TS-014)
 - 2026-11-04: TS-015 refined and split: TS-026 (the React app, Claude) and TS-015 (container and nginx, together; 5 points). D12 updated
 - 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result
+- 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
