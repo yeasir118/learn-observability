@@ -13,7 +13,7 @@
 FROM ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.59 AS health-probe
 
 # ---- Build stage: SDK image, compiles and publishes --------------------------------------
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 
 WORKDIR /src
 
