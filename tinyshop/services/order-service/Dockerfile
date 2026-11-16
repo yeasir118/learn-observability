@@ -73,7 +73,7 @@ RUN dotnet ef migrations bundle \
 
 # ---- Migrations image: runs the bundle once, then exits -----------------------------------
 # Debian-based like the SDK, because the bundle is built for the SDK image's C library (glibc).
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS migrations
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS migrations
 
 WORKDIR /app
 COPY --from=migrations-build /app/efbundle .
@@ -90,7 +90,7 @@ ENTRYPOINT ["./efbundle"]
 # Alpine variant: much smaller, and it includes BusyBox wget, which the Compose health check
 # uses. Unlike payment-service, this port speaks HTTP/1.1 (REST), so wget can check it.
 # The gRPC client needs nothing extra in the image: it's managed code inside the app.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish/ .
