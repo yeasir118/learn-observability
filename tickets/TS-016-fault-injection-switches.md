@@ -2,7 +2,7 @@
 key: TS-016
 title: Fault injection switches
 type: Story
-status: In Progress
+status: In Review
 priority: Medium
 points: 5
 assignee: yeasir118
@@ -74,7 +74,7 @@ As the person running the lab exercises, I can turn specific failures on and off
 ## Acceptance criteria
 - [x] AC1: Every fault can be turned on with a `.env` change and `docker compose up -d`, with no image rebuild.
 - [x] AC2: With every switch off, behaviour is exactly the same as before this ticket. The CI tests pass unchanged.
-- [ ] AC3: The database-delay fault happens **inside** the database call (`pg_sleep`), not around it in C#. Your notes explain why that will matter for tracing later.
+- [x] AC3: The database-delay fault happens **inside** the database call (`pg_sleep`), not around it in C#. Your notes explain why that will matter for tracing later.
 - [x] AC4: product-service's errors can be limited to one product ID, payment-service's faults to one user ID.
 - [x] AC5: Every fault has a test showing it works when on and does nothing when off.
 - [x] AC6: An invalid value (for example `ErrorRate=2`, `Delay=abc`) stops the service at startup with a message naming the setting.
@@ -104,8 +104,8 @@ Write the answers in `notes/`.
 5. Why is a fault that throws an exception more realistic than one that returns a 500?
 
 ## Definition of done
-- [ ] All acceptance criteria met
-- [ ] Questions answered in `notes/`
+- [x] All acceptance criteria met
+- [x] Questions answered in `notes/`
 - [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
@@ -129,3 +129,4 @@ Write the answers in `notes/`.
     - A database delay of 31 s returned **200 after 30.4 s**: since phase 4 the wait runs after the query, so Npgsql's 30 s command timeout cuts it short without failing the request. `DatabaseDelay` is now capped at 25 s (validated; a test checks 26 s fails), and faults.md says why
     - A payment delay of 60 s: nginx's 504 after 60 s, then order 1012 stayed **`PENDING` for good**. The cancellation travels the whole chain (nginx → gateway → order-service → payment-service, "cancelled by the caller"), and order-service treats a cancelled call as "my caller left". faults.md and contracts.md §7 corrected (§7 said order-service carries on)
   - Left for the assignee: the browser side of the experiments, and the answers in `notes/` (AC3 needs them)
+- 2026-11-16: Answers in `notes/m1.md` (questions 1-5, and what the experiments showed); AC3 ticked. Every acceptance criterion met; In Review

@@ -92,7 +92,7 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - [ ] Each of the User, Product and Order services owns its own Postgres database, and no service can reach another service's database over the network.
 - [ ] Only the frontend publishes a port to the host by default.
 - [ ] All services implement the contracts in `tinyshop/docs/contracts.md`.
-- [ ] Faults can be turned on through environment variables without rebuilding any image.
+- [x] Faults can be turned on through environment variables without rebuilding any image.
 - [ ] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
 - [ ] Failure Exercise 1 is written up.
 - [ ] `master` is tagged `phase-1-baseline`.
@@ -115,3 +115,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-04: D16 records the gateway's exception: one project, minimal API endpoints (TS-014)
 - 2026-11-04: TS-015 refined and split: TS-026 (the React app, Claude) and TS-015 (container and nginx, together; 5 points). D12 updated
 - 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result
+- 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
