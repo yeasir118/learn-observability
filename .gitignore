@@ -82,6 +82,11 @@ __pycache__/
 # --------------------------------------------------------------------------
 .data/
 
+# k6's HTML reports (TS-017): one per run, regenerated at will. The folder itself is kept
+# (.gitkeep), so it exists after a clone and Docker doesn't create it as root on Linux.
+tinyshop/infrastructure/load/reports/*
+!tinyshop/infrastructure/load/reports/.gitkeep
+
 # --------------------------------------------------------------------------
 # Logs and temporary files
 # --------------------------------------------------------------------------

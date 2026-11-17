@@ -116,3 +116,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-04: TS-015 refined and split: TS-026 (the React app, Claude) and TS-015 (container and nginx, together; 5 points). D12 updated
 - 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result
 - 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
+- 2026-11-16: TS-016 merged (PR #41). TS-017 refined (points 2 → 3: its own network to the frontend, k6's HTML report and live dashboard) and started

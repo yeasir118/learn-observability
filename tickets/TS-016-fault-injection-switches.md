@@ -2,7 +2,7 @@
 key: TS-016
 title: Fault injection switches
 type: Story
-status: In Review
+status: Done
 priority: Medium
 points: 5
 assignee: yeasir118
@@ -106,7 +106,7 @@ Write the answers in `notes/`.
 ## Definition of done
 - [x] All acceptance criteria met
 - [x] Questions answered in `notes/`
-- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
+- [x] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - 2026-10-18: Created
@@ -130,3 +130,4 @@ Write the answers in `notes/`.
     - A payment delay of 60 s: nginx's 504 after 60 s, then order 1012 stayed **`PENDING` for good**. The cancellation travels the whole chain (nginx → gateway → order-service → payment-service, "cancelled by the caller"), and order-service treats a cancelled call as "my caller left". faults.md and contracts.md §7 corrected (§7 said order-service carries on)
   - Left for the assignee: the browser side of the experiments, and the answers in `notes/` (AC3 needs them)
 - 2026-11-16: Answers in `notes/m1.md` (questions 1-5, and what the experiments showed); AC3 ticked. Every acceptance criterion met; In Review
+- 2026-11-16: Merged (PR #41)

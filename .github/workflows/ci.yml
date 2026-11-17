@@ -74,6 +74,17 @@ jobs:
         # service would pass.
         run: docker compose --env-file .env.example --profile '*' config --quiet
 
+      - name: Parse the load-test script
+        working-directory: tinyshop/infrastructure/compose
+        # k6 inspect loads tinyshop.js and evaluates its options without sending a request, so a
+        # syntax error or a broken option fails here (TS-017, decision 9). Run through the
+        # load-generator service itself: the image pinned in compose.yaml, the same mount, the
+        # same environment. --no-deps: nothing else is started. Running the load is TS-018.
+        run: >-
+          docker compose --env-file .env.example --profile load
+          run --rm --no-deps --quiet-pull --entrypoint k6 load-generator
+          inspect /scripts/tinyshop.js
+
   # One job per .NET solution: each service's, and the shared projects' (tinyshop/shared, which
   # holds the tests for the shared code). Adding a service means adding one entry to the matrix.
   # Every service's solution also builds the shared projects it references, so a change in

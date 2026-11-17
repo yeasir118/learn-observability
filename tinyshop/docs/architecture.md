@@ -58,7 +58,7 @@ tinyshop/
     │   ├── .env.example          committed template of every variable
     │   └── .env                  your values (git-ignored)
     ├── postgres/initdb/          init scripts mounted into every service database (role setup, §10)
-    ├── load/                     k6 load-test scripts (TS-017)
+    ├── load/                     k6 load test (TS-017): tinyshop.js, README.md, reports/ (git-ignored)
     ├── scripts/                  helper scripts, such as the reachability check (TS-014)
     └── observability/            collector, Prometheus, Loki, Tempo, Grafana config (later epics)
 ```
@@ -85,7 +85,7 @@ Every `docker compose` command in the tickets and documents is run from `tinysho
 
 | Service (DNS name) | Image / build | Role | Container port | Host port | Networks |
 |---|---|---|---|---|---|
-| `frontend` | build `tinyshop/services/frontend` (build stage `node:26-alpine`, runtime `nginxinc/nginx-unprivileged:1.30-alpine`) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 8080 (HTTP/1.1) | **8000** | `edge-network` |
+| `frontend` | build `tinyshop/services/frontend` (build stage `node:26-alpine`, runtime `nginxinc/nginx-unprivileged:1.30-alpine`) | Serves the React SPA, reverse-proxies `/api/*` to `gateway` | 8080 (HTTP/1.1) | **8000** | `edge-network`, `load-network` |
 | `gateway` | build `tinyshop/services/gateway` (`mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Public API (`/api/*`), forwards to internal services | 8080 (HTTP/1.1) | none | `edge-network`, `backend-network` |
 | `product-service` | build `tinyshop/services/product-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | Product catalogue | 8080 (HTTP/1.1) | none | `backend-network`, `product-network` |
 | `user-service` | build `tinyshop/services/user-service` (runtime `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`) | User lookup | 8080 (HTTP/1.1) | none | `backend-network`, `user-network` |
@@ -111,9 +111,15 @@ Debug-only containers, started only with `docker compose --profile debug` (see [
 | `user-db-proxy` | `alpine/socat` | Forwards host connections to `user-db:5432` | 5432 | **127.0.0.1:5434** | `debug-network`, `user-network` |
 | `order-db-proxy` | `alpine/socat` | Forwards host connections to `order-db:5432` | 5432 | **127.0.0.1:5435** | `debug-network`, `order-network` |
 
+Load-test container, started only with `docker compose --profile load up load-generator` (TS-017, [`infrastructure/load/README.md`](../infrastructure/load/README.md)). It runs once and exits; its exit code is the test result:
+
+| Service (DNS name) | Image | Role | Container port | Host port | Networks |
+|---|---|---|---|---|---|
+| `load-generator` | `grafana/k6:2.3.0` | Sends a steady, weighted mix of browser-like requests to `frontend:8080`; k6's live dashboard while it runs, an HTML report afterwards | 5665 (the dashboard) | **127.0.0.1:5665** | `load-network` |
+
 Notes:
 
-- **Published ports bind to every host interface by default.** `"8000:8080"` is reachable at `localhost:8000` and also from any machine that can reach the host's LAN IP. That's intended for `frontend`. The debug proxies must never be exposed like that, so they bind to the loopback interface only (`"127.0.0.1:5433:5432"`).
+- **Published ports bind to every host interface by default.** `"8000:8080"` is reachable at `localhost:8000` and also from any machine that can reach the host's LAN IP. That's intended for `frontend`. The debug proxies and the k6 dashboard must never be exposed like that, so they bind to the loopback interface only (`"127.0.0.1:5433:5432"`).
 
 - **8080** is the default port of .NET 8+ container images, so the services need no port configuration inside Docker. A non-privileged port also lets the services run as a non-root user. The frontend's nginx listens on 8080 for the same reason: the unprivileged image runs as uid 101, which can't bind ports below 1024 (Q3).
 - **Payment's port 8080 speaks only HTTP/2.** gRPC requires HTTP/2, and without TLS a client can't negotiate the protocol, so the port is configured for HTTP/2 only (h2c).
@@ -123,7 +129,7 @@ Notes:
   | Image kind | Pinned to | Example | Why |
   |---|---|---|---|
   | Official, actively maintained base images | Major version (nginx: the stable minor, since its major is always 1) | `postgres:18-alpine`, `sdk:10.0`, `aspnet:10.0-alpine`, `node:26-alpine`, `nginx-unprivileged:1.30-alpine` | The publisher moves these tags to each new patch release, so a rebuild picks up security fixes automatically, but never a new major version |
-  | Small third-party images | Exact version | `alpine/socat:1.8.1.1` | Their tags aren't maintained as rolling major-version tags, so only an exact tag is predictable |
+  | Small third-party images | Exact version | `alpine/socat:1.8.1.1`, `grafana/k6:2.3.0` | Their tags aren't maintained as rolling major-version tags, so only an exact tag is predictable |
   | GitHub Actions | Commit SHA | `actions/checkout@3d3c42e…` | Actions run code with access to the repository, so a movable tag is a supply-chain risk (TS-006) |
 
   Digests (`image@sha256:…`) were rejected: they're fully reproducible, but unreadable, and they stop patch releases arriving on their own. Dependabot watches every Dockerfile and `compose.yaml` and opens a pull request when a newer version appears. Note: Docker reuses a cached base image, so a local rebuild only picks up a newer patch release with `docker compose build --pull`.
@@ -140,13 +146,14 @@ Notes:
 | `order-network` | yes | `order-service`, `order-db` | Order service ↔ its database only. |
 | `payment-network` | yes | `order-service`, `payment-service` | Order → Payment gRPC. Keeps Payment unreachable from the gateway and the other services. |
 | `debug-network` | no | the `*-db-proxy` containers | Debug profile only. Gives host tools a way into the database networks. |
+| `load-network` | no | `frontend`, `load-generator` | The load generator's only way in: it reaches nginx, like a browser, and nothing behind it (TS-017). Not internal, because the k6 dashboard publishes a port. In the default stack, `frontend` is its only member. |
 
 Compose prefixes network names with the project name, so `docker network ls` shows them as `tinyshop_backend-network` and so on.
 
 ### Deliberate trade-offs
 
 - **`backend-network` is a flat trust zone.** Docker networks have no direction and no per-pair rules: every member can reach every other member. The connections actually used are gateway → product/user/order and order → product/user. The others (for example product → user, or any service → gateway) are reachable but unused. Splitting the network into one per pair would remove them, at the cost of many more networks. Finer-grained control belongs at a higher layer, such as mutual TLS and authorization (epic M1.5).
-- **Egress (outbound internet).** `frontend` and `gateway` have internet access because `edge-network` isn't internal. The database proxies have it through `debug-network` while the debug profile runs. Every other container has no route outside Docker. Nothing in TinyShop calls the internet, so this is acceptable, but it isn't zero.
+- **Egress (outbound internet).** `frontend` and `gateway` have internet access because `edge-network` isn't internal. The database proxies have it through `debug-network` while the debug profile runs, and `load-generator` through `load-network` (which is why it sets `K6_NO_USAGE_REPORT`: k6 would otherwise report anonymous usage to Grafana on every run). Every other container has no route outside Docker. Nothing in TinyShop calls the internet, so this is acceptable, but it isn't zero.
 
 ## 4. Reachability matrix
 
@@ -169,6 +176,8 @@ The databases never initiate connections, so they have no rows. Things to check:
 - The gateway can reach no database, and can't reach `payment-service`.
 - `order-service` can't reach `user-db` or `product-db`. It must go through the owning service.
 - The browser reaches nothing except the frontend's published port.
+
+`load-generator` (load profile) has no row: the table describes the default stack. It reaches `frontend` and nothing else, by name or by IP, which was checked in TS-017 the same way the script checks a row.
 
 ### How the matrix is proven
 
@@ -309,7 +318,7 @@ The other outcomes (unknown user or product, dependency failures, timeouts) are 
 | Networks | `<purpose>-network` | `edge-network`, `backend-network`, `product-network` |
 | Volumes | `<container>-data` | `product-db-data` |
 | Databases | `tinyshop_<plural>` | `tinyshop_products`, `tinyshop_users`, `tinyshop_orders` |
-| Compose profiles | lowercase word | `debug` |
+| Compose profiles | lowercase word | `debug`, `load` |
 
 ### Environment variables
 
@@ -319,7 +328,8 @@ The other outcomes (unknown user or product, dependency failures, timeouts) are 
   - Listening port: `ASPNETCORE_HTTP_PORTS` (left at the image default of 8080 in containers).
   - Fault switches: `Faults__<Name>`, bound to `Faults:<Name>`, all off by default. Example: `Faults__ErrorRate=0.2`. Every switch is listed in [faults.md](faults.md) (TS-016).
 - **Postgres images** use the image's own variables: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`.
-- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_APP_PASSWORD`, `PAYMENT_SERVICE_FAULT_DECLINE_RATE`. `.env` is git-ignored, and `.env.example` documents every variable.
+- **Compose-level variables** (from `infrastructure/compose/.env`, used for substitution inside `compose.yaml`) are `UPPER_SNAKE_CASE`, prefixed with the container they belong to. Examples: `PRODUCT_DB_APP_PASSWORD`, `PAYMENT_SERVICE_FAULT_DECLINE_RATE`, `LOAD_GENERATOR_RATE`. `.env` is git-ignored, and `.env.example` documents every variable.
+- **The k6 script** reads `BASE_URL`, `RATE` and `DURATION` (`__ENV`); compose.yaml fills them from `LOAD_GENERATOR_RATE` and `LOAD_GENERATOR_DURATION`. k6's own settings use its `K6_*` variables (`K6_WEB_DASHBOARD`, `K6_NO_USAGE_REPORT`, ...).
 
 ## 8. Local development
 
@@ -360,6 +370,7 @@ The chosen approach is the same idea as a bastion host or `kubectl port-forward`
 | `payment-service` (`dotnet run`) | `http://localhost:5104` (HTTP/2) | none |
 | frontend (Vite dev server) | `http://localhost:5173` | proxies `/api` to `GATEWAY_URL`: the gateway's `dotnet run` port (`localhost:5100`, the default), or the stack in Docker through nginx (`localhost:8000`) |
 | `frontend` (container) | `http://localhost:8000` | `gateway:8080` |
+| k6 dashboard (`load-generator`, load profile) | `http://localhost:5665`, only while a run is going | `frontend:8080` |
 
 So moving a service from the host into Docker changes both where it listens and where it connects. For example, product-service:
 
