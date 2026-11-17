@@ -3,6 +3,9 @@
 # Run every command from this folder; Compose reads .env from here.
 #   docker compose up -d                   default stack
 #   docker compose --profile debug up -d   also starts the database proxies
+#   docker compose --profile load run --rm --service-ports load-generator
+#                                          one load-test run against the stack (TS-017)
+#   docker compose --profile load down     stops everything, the load profile included
 
 # Without this, the project would be named after this folder ("compose").
 name: tinyshop
@@ -371,9 +374,11 @@ services:
     ports:
       - "8000:8080"
     networks:
-      # edge-network only: its one neighbour is the gateway. Not backend-network, so the browser's
+      # edge-network: its one neighbour is the gateway. Not backend-network, so the browser's
       # entry point can't reach a service or database directly (architecture.md §3).
       - edge-network
+      # The load generator's way in (TS-017). Its only other member is the load generator.
+      - load-network
     # No depends_on (decision 3): nginx resolves "gateway" per request, so it starts without
     # one, answers its own 502 upstream_unreachable for /api/ meanwhile, and follows a
     # recreated gateway to its new IP without a restart.
@@ -422,6 +427,62 @@ services:
       start_period: 20s
       start_interval: 2s
 
+  # Load-test traffic (TS-017, tinyshop/infrastructure/load/README.md): runs tinyshop.js once,
+  # for LOAD_GENERATOR_DURATION, at LOAD_GENERATOR_RATE iterations per second, then exits. Its
+  # exit code is the result: 0 when every response was expected, 99 when a threshold failed.
+  load-generator:
+    # An exact version (architecture.md §2, decision 6); Dependabot's docker-compose entry watches it.
+    image: grafana/k6:2.3.0
+    # Not part of the default stack: only "--profile load" starts it.
+    profiles: [load]
+    # A shell, so each run's report gets its own name (the start time, UTC). k6 has no flag for
+    # it, only K6_WEB_DASHBOARD_EXPORT. "$$" escapes Compose's own interpolation: the shell runs
+    # date. "exec" makes k6 the main process, so Ctrl+C and "docker compose stop" reach k6, which
+    # then still prints its summary and writes the report.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - K6_WEB_DASHBOARD_EXPORT="/reports/tinyshop-$$(date -u +%Y%m%dT%H%M%SZ).html" exec k6 run /scripts/tinyshop.js
+    environment:
+      # Through nginx, like a browser (decision 5).
+      BASE_URL: http://frontend:8080
+      RATE: ${LOAD_GENERATOR_RATE:-10}
+      DURATION: ${LOAD_GENERATOR_DURATION:-30s}
+      # k6 sends anonymous usage data to Grafana by default; this network has internet access.
+      K6_NO_USAGE_REPORT: "true"
+      # The live dashboard (decision 7). It listens on 127.0.0.1 inside the container unless told
+      # otherwise, which a published port can't reach.
+      K6_WEB_DASHBOARD: "true"
+      K6_WEB_DASHBOARD_HOST: 0.0.0.0
+    volumes:
+      # The script, read-only. The folder, not the file: an editor that saves by replacing the
+      # file would leave a single-file mount pointing at the old one.
+      - ../load:/scripts:ro
+      # Where the HTML reports land (git-ignored).
+      - ../load/reports:/reports
+    ports:
+      # The dashboard, loopback only (like the debug proxies), and only while a run is going.
+      - "127.0.0.1:5665:5665"
+    networks:
+      # Its only network: it reaches the frontend and nothing else (decision 5).
+      - load-network
+    # Unlike the services (no waiting, TS-014 decision 8), a test client SHOULD wait: it measures
+    # the whole system, and requests sent before the system is ready would count as failures.
+    # Nothing depends on the load generator, so waiting can't cascade. These also make
+    # "run load-generator" start the whole stack if it isn't running.
+    depends_on:
+      frontend:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+
 networks:
   # frontend <-> gateway. The only network of the default stack that ISN'T internal: the
   # frontend must publish its port to the host through it (architecture.md §3). Its members
@@ -444,6 +505,10 @@ networks:
   # Order service <-> its database only.
   order-network:
     internal: true
+  # Load profile only: load-generator -> frontend (TS-017). Not internal: Docker ignores published
+  # ports on internal networks, and the k6 dashboard publishes one. Its members get internet
+  # access, hence K6_NO_USAGE_REPORT.
+  load-network: {}
 
 volumes:
   product-db-data:

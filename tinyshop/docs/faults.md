@@ -79,9 +79,23 @@ Every command the service itself sends through EF Core (its queries and its writ
 
 **At most 25 s.** Npgsql cancels a command after 30 s (its default command timeout). Because the wait runs *after* the real statement, a longer one wouldn't fail the request: the rows have already arrived, the wait is cut short, and the request succeeds after an arbitrary 30 s. So the setting is capped below that.
 
+## Watching a fault with the load generator
+
+The load generator (TS-017, [`infrastructure/load/README.md`](../infrastructure/load/README.md)) sends steady traffic while a fault is on: `docker compose --profile load run --rm --service-ports load-generator`. It judges every response, so its result shows what a user would notice:
+
+| Fault | What k6 shows |
+|---|---|
+| Errors (product or payment) | The affected checks turn red (`order: status is 201` at about the error rate), `http_req_failed` rises above 0, and the run ends with **exit code 99** |
+| Declines | Nothing red: a decline is a 201, an expected answer |
+| Delays (payment or database) | Nothing red, unless a request runs into a timeout; the affected routes' times grow (`POST /api/orders` by the payment delay), the others stay fast. Slow requests keep more iterations in flight: if k6 reports `dropped_iterations`, raise the rate's VU allowance (see the README) |
+
+For example, `PAYMENT_SERVICE_FAULT_ERROR_RATE=0.2` at 10 iterations per second for 30 s (TS-017's proof run): 13 of 73 orders failed (18 %), every other journey stayed green, exit code 99.
+
+k6 shows **what** the user saw, never **why**: which service was slow or failed is what the logs, metrics and traces of the later milestones are for.
+
 ## Settings per exercise
 
-Set these in `.env`, run `docker compose up -d`, generate traffic (the shop page, or TS-017's load generator), and turn them off again afterwards.
+Set these in `.env`, run `docker compose up -d`, generate traffic (the shop page, or the load generator above), and turn them off again afterwards.
 
 | Exercise | Settings | What to expect |
 |---|---|---|
