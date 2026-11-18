@@ -117,3 +117,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result
 - 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
 - 2026-11-16: TS-016 merged (PR #41). TS-017 refined (points 2 → 3: its own network to the frontend, k6's HTML report and live dashboard) and started
+- 2026-11-17: TS-017 merged (PR #42): the k6 load generator behind the `load` profile. TS-018 refined (the smoke test is the load generator, in the CI job renamed `system`) and started

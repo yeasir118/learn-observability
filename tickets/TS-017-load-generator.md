@@ -65,7 +65,7 @@ Add a k6 load generator as a Compose service behind a `load` profile. It sends a
 - [x] AC5: Every run of normal length leaves an HTML report in `tinyshop/infrastructure/load/reports/`, which git ignores.
 - [x] AC6: While a run is going, k6's dashboard is at `http://localhost:5665`, from this machine only.
 - [x] AC7: The load generator can reach the frontend and nothing else; the default stack's reachability matrix is unchanged.
-- [ ] AC8: CI parses the script on every pull request.
+- [x] AC8: CI parses the script on every pull request.
 - [x] AC9: Docs updated: architecture.md §2, §3, §7; faults.md; the load README.
 
 ## Technical notes
@@ -91,9 +91,9 @@ Write the answers in `notes/`.
 5. Why group requests by route (`GET /api/orders/{id}`) instead of the real URL?
 
 ## Definition of done
-- [ ] All acceptance criteria met
+- [x] All acceptance criteria met
 - [x] Questions answered in `notes/`
-- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
+- [x] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - 2026-10-18: Created
@@ -105,3 +105,4 @@ Write the answers in `notes/`.
 - 2026-11-17: Phase 4 proof, in a separate Compose project (`ts017-p4`, `.env.example`): reachability matrix unchanged (OK); faults off: 356 requests, every check passed, exit code 0, report written, dashboard 200 on 127.0.0.1 and unreachable on the LAN address; from `load-network`, only `frontend` is reachable (by name and by IP); `PAYMENT_SERVICE_FAULT_ERROR_RATE=0.2`: 13 of 73 orders failed (18 %), only the order checks red, exit code 99. AC1-AC7 met
 - 2026-11-17: Phase 5: `k6 inspect` in the `compose` job, through the `load-generator` service (`run --no-deps`; checked locally: the script passes, a broken one fails with exit 107); architecture.md (layout, §2 load-profile table and image pinning, §3 `load-network` and egress, §4 note, §7, §8 host ports), faults.md ("Watching a fault with the load generator"), `infrastructure/load/README.md`. AC9 met; AC8 once CI runs on the pull request
 - 2026-11-17: Questions answered in `notes/m1.md`. The documented way to run is now `docker compose --profile load run --rm --service-ports load-generator` (only k6's output, no container left behind) and `docker compose --profile load down`
+- 2026-11-17: Merged (PR #42). CI passed, including the new "Parse the load-test script" step (`ci-passed`, required by the `master` ruleset, needs the `compose` job): AC8 met. Done

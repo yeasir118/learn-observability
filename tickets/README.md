@@ -24,8 +24,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | Done | 8 | TS-013, TS-024 |
 | [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | Done | 5 | TS-014, TS-026 |
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | Done | 5 | TS-015 |
-| [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | In Progress | 3 | TS-015 |
-| [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
+| [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | Done | 3 | TS-015 |
+| [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | In Progress | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
