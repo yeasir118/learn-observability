@@ -86,14 +86,14 @@ These are final unless a new ticket reopens one.
 TS-011 onwards carry the `needs-refinement` label and are refined just before they're picked up.
 
 ## Acceptance criteria
-- [ ] A fresh clone followed by `docker compose up` gives a working system with no manual steps.
-- [ ] Shopping works through the UI: list products, look up a user, create an order, view an order.
-- [ ] HTTP is used between the gateway and the services, and from Order to User and Product. gRPC is used from Order to Payment.
-- [ ] Each of the User, Product and Order services owns its own Postgres database, and no service can reach another service's database over the network.
-- [ ] Only the frontend publishes a port to the host by default.
-- [ ] All services implement the contracts in `tinyshop/docs/contracts.md`.
+- [x] A fresh clone followed by `docker compose up` gives a working system with no manual steps.
+- [x] Shopping works through the UI: list products, look up a user, create an order, view an order.
+- [x] HTTP is used between the gateway and the services, and from Order to User and Product. gRPC is used from Order to Payment.
+- [x] Each of the User, Product and Order services owns its own Postgres database, and no service can reach another service's database over the network.
+- [x] Only the frontend publishes a port to the host by default.
+- [x] All services implement the contracts in `tinyshop/docs/contracts.md`.
 - [x] Faults can be turned on through environment variables without rebuilding any image.
-- [ ] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
+- [x] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
 - [ ] Failure Exercise 1 is written up.
 - [ ] `master` is tagged `phase-1-baseline`.
 
@@ -117,3 +117,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-09: TS-015 implemented: the frontend container with nginx in the stack; the reachability matrix is proven with it instead of the stand-in. D12 records the result
 - 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
 - 2026-11-16: TS-016 merged (PR #41). TS-017 refined (points 2 → 3: its own network to the frontend, k6's HTML report and live dashboard) and started
+- 2026-11-17: TS-017 merged (PR #42): the k6 load generator behind the `load` profile. TS-018 refined (the smoke test is the load generator, in the CI job renamed `system`) and started

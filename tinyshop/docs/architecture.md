@@ -181,7 +181,7 @@ The databases never initiate connections, so they have no rows. Things to check:
 
 ### How the matrix is proven
 
-`infrastructure/scripts/check-reachability-matrix.sh` tests every cell against the running stack, and the CI job `network` runs it on every pull request (TS-014). It reads the table above from this file, so **this table is the test's input**: changing a cell changes what's checked.
+`infrastructure/scripts/check-reachability-matrix.sh` tests every cell against the running stack, and the CI job `system` runs it on every pull request (TS-014; the job was called `network` until TS-018, which added the end-to-end smoke test to it). It reads the table above from this file, so **this table is the test's input**: changing a cell changes what's checked.
 
 - **From a container:** a `nicolaka/netshoot` container joins the row container's network namespace (`--network container:<row>`), so it sees exactly that container's interfaces, routes and DNS. Each target is tried **by name and by IP** (every address it has, one per network). A name that doesn't resolve only shows that DNS hides the target; an IP that can't be reached shows there's no route. If the two disagree, the cell is a finding (`?`). Ports: 5432 for the databases, 8080 for the rest. A TCP connection is the test, so ✓ and ◐ look the same; the script keeps whichever the table says.
 - **From the browser:** only through published ports, as a browser on another machine would reach the stack. On a Linux host (the CI runner), the host can also open connections to container IPs on non-internal networks directly. That's a property of the host's routing table, not a path anyone else has, so the browser row doesn't count it.

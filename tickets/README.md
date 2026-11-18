@@ -24,8 +24,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-014](TS-014-gateway-and-network-segmentation.md) | Story | Gateway and network segmentation | Done | 8 | TS-013, TS-024 |
 | [TS-015](TS-015-frontend-container.md) | Story | Frontend container and nginx reverse proxy | Done | 5 | TS-014, TS-026 |
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | Done | 5 | TS-015 |
-| [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | In Progress | 3 | TS-015 |
-| [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | To Do | 3 | TS-016, TS-017 |
+| [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | Done | 3 | TS-015 |
+| [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | In Progress | 3 | TS-016, TS-017 |
 | [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | To Do | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
@@ -77,6 +77,7 @@ CI exists from the first ticket that produces something checkable (TS-006), and 
 - **Every ticket that adds something buildable, testable or lintable also adds it to CI in the same pull request.** A new service brings its build and tests into the workflow; a new Dockerfile brings an image build; and so on. A ticket isn't done if its new code isn't checked by CI.
 - **`master` is protected.** Changes arrive only through pull requests, and a pull request can only be merged when CI passes.
 - **The ruleset requires exactly one check: `ci-passed`.** That job depends on every other CI job and passes only if all of them passed. **A new job must be added to `ci-passed`'s `needs:` list in the same pull request**; that's the only place to update. New matrix entries are covered automatically.
+- **The whole system is tested too, not only its parts.** The `system` job builds every image, starts the stack, proves the reachability matrix and runs the k6 smoke test through the frontend (TS-014, TS-018). A change that breaks an order anywhere in the chain fails the pull request.
 - **Keep CI fast and deterministic.** If a job becomes slow or flaky, fixing it is a ticket of its own, not something to work around.
 - **Deployment (CD) is out of scope.** TinyShop has no deployment target, so CI ends at build, test and verify.
 
