@@ -2,6 +2,11 @@
 // Settings come from the environment: BASE_URL, RATE (iterations per second), DURATION.
 import http from 'k6/http';
 import { check } from 'k6';
+import { Counter } from 'k6/metrics';
+
+// A metric of our own: orders actually created (201 with a Location). Not http_reqs for
+// POST /api/orders, which counts the invalid orders too (TS-018, decision 3).
+const ordersPlaced = new Counter('orders_placed');
 
 // --- Settings ----------------------------------------------------------------------------------
 // Everything in __ENV is text, so RATE is turned into a number.
@@ -49,6 +54,9 @@ export const options = {
         http_req_failed: ['rate==0'],
         checks: ['rate==1'],
         ...perRouteRows(),
+        // At least one order was created (TS-018, decision 3): the journeys are random, so a
+        // broken weights table could otherwise pass without a single order.
+        orders_placed: ['count>0'],
     },
 };
 
@@ -121,6 +129,7 @@ function placeOrder() {
     if (!ok) {
         return;
     }
+    ordersPlaced.add(1);
 
     // Location is a path that already starts with "/" (/api/orders/1001).
     const readBack = http.get(`${BASE_URL}${location}`, named(ROUTES.order));
