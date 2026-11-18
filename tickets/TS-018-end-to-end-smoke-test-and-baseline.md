@@ -57,12 +57,28 @@ Prove that the complete system works, end to end, from a fresh clone: on your ma
 6. **Merge and tag (assignee):** merge, then `phase-1-baseline` on `master`, pushed. Claude: the closing bookkeeping.
 
 ## Acceptance criteria
-- [ ] AC1: In a fresh clone in a new folder, `cp .env.example .env` followed by `docker compose up -d`, both in `tinyshop/infrastructure/compose/`, gives a healthy stack, and an order can be placed at `localhost:8000`.
-- [ ] AC2: The CI job starts the stack, places orders through `frontend`, checks the results, and passes. It shuts the stack down even when a step fails.
-- [ ] AC3: When the job fails, the container logs are attached to the run as an artifact.
-- [ ] AC4: Every acceptance criterion of epic TS-001 has been checked. Any that aren't met are listed with the ticket that will fix them.
+- [x] AC1: In a fresh clone in a new folder, `cp .env.example .env` followed by `docker compose up -d`, both in `tinyshop/infrastructure/compose/`, gives a healthy stack, and an order can be placed at `localhost:8000`.
+- [x] AC2: The CI job starts the stack, places orders through `frontend`, checks the results, and passes. It shuts the stack down even when a step fails.
+- [x] AC3: When the job fails, the container logs are attached to the run as an artifact.
+- [x] AC4: Every acceptance criterion of epic TS-001 has been checked. Any that aren't met are listed with the ticket that will fix them.
 - [ ] AC5: `master` is tagged `phase-1-baseline` (an annotated tag), and the tag is pushed.
-- [ ] AC6: Every CI run of the job attaches the k6 report.
+- [x] AC6: Every CI run of the job attaches the k6 report.
+
+## Epic criteria check (AC4)
+Epic TS-001's acceptance criteria, checked on 2026-11-18:
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| A fresh clone followed by `docker compose up` gives a working system with no manual steps | met | AC1: the fresh-clone run (phase 5) worked first time. One step is unavoidable and documented: `cp .env.example .env`. Compose refuses to start without the passwords (`:?`), on purpose: secrets are never committed (D19) |
+| Shopping works through the UI | met | TS-026 (the app), TS-015 (served by nginx at `localhost:8000`, all four pages checked); the same `/api/*` routes are exercised in CI by the smoke test |
+| HTTP between the gateway and the services, and from Order to User and Product; gRPC from Order to Payment | met | architecture.md §5.2; TS-013, TS-014. Every order in the smoke test goes through both |
+| Each service owns its database, and no service can reach another's | met | The reachability matrix, proven by name and by IP in CI's `system` job on every pull request (TS-014) |
+| Only the frontend publishes a port by default | met | The matrix's browser row, in CI. The `debug` and `load` profiles publish on `127.0.0.1` only, and aren't the default stack |
+| All services implement the contracts | met | Each service's integration tests and the gateway's tests check their part of contracts.md (CI `dotnet` jobs); the smoke test checks the whole chain, including the 422 errors and the `Location` rewrite |
+| Faults through environment variables, without rebuilding | met | TS-016, faults.md |
+| The known gaps are written down in `notes/` | met | `notes/m1.md`, "Known gaps of M1" (added in this ticket), from contracts.md §8 and the TS-015/TS-016 experiments |
+| Failure Exercise 1 is written up | **not met** | TS-019, which depends on this ticket |
+| `master` is tagged `phase-1-baseline` | pending (phase 6) | AC5 |
 
 ## Technical notes
 These are pointers, not the solution.
@@ -99,3 +115,6 @@ Write the answers in `notes/`.
 - 2026-11-17: Started (branch `TS-017-phase-1-baseline`, renamed `TS-018-end-to-end-smoke-test`)
 - 2026-11-18: Phase 2 done: the job renamed `system`, the `chmod` and the smoke-test step (assignee), comments and the `orders_placed` counter (Claude). Rehearsed locally in a separate Compose project (`ts018`, `.env.example`): matrix OK; smoke test 179 requests, every check passed, 31 orders placed, exit code 0. With `PAYMENT_SERVICE_FAULT_ERROR_RATE=1`: `orders_placed` 0, three thresholds crossed, exit code 99. Learned on the way: a fault set only on one command is undone by the next `docker compose` command without it (`run` recreates the dependency to match its config)
 - 2026-11-18: Phase 3 done: three steps replace "Show container status and logs": the logs (`ps` and `logs` into `$RUNNER_TEMP`) and their upload `if: failure()`, the k6 report's upload `if: always()` (`if-no-files-found: warn`), both kept 14 days, `actions/upload-artifact` pinned to v7.0.2 (assignee); comments (Claude). Artifacts can only be checked on GitHub: phase 4
+- 2026-11-18: Phase 4 done (assignee; results checked on GitHub): pushed with a draft pull request; green run with `k6-report` attached and the log steps skipped; a temporary commit with `PAYMENT_SERVICE_FAULT_ERROR_RATE: "1"` in the job's `env` turned the job red, with `k6-report` and `compose-logs` attached and the stack removed; reverted with `git revert` (commits `ce481ec`, `d926198`). AC2, AC3, AC6 met
+- 2026-11-18: Phase 5, Claude's part: epic criteria checked (table above; Failure Exercise 1 open, TS-019); "Known gaps of M1" added to `notes/m1.md`; epic criteria ticked where met; docs: architecture.md §4 (the job's new name), the load README ("In CI", `orders_placed`, the Linux limit), tickets README's CI policy (the `system` job)
+- 2026-11-18: Phase 5, the assignee's part: fresh clone of the branch into a new folder, `cp .env.example .env`, `docker compose -p tinyshop-fresh up -d --build --wait`: healthy, shopping works at `localhost:8000`, worked first time; the clone and its volumes removed. AC1 and AC4 met

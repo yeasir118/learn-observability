@@ -54,7 +54,7 @@ Only the seed data is used, so no setup or cleanup is needed. Every valid order 
 - **Open model** (`constant-arrival-rate`): new iterations start at the set rate whether earlier ones have finished or not, as real visitors keep arriving. A slow system therefore gets the same load, not less. Each iteration in flight needs a virtual user (VU): the script allows one second's worth up front and five seconds' worth at most (`RATE` x 5). If k6 reports `dropped_iterations`, requests are taking longer than that and the load wasn't fully sent.
 - **Expected statuses:** k6 counts every 4xx and 5xx as failed by default. The invalid order sets `http.expectedStatuses(422)` on its own request only, so its 422 is a success and a 422 anywhere else is still a failure.
 - **Checks** look at each response (status, and one fact about the body or headers).
-- **Thresholds** make the run pass or fail: `http_req_failed` rate `== 0` and `checks` rate `== 1`. Response times are reported, never judged: there's no SLO yet.
+- **Thresholds** make the run pass or fail: `http_req_failed` rate `== 0`, `checks` rate `== 1`, and `orders_placed` count `> 0` (a custom metric: orders that came back 201 with a `Location`; `http_reqs` for `POST /api/orders` would count the invalid orders too). Response times are reported, never judged: there's no SLO yet.
 - **Route names:** every request is tagged with its route (`GET /api/orders/{id}`), so the summary and the report group by route instead of by URL. Empty thresholds on `http_req_duration{name:...}` and `http_reqs{name:...}` make the summary print one row per route.
 
 ## The network
@@ -74,6 +74,11 @@ The script's own defaults are `BASE_URL=http://host.docker.internal:8000`, `RATE
 
 ## Known limits
 
-- **Linux hosts and `reports/`:** the image runs as uid 12345. Docker Desktop ignores folder ownership, but on Linux that user can't write to a `reports/` folder owned by your user. Make it writable (`chmod o+w reports`) or run the service as your user. TS-018, which runs this in CI, has to deal with it.
+- **Linux hosts and `reports/`:** the image runs as uid 12345. Docker Desktop ignores folder ownership, but on Linux that user can't write to a `reports/` folder owned by your user. Make it writable (`chmod a+w reports`, as CI does) or run the service as your user.
 - **k6 shows the user's view only:** what failed or was slow, not which service caused it. That's the later milestones' job.
-- **CI** only parses the script (`k6 inspect`, the `compose` job); running it is TS-018.
+
+## In CI
+
+Two jobs use it on every pull request:
+- **`compose`** parses the script (`k6 inspect`), without starting anything.
+- **`system`** runs it as the end-to-end smoke test (TS-018): after the stack is up and the reachability matrix is checked, `docker compose --profile load run --rm load-generator` at 5 iterations per second for 30 s. Any unexpected answer, a failed check, or no order created at all (`orders_placed`, a counter of our own) fails the job. The HTML report is attached to every run as the artifact `k6-report`; when the job fails, the container logs are attached as `compose-logs`.

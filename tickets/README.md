@@ -77,6 +77,7 @@ CI exists from the first ticket that produces something checkable (TS-006), and 
 - **Every ticket that adds something buildable, testable or lintable also adds it to CI in the same pull request.** A new service brings its build and tests into the workflow; a new Dockerfile brings an image build; and so on. A ticket isn't done if its new code isn't checked by CI.
 - **`master` is protected.** Changes arrive only through pull requests, and a pull request can only be merged when CI passes.
 - **The ruleset requires exactly one check: `ci-passed`.** That job depends on every other CI job and passes only if all of them passed. **A new job must be added to `ci-passed`'s `needs:` list in the same pull request**; that's the only place to update. New matrix entries are covered automatically.
+- **The whole system is tested too, not only its parts.** The `system` job builds every image, starts the stack, proves the reachability matrix and runs the k6 smoke test through the frontend (TS-014, TS-018). A change that breaks an order anywhere in the chain fails the pull request.
 - **Keep CI fast and deterministic.** If a job becomes slow or flaky, fixing it is a ticket of its own, not something to work around.
 - **Deployment (CD) is out of scope.** TinyShop has no deployment target, so CI ends at build, test and verify.
 
