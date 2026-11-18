@@ -105,7 +105,7 @@ Write the answers in `notes/`.
 
 ## Definition of done
 - [ ] All acceptance criteria met
-- [ ] Questions answered in `notes/`
+- [x] Questions answered in `notes/`
 - [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
@@ -118,3 +118,4 @@ Write the answers in `notes/`.
 - 2026-11-18: Phase 4 done (assignee; results checked on GitHub): pushed with a draft pull request; green run with `k6-report` attached and the log steps skipped; a temporary commit with `PAYMENT_SERVICE_FAULT_ERROR_RATE: "1"` in the job's `env` turned the job red, with `k6-report` and `compose-logs` attached and the stack removed; reverted with `git revert` (commits `ce481ec`, `d926198`). AC2, AC3, AC6 met
 - 2026-11-18: Phase 5, Claude's part: epic criteria checked (table above; Failure Exercise 1 open, TS-019); "Known gaps of M1" added to `notes/m1.md`; epic criteria ticked where met; docs: architecture.md §4 (the job's new name), the load README ("In CI", `orders_placed`, the Linux limit), tickets README's CI policy (the `system` job)
 - 2026-11-18: Phase 5, the assignee's part: fresh clone of the branch into a new folder, `cp .env.example .env`, `docker compose -p tinyshop-fresh up -d --build --wait`: healthy, shopping works at `localhost:8000`, worked first time; the clone and its volumes removed. AC1 and AC4 met
+- 2026-11-18: Questions answered in `notes/m1.md`. Left before Done: merge, then the `phase-1-baseline` tag (AC5, phase 6)
