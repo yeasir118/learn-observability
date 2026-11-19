@@ -8,7 +8,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 
 | Key | Type | Title | Status | Points | Depends on |
 |---|---|---|---|---|---|
-| [TS-001](TS-001-epic-m1-naked-system.md) | Epic | M1: Naked TinyShop system | In Progress | – | – |
+| [TS-001](TS-001-epic-m1-naked-system.md) | Epic | M1: Naked TinyShop system | Done | – | – |
 | [TS-002](TS-002-repository-foundation.md) | Task | Repository foundation | Done | 1 | – |
 | [TS-003](TS-003-system-architecture-document.md) | Task | System architecture document | Done | 3 | TS-002 |
 | [TS-004](TS-004-http-api-contracts.md) | Task | HTTP API contracts | Done | 3 | TS-003 |
@@ -26,7 +26,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-016](TS-016-fault-injection-switches.md) | Story | Fault injection switches | Done | 5 | TS-015 |
 | [TS-017](TS-017-load-generator.md) | Task | Load generator (k6) | Done | 3 | TS-015 |
 | [TS-018](TS-018-end-to-end-smoke-test-and-baseline.md) | Task | End-to-end smoke test in CI and `phase-1-baseline` tag | Done | 3 | TS-016, TS-017 |
-| [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | In Progress | 2 | TS-018 |
+| [TS-019](TS-019-failure-exercise-1.md) | Spike | Failure Exercise 1: application failure without observability | Done | 2 | TS-018 |
 | [TS-020](TS-020-least-privilege-database-roles.md) | Task | Least-privilege database roles for product-service | Done | 3 | TS-010 |
 | [TS-021](TS-021-containerize-user-service.md) | Story | Containerize the user service | Done | 3 | TS-011 |
 | [TS-022](TS-022-containerize-payment-service.md) | Story | Containerize the payment service | Done | 3 | TS-012 |

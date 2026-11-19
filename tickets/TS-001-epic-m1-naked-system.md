@@ -2,7 +2,7 @@
 key: TS-001
 title: "M1: Naked TinyShop system"
 type: Epic
-status: In Progress
+status: Done
 priority: Highest
 points: null
 assignee: yeasir118
@@ -94,7 +94,7 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - [x] All services implement the contracts in `tinyshop/docs/contracts.md`.
 - [x] Faults can be turned on through environment variables without rebuilding any image.
 - [x] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
-- [ ] Failure Exercise 1 is written up.
+- [x] Failure Exercise 1 is written up.
 - [x] `master` is tagged `phase-1-baseline`.
 
 ## Activity log
@@ -120,3 +120,4 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-17: TS-017 merged (PR #42): the k6 load generator behind the `load` profile. TS-018 refined (the smoke test is the load generator, in the CI job renamed `system`) and started
 - 2026-11-18: TS-018 merged (PR #43): the k6 smoke test runs in CI's `system` job (formerly `network`) on every pull request; the epic's criteria checked (only Failure Exercise 1 open, TS-019). `master` tagged `phase-1-baseline` (`219deeb`)
 - 2026-11-18: TS-019 refined (predictions and a normal baseline first, a 45-minute time box, evidence copied not summarised) and started
+- 2026-11-19: TS-019 done: Failure Exercise 1 run blind and written up (`notes/exercise-1.md`): the failure was followed to product-service in about 40 minutes with `grep` on timestamps; no shared request ID exists, and the error's `traceId` appears in no log. Every acceptance criterion met. **Epic closed**; next: M1.5 (TLS) or M2, see the roadmap
