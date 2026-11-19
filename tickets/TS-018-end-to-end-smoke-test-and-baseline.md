@@ -2,7 +2,7 @@
 key: TS-018
 title: End-to-end smoke test in CI and phase-1-baseline tag
 type: Task
-status: In Progress
+status: Done
 priority: High
 points: 3
 assignee: yeasir118
@@ -61,7 +61,7 @@ Prove that the complete system works, end to end, from a fresh clone: on your ma
 - [x] AC2: The CI job starts the stack, places orders through `frontend`, checks the results, and passes. It shuts the stack down even when a step fails.
 - [x] AC3: When the job fails, the container logs are attached to the run as an artifact.
 - [x] AC4: Every acceptance criterion of epic TS-001 has been checked. Any that aren't met are listed with the ticket that will fix them.
-- [ ] AC5: `master` is tagged `phase-1-baseline` (an annotated tag), and the tag is pushed.
+- [x] AC5: `master` is tagged `phase-1-baseline` (an annotated tag), and the tag is pushed.
 - [x] AC6: Every CI run of the job attaches the k6 report.
 
 ## Epic criteria check (AC4)
@@ -78,7 +78,7 @@ Epic TS-001's acceptance criteria, checked on 2026-11-18:
 | Faults through environment variables, without rebuilding | met | TS-016, faults.md |
 | The known gaps are written down in `notes/` | met | `notes/m1.md`, "Known gaps of M1" (added in this ticket), from contracts.md §8 and the TS-015/TS-016 experiments |
 | Failure Exercise 1 is written up | **not met** | TS-019, which depends on this ticket |
-| `master` is tagged `phase-1-baseline` | pending (phase 6) | AC5 |
+| `master` is tagged `phase-1-baseline` | met | AC5: annotated, on the merge commit of PR #43 (`219deeb`), pushed |
 
 ## Technical notes
 These are pointers, not the solution.
@@ -104,9 +104,9 @@ Write the answers in `notes/`.
 5. Annotated or lightweight tag: what's the difference, and why does a baseline deserve an annotated one?
 
 ## Definition of done
-- [ ] All acceptance criteria met
+- [x] All acceptance criteria met
 - [x] Questions answered in `notes/`
-- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
+- [x] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (CI, docs, review, merge)
 
 ## Activity log
 - 2026-10-18: Created
@@ -119,3 +119,4 @@ Write the answers in `notes/`.
 - 2026-11-18: Phase 5, Claude's part: epic criteria checked (table above; Failure Exercise 1 open, TS-019); "Known gaps of M1" added to `notes/m1.md`; epic criteria ticked where met; docs: architecture.md §4 (the job's new name), the load README ("In CI", `orders_placed`, the Linux limit), tickets README's CI policy (the `system` job)
 - 2026-11-18: Phase 5, the assignee's part: fresh clone of the branch into a new folder, `cp .env.example .env`, `docker compose -p tinyshop-fresh up -d --build --wait`: healthy, shopping works at `localhost:8000`, worked first time; the clone and its volumes removed. AC1 and AC4 met
 - 2026-11-18: Questions answered in `notes/m1.md`. Left before Done: merge, then the `phase-1-baseline` tag (AC5, phase 6)
+- 2026-11-18: Merged (PR #43, merge commit `219deeb`). Phase 6: `phase-1-baseline`, an annotated tag by the assignee on that commit, pushed (checked: object type `tag`, present on `origin`). AC5 met. Done

@@ -95,7 +95,7 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - [x] Faults can be turned on through environment variables without rebuilding any image.
 - [x] The known gaps are written down in `notes/`: duplicate orders on retry, orders stuck in `PENDING` after a payment timeout, and the absence of timeouts and retries.
 - [ ] Failure Exercise 1 is written up.
-- [ ] `master` is tagged `phase-1-baseline`.
+- [x] `master` is tagged `phase-1-baseline`.
 
 ## Activity log
 - 2026-10-18: Created. Step-0 tickets TS-002 to TS-005 opened.
@@ -118,3 +118,5 @@ TS-011 onwards carry the `needs-refinement` label and are refined just before th
 - 2026-11-16: TS-016 implemented: nine fault switches in product-, payment-, user- and order-service (tinyshop/docs/faults.md); the faults criterion is met
 - 2026-11-16: TS-016 merged (PR #41). TS-017 refined (points 2 → 3: its own network to the frontend, k6's HTML report and live dashboard) and started
 - 2026-11-17: TS-017 merged (PR #42): the k6 load generator behind the `load` profile. TS-018 refined (the smoke test is the load generator, in the CI job renamed `system`) and started
+- 2026-11-18: TS-018 merged (PR #43): the k6 smoke test runs in CI's `system` job (formerly `network`) on every pull request; the epic's criteria checked (only Failure Exercise 1 open, TS-019). `master` tagged `phase-1-baseline` (`219deeb`)
+- 2026-11-18: TS-019 refined (predictions and a normal baseline first, a 45-minute time box, evidence copied not summarised) and started
