@@ -68,7 +68,7 @@ Content-Type: application/problem+json
   "title": "User not found",
   "status": 422,
   "detail": "User 999 does not exist.",
-  "instance": "/api/orders",
+  "instance": "/orders",
   "code": "user_not_found",
   "traceId": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
 }
@@ -80,7 +80,7 @@ Content-Type: application/problem+json
 | `title` | Short, human-readable summary of the problem type. The same for every occurrence of a `code`. |
 | `status` | The HTTP status code, repeated in the body |
 | `detail` | Human-readable explanation of this occurrence. Never contains stack traces, hostnames or internal service names. |
-| `instance` | The request path |
+| `instance` | The request path, as the service that wrote the error saw it. The gateway passes errors through unchanged ([§2.4](#24-how-errors-pass-between-services)), so a client of `POST /api/orders` sees order-service's internal path, `/orders`; only the gateway's and nginx's own errors carry the public path. Found in Failure Exercise 1 (TS-019); listed in [§8](#8-known-gaps). |
 | `code` | **Stable, machine-readable `snake_case` identifier. Clients branch on this field and nothing else.** |
 | `traceId` | Added automatically by ASP.NET Core. Its meaning is explored in later phases. |
 
@@ -472,6 +472,8 @@ Deliberately not solved in M1:
 | No coordinated timeouts | Outer layers give up before inner ones, and work continues after nobody is waiting | A timeout budget that shrinks at each hop (deadline propagation), plus cancellation |
 | `GET /orders?userId=` isn't paginated | Unbounded result size | Cursor pagination, which the `{ "items": [] }` envelope already allows for |
 | Sequential integer IDs | Easy to enumerate other users' orders | Random IDs and authorization |
+| Internal paths in error bodies | A service's error reaches the client with its internal `instance` (`/orders`, not `/api/orders`): a small view of the inside (TS-019) | The gateway rewrites `instance`, as it already does `Location` |
+| The `traceId` can't be used | Every error body carries one, but no log line contains it, so nobody can find the request it names (TS-019) | Trace IDs in every log line (M2), and traces (M3) |
 
 ## 9. Payment gRPC contract
 
