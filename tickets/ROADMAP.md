@@ -11,7 +11,7 @@ Where TinyShop is going, at the level of epics. Individual tickets live on the [
 | Milestone | Epic | Scope | Status |
 |---|---|---|---|
 | M1 | [TS-001](TS-001-epic-m1-naked-system.md) | The complete system without observability: services, databases, networks, CI, Failure Exercise 1 | Done (2026-11-19, tag `phase-1-baseline`) |
-| M1.5 | [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Encryption and identity in transit: a private PKI (by hand, then automated with ACME and short-lived certificates), HTTPS at the edge, TLS 1.3 between services and to Postgres, mutual TLS with SPIFFE identities, a blind TLS incident (decision D13) | Next: epic created, TS-028 ready |
+| M1.5 | [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Encryption and identity in transit: a private PKI (by hand, then automated with ACME and short-lived certificates), HTTPS at the edge, TLS 1.3 between services and to Postgres, mutual TLS with SPIFFE identities, a blind TLS incident (decision D13) | In progress (TS-028) |
 | M2 onwards | not yet created | The observability phases from [outline.md](../resources/outline.md) §13–§31: structured logging, correlation IDs, OpenTelemetry, tracing, metrics, Loki, dashboards, the failure exercises and the blind incidents | Planned |
 
 ## Expansion ideas

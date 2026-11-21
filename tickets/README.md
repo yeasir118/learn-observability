@@ -34,8 +34,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-024](TS-024-shared-service-defaults.md) | Task | Extract shared service plumbing into TinyShop.ServiceDefaults | Done | 5 | TS-013 |
 | [TS-025](TS-025-compose-templates.md) | Task | Remove repetition from compose.yaml with templates | Done | 2 | TS-024 |
 | [TS-026](TS-026-react-frontend-app.md) | Story | React frontend app (runs locally) | Done | 3 | TS-014 |
-| [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Epic | M1.5: Encryption and identity in transit (TLS, a private PKI, mutual TLS) | To Do | – | TS-001 |
-| [TS-028](TS-028-tls-foundations-and-the-before-picture.md) | Spike | TLS foundations and the "before" picture | To Do | 2 | – |
+| [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Epic | M1.5: Encryption and identity in transit (TLS, a private PKI, mutual TLS) | In Progress | – | TS-001 |
+| [TS-028](TS-028-tls-foundations-and-the-before-picture.md) | Spike | TLS foundations and the "before" picture | In Progress | 2 | – |
 | [TS-029](TS-029-private-pki-by-hand.md) | Task | A private PKI by hand (OpenSSL) | To Do | 5 | TS-028 |
 | [TS-030](TS-030-https-at-the-edge.md) | Story | HTTPS at the edge | To Do | 5 | TS-029 |
 | [TS-031](TS-031-tls-inside-http-services.md) | Story | TLS inside: nginx, the gateway and the HTTP services | To Do | 5 | TS-030 |

@@ -2,7 +2,7 @@
 key: TS-027
 title: "M1.5: Encryption and identity in transit (TLS, a private PKI, mutual TLS)"
 type: Epic
-status: To Do
+status: In Progress
 priority: High
 points: null
 assignee: yeasir118
@@ -132,3 +132,4 @@ TS-036  when it breaks: diagnosing TLS failures                          (blind 
 
 ## Activity log
 - 2026-11-19: Created after M1 closed. Designed from current industry practice (researched the same day: SC-081 lifetimes, the end of OCSP at Let's Encrypt, client authentication leaving public certificates, SPIFFE, `.internal`, RFC 9325/9852, OpenSSL 3.5's post-quantum default; checked locally: OpenSSL 3.5.9 in the nginx, Postgres and .NET images, Go 1.27 in k6, BusyBox `wget` with `ssl_client`). Decisions D26-D39; child tickets TS-028 to TS-036
+- 2026-11-20: Started with TS-028 (branch `TS-028-before-tls-situation`)
