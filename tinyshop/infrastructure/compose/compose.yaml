@@ -432,7 +432,7 @@ services:
   # exit code is the result: 0 when every response was expected, 99 when a threshold failed.
   load-generator:
     # An exact version (architecture.md §2, decision 6); Dependabot's docker-compose entry watches it.
-    image: grafana/k6:2.3.0
+    image: grafana/k6:2.4.0
     # Not part of the default stack: only "--profile load" starts it.
     profiles: [load]
     # A shell, so each run's report gets its own name (the start time, UTC). k6 has no flag for
