@@ -79,8 +79,9 @@ Numbered on from M1's decisions (D1-D25, epic TS-001). Final unless a ticket reo
 | 6 | TS-034 | Story | Mutual TLS and service identity | 8 | TS-032, TS-033 |
 | 7 | TS-035 | Story | Automated certificate lifecycle: step-ca, ACME, short-lived certificates | 8 | TS-034 |
 | 8 | TS-036 | Spike | Failure Exercise 1.5: a TLS incident (blind), and the `phase-1.5-tls` tag | 3 | TS-035 |
+| (any) | TS-037 | Spike | HTTP/1.0 to HTTP/3 and gRPC, seen in TinyShop (optional, added 2026-11-28) | 3 | TS-030, TS-032 |
 
-44 points. TS-029 onwards carry `needs-refinement` and are refined just before they're picked up, as in M1. As in M1, each ticket adds its own checks to CI in the same pull request (the CI policy).
+47 points (44 without the optional TS-037). TS-029 onwards carry `needs-refinement` and are refined just before they're picked up, as in M1. As in M1, each ticket adds its own checks to CI in the same pull request (the CI policy).
 
 ## How the concepts build on each other
 ```text
@@ -133,3 +134,4 @@ TS-036  when it breaks: diagnosing TLS failures                          (blind 
 ## Activity log
 - 2026-11-19: Created after M1 closed. Designed from current industry practice (researched the same day: SC-081 lifetimes, the end of OCSP at Let's Encrypt, client authentication leaving public certificates, SPIFFE, `.internal`, RFC 9325/9852, OpenSSL 3.5's post-quantum default; checked locally: OpenSSL 3.5.9 in the nginx, Postgres and .NET images, Go 1.27 in k6, BusyBox `wget` with `ssl_client`). Decisions D26-D39; child tickets TS-028 to TS-036
 - 2026-11-20: Started with TS-028 (branch `TS-028-before-tls-situation`)
+- 2026-11-28: TS-028 done: the "before" capture, three public handshakes, the TLS 1.3 handshake and certificate fields, and the threat model (`notes/m1_5.md`, evidence in `notes/evidence/`). Optional spike TS-037 (HTTP versions) added at the assignee's request. Next: TS-029
