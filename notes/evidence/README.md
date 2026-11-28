@@ -9,6 +9,9 @@ One folder per round, named after the ticket that produced it: `<ticket>-<short-
 | Folder | Ticket | Contents |
 |---|---|---|
 | [TS-028-before-tls/](TS-028-before-tls/) | TS-028 | `before.pcap`: order-service's traffic before TLS (HTTP, gRPC over h2c, Postgres), one order (id 1008). Read in [m1_5.md](../m1_5.md) |
+| [TS-028-handshake/](TS-028-handshake/) | TS-028 | `openssl` output for three public websites (Google, GitHub, Amazon): handshakes, certificate chains, four experiments |
+
+Each round's own README lists the commands that produced its files.
 
 ## Reading a capture
 From the repository's root (Git Bash):

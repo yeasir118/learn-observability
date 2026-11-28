@@ -34,6 +34,15 @@ secrets/
 *.pfx
 *.p12
 
+# Learning material, committed on purpose: public certificates, CSRs and
+# public keys from the openssl side-track, and public websites' certificates
+# kept as evidence. Private keys (privkey-*.pem) stay ignored even here.
+!side-track/**/*.crt
+!side-track/**/*.csr
+!side-track/**/*.srl
+!side-track/**/pubkey-*.pem
+!notes/evidence/**/*.crt
+
 # --------------------------------------------------------------------------
 # .NET
 # --------------------------------------------------------------------------

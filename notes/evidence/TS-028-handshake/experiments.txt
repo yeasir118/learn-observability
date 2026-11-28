@@ -1,0 +1,31 @@
+=== A. ALPN: offer only HTTP/1.1
+ALPN protocol: http/1.1
+=== A. ALPN: offer nothing
+No ALPN negotiated
+=== B. trust nothing
+verify error:num=20:unable to get local issuer certificate
+Verify return code: 20 (unable to get local issuer certificate)
+=== B. where the trusted roots come from
+OPENSSLDIR: "/ucrt64/etc/ssl"
+120
+# GTS Root R4
+=== C. force TLS 1.2
+Peer Temp Key: X25519, 253 bits
+New, TLSv1.2, Cipher is ECDHE-ECDSA-CHACHA20-POLY1305
+Protocol: TLSv1.2
+=== D. verify the leaf with the intermediate
+Could not open file or uri for loading untrusted certificates from google-1.pem: No such file or directory
+=== D. verify the leaf for the right name
+Could not open file or uri for loading untrusted certificates from google-1.pem: No such file or directory
+=== D. verify the leaf for a wrong name
+Could not open file or uri for loading untrusted certificates from google-1.pem: No such file or directory
+
+=== D (rerun 2026-11-23 with this round's file names; the commands above pointed at google-0.pem / google-1.pem, which didn't exist)
+=== D. verify the leaf with the intermediate
+google/leaf_cert.crt: OK
+=== D. verify the leaf for the right name
+google/leaf_cert.crt: OK
+=== D. verify the leaf for a wrong name
+CN=www.google.com
+error 62 at 0 depth lookup: hostname mismatch
+error google/leaf_cert.crt: verification failed

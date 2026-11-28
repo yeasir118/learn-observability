@@ -41,8 +41,8 @@ The assignee does the work in every phase; Claude briefs each one, then reviews 
 5. **Review and close (Claude with the assignee).**
 
 ## Acceptance criteria
-- [ ] AC1: A capture from inside `backend-network` (or `order-network`) shows, in plain text, at least: one order's JSON, one SQL statement or its result, and one HTTP header. The commands and the readable lines are in `notes/m1_5.md`.
-- [ ] AC2: For one public website, `notes/m1_5.md` records its certificate chain (each certificate's subject, issuer, validity, key type), the negotiated TLS version, cipher suite, key-exchange group and ALPN protocol, with the `openssl` commands.
+- [x] AC1: A capture from inside `backend-network` (or `order-network`) shows, in plain text, at least: one order's JSON, one SQL statement or its result, and one HTTP header. The commands and the readable lines are in `notes/m1_5.md`.
+- [x] AC2: For one public website, `notes/m1_5.md` records its certificate chain (each certificate's subject, issuer, validity, key type), the negotiated TLS version, cipher suite, key-exchange group and ALPN protocol, with the `openssl` commands.
 - [ ] AC3: The same notes explain, in your own words, each step of a TLS 1.3 handshake and what each certificate field you met is for (SAN, key usage, extended key usage, basic constraints, validity, issuer and subject).
 - [ ] AC4: A threat model for TinyShop: who could read or change traffic where, what TLS fixes, what it doesn't, and which hops matter most.
 
@@ -75,3 +75,4 @@ Write the answers in `notes/m1_5.md`.
 ## Activity log
 - 2026-11-19: Created with epic TS-027, refined (first ticket of the epic)
 - 2026-11-20: Phases added; started (branch `TS-028-before-tls-situation`)
+- 2026-11-23: Phases 1 and 2 done (AC1, AC2): the "before" capture and three public handshakes, notes in `notes/m1_5.md`, evidence in `notes/evidence/TS-028-before-tls/` and `TS-028-handshake/`
