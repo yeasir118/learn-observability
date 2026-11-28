@@ -67,3 +67,12 @@ done > compare.txt
 - `-verify_hostname`: also check that the certificate's SAN covers this name. Without it, `openssl verify` checks only signatures and dates.
 
 The first run of D pointed at `google-0.pem` / `google-1.pem`, which didn't exist (the files here are named differently). D was rerun with this folder's names, and both runs are in the file.
+
+## Phase 3: the handshake, message by message
+| File | Command (from this folder) | Shows |
+|---|---|---|
+| `google/msg.txt` | `echo \| openssl s_client -connect www.google.com:443 -servername www.google.com -alpn h2,http/1.1 -msg > google/msg.txt 2>&1` | one line per message (`>>>` sent, `<<<` received). For just the list: `grep -aE "^(<<<\|>>>)" google/msg.txt \| grep -v RecordHeader` |
+| `google/trace.txt`, `github/trace.txt` | the same with `-trace` instead of `-msg` (and `github.com` for GitHub) | every message and extension in detail: `key_share`, `supported_groups`, `server_name`, the chosen `cipher_suite`, ... |
+| `google/msg-openssl-3.0.txt`, `google/trace-openssl-3.0.txt` | the same commands, run in WSL Ubuntu (OpenSSL 3.0.13) | an older client: it offers no ML-KEM, so the key exchange is plain X25519 |
+
+`Inner Content Type` in a trace marks messages that are encrypted on the wire. `-trace` can show them because the client holds the keys.

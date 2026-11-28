@@ -1,0 +1,493 @@
+CONNECTED(00000003)
+Sent Record
+Header:
+  Version = TLS 1.0 (0x301)
+  Content Type = Handshake (22)
+  Length = 329
+    ClientHello, Length=325
+      client_version=0x303 (TLS 1.2)
+      Random:
+        gmt_unix_time=0x1C7DD5EB
+        random_bytes (len=28): ECD92E1D8AED474D5BB9B0325D28E160C0DB1F21928E35D4A09395F6
+      session_id (len=32): F5F8749FD1E20EDB77FC196C62CEA1DE58F413EBED44B26039A61B2F0C6B4659
+      cipher_suites (len=62)
+        {0x13, 0x02} TLS_AES_256_GCM_SHA384
+        {0x13, 0x03} TLS_CHACHA20_POLY1305_SHA256
+        {0x13, 0x01} TLS_AES_128_GCM_SHA256
+        {0xC0, 0x2C} TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        {0xC0, 0x30} TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        {0x00, 0x9F} TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+        {0xCC, 0xA9} TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xCC, 0xA8} TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xCC, 0xAA} TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xC0, 0x2B} TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        {0xC0, 0x2F} TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        {0x00, 0x9E} TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+        {0xC0, 0x24} TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+        {0xC0, 0x28} TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+        {0x00, 0x6B} TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+        {0xC0, 0x23} TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+        {0xC0, 0x27} TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+        {0x00, 0x67} TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+        {0xC0, 0x0A} TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+        {0xC0, 0x14} TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+        {0x00, 0x39} TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+        {0xC0, 0x09} TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+        {0xC0, 0x13} TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+        {0x00, 0x33} TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+        {0x00, 0x9D} TLS_RSA_WITH_AES_256_GCM_SHA384
+        {0x00, 0x9C} TLS_RSA_WITH_AES_128_GCM_SHA256
+        {0x00, 0x3D} TLS_RSA_WITH_AES_256_CBC_SHA256
+        {0x00, 0x3C} TLS_RSA_WITH_AES_128_CBC_SHA256
+        {0x00, 0x35} TLS_RSA_WITH_AES_256_CBC_SHA
+        {0x00, 0x2F} TLS_RSA_WITH_AES_128_CBC_SHA
+        {0x00, 0xFF} TLS_EMPTY_RENEGOTIATION_INFO_SCSV
+      compression_methods (len=1)
+        No Compression (0x00)
+      extensions, length = 190
+        extension_type=server_name(0), length=19
+          0000 - 00 11 00 00 0e 77 77 77-2e 67 6f 6f 67 6c 65   .....www.google
+          000f - 2e 63 6f 6d                                    .com
+        extension_type=ec_point_formats(11), length=4
+          uncompressed (0)
+          ansiX962_compressed_prime (1)
+          ansiX962_compressed_char2 (2)
+        extension_type=supported_groups(10), length=22
+          ecdh_x25519 (29)
+          secp256r1 (P-256) (23)
+          ecdh_x448 (30)
+          secp521r1 (P-521) (25)
+          secp384r1 (P-384) (24)
+          ffdhe2048 (256)
+          ffdhe3072 (257)
+          ffdhe4096 (258)
+          ffdhe6144 (259)
+          ffdhe8192 (260)
+        extension_type=session_ticket(35), length=0
+        extension_type=application_layer_protocol_negotiation(16), length=14
+          h2
+          http/1.1
+        extension_type=encrypt_then_mac(22), length=0
+        extension_type=extended_master_secret(23), length=0
+        extension_type=signature_algorithms(13), length=42
+          ecdsa_secp256r1_sha256 (0x0403)
+          ecdsa_secp384r1_sha384 (0x0503)
+          ecdsa_secp521r1_sha512 (0x0603)
+          ed25519 (0x0807)
+          ed448 (0x0808)
+          rsa_pss_pss_sha256 (0x0809)
+          rsa_pss_pss_sha384 (0x080a)
+          rsa_pss_pss_sha512 (0x080b)
+          rsa_pss_rsae_sha256 (0x0804)
+          rsa_pss_rsae_sha384 (0x0805)
+          rsa_pss_rsae_sha512 (0x0806)
+          rsa_pkcs1_sha256 (0x0401)
+          rsa_pkcs1_sha384 (0x0501)
+          rsa_pkcs1_sha512 (0x0601)
+          ecdsa_sha224 (0x0303)
+          rsa_pkcs1_sha224 (0x0301)
+          dsa_sha224 (0x0302)
+          dsa_sha256 (0x0402)
+          dsa_sha384 (0x0502)
+          dsa_sha512 (0x0602)
+        extension_type=supported_versions(43), length=5
+          TLS 1.3 (772)
+          TLS 1.2 (771)
+        extension_type=psk_key_exchange_modes(45), length=2
+          psk_dhe_ke (1)
+        extension_type=key_share(51), length=38
+            NamedGroup: ecdh_x25519 (29)
+            key_exchange:  (len=32): 72F020A976F457DD40A8663CA61F157AECB1C0429E859D2196CC3075909FA807
+
+Received Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = Handshake (22)
+  Length = 122
+    ServerHello, Length=118
+      server_version=0x303 (TLS 1.2)
+      Random:
+        gmt_unix_time=0x6629FE06
+        random_bytes (len=28): 52FE10D88967AE57BFED3179A6BA0F8E2AF0F39D26F2F4C33359F707
+      session_id (len=32): F5F8749FD1E20EDB77FC196C62CEA1DE58F413EBED44B26039A61B2F0C6B4659
+      cipher_suite {0x13, 0x02} TLS_AES_256_GCM_SHA384
+      compression_method: No Compression (0x00)
+      extensions, length = 46
+        extension_type=key_share(51), length=36
+            NamedGroup: ecdh_x25519 (29)
+            key_exchange:  (len=32): 0EB78872E65C75AF4E3FAF5B4E336D462689BC19621F2253A98B8C44CA393129
+        extension_type=supported_versions(43), length=2
+            TLS 1.3 (772)
+
+Received Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ChangeCipherSpec (20)
+  Length = 1
+Received Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 2648
+  Inner Content Type = Handshake (22)
+    EncryptedExtensions, Length=11
+      extensions, length = 9
+        extension_type=application_layer_protocol_negotiation(16), length=5
+          h2
+
+    Certificate, Length=2482
+      context (len=0): 
+      certificate_list, length=2478
+        ASN.1Cert, length=895
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            c3:35:25:95:df:1f:45:d1:09:39:bb:51:04:ff:60:fe
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: C = US, O = Google Trust Services, CN = WE2
+        Validity
+            Not Before: Nov  3 08:29:37 2026 GMT
+            Not After : Jan 26 08:29:36 2027 GMT
+        Subject: CN = www.google.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:9b:99:e4:c8:7c:c6:d5:92:43:ac:31:f2:f4:7a:
+                    5f:bd:25:fd:5a:7f:d2:73:5b:86:d1:69:4d:5b:22:
+                    1c:25:3c:43:09:00:81:b3:b4:63:51:59:7f:a2:07:
+                    0d:2b:50:f7:d2:da:9b:c6:5d:8f:1c:44:c8:93:55:
+                    70:27:2a:a8:fa
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                0A:1E:05:46:AC:17:52:08:E3:F7:18:F1:6A:17:3A:0D:08:15:7A:39
+            X509v3 Authority Key Identifier: 
+                75:BE:C4:77:AE:89:F6:44:37:7D:CF:B1:68:1F:1D:1A:EB:DC:34:59
+            Authority Information Access: 
+                CA Issuers - URI:http://i.pki.goog/we2.crt
+            X509v3 Subject Alternative Name: 
+                DNS:www.google.com
+            X509v3 Certificate Policies: 
+                Policy: 2.23.140.1.2.1
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://c.pki.goog/we2/64OUIVzpZV4.crl
+            CT Precertificate SCTs: 
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : 00:1A:5D:1A:1C:2D:93:75:B6:48:55:78:F8:2F:71:A1:
+                                AE:6E:EF:39:7D:29:7C:8A:E3:15:7B:CA:DE:E1:A0:1E
+                    Timestamp : Nov  3 09:29:38.001 2026 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:44:02:20:7A:90:7E:F1:25:A8:2A:A7:DA:4F:B6:03:
+                                45:01:02:24:E2:42:FC:A0:3E:27:36:F2:C7:EB:BB:06:
+                                48:20:05:95:02:20:58:A2:C5:01:1F:6D:DD:D3:9F:B7:
+                                36:0C:BE:22:D8:65:7A:FF:EC:20:DE:7A:46:5B:DB:08:
+                                7C:04:5D:A2:EE:FD
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : A2:81:00:18:73:4E:17:6E:1D:47:E0:95:40:F3:81:BA:
+                                54:66:97:CD:63:A8:43:50:71:6E:B8:09:4E:DA:F1:0D
+                    Timestamp : Nov  3 09:29:38.750 2026 GMT
+                    Extensions: 00:00:05:00:36:4A:FC:95
+                    Signature : ecdsa-with-SHA256
+                                30:46:02:21:00:AC:C8:BA:91:40:32:B5:52:D3:8A:49:
+                                6E:58:B1:D1:BF:BE:67:99:54:8A:C6:FE:BC:08:39:62:
+                                00:C8:29:DD:2F:02:21:00:BA:FF:39:2F:E5:02:42:F0:
+                                C6:58:93:36:75:F4:28:E4:F4:A9:C1:D2:7E:28:EA:14:
+                                FB:EF:0C:11:25:4B:91:1D
+    Signature Algorithm: ecdsa-with-SHA256
+    Signature Value:
+        30:45:02:21:00:d8:01:fc:76:6e:d8:e0:2a:23:c1:d5:e1:85:
+        e3:5f:ff:3a:e9:5c:ef:75:92:fe:78:1d:13:fa:7c:54:bf:db:
+        38:02:20:2b:08:09:1d:21:ff:fe:99:93:ce:6a:33:ea:62:36:
+        2c:fd:4c:e1:5a:b9:c0:30:a7:f1:20:50:dc:3b:7d:3f:dd
+-----BEGIN CERTIFICATE-----
+MIIDezCCAyGgAwIBAgIRAMM1JZXfH0XRCTm7UQT/YP4wCgYIKoZIzj0EAwIwOzEL
+MAkGA1UEBhMCVVMxHjAcBgNVBAoTFUdvb2dsZSBUcnVzdCBTZXJ2aWNlczEMMAoG
+A1UEAxMDV0UyMB4XDTI2MTEwMzA4MjkzN1oXDTI3MDEyNjA4MjkzNlowGTEXMBUG
+A1UEAxMOd3d3Lmdvb2dsZS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASb
+meTIfMbVkkOsMfL0el+9Jf1af9JzW4bRaU1bIhwlPEMJAIGztGNRWX+iBw0rUPfS
+2pvGXY8cRMiTVXAnKqj6o4ICJjCCAiIwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQM
+MAoGCCsGAQUFBwMBMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFAoeBUasF1II4/cY
+8WoXOg0IFXo5MB8GA1UdIwQYMBaAFHW+xHeuifZEN33PsWgfHRrr3DRZMDUGCCsG
+AQUFBwEBBCkwJzAlBggrBgEFBQcwAoYZaHR0cDovL2kucGtpLmdvb2cvd2UyLmNy
+dDAZBgNVHREEEjAQgg53d3cuZ29vZ2xlLmNvbTATBgNVHSAEDDAKMAgGBmeBDAEC
+ATA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vYy5wa2kuZ29vZy93ZTIvNjRPVUlW
+enBaVjQuY3JsMIIBDAYKKwYBBAHWeQIEAgSB/QSB+gD4AHUAABpdGhwtk3W2SFV4
++C9xoa5u7zl9KXyK4xV7yt7hoB4AAAGhoL4j0QAABAMARjBEAiB6kH7xJagqp9pP
+tgNFAQIk4kL8oD4nNvLH67sGSCAFlQIgWKLFAR9t3dOftzYMviLYZXr/7CDeekZb
+2wh8BF2i7v0AfwCigQAYc04Xbh1H4JVA84G6VGaXzWOoQ1BxbrgJTtrxDQAAAaGg
+via+AAgAAAUANkr8lQQDAEgwRgIhAKzIupFAMrVS04pJblix0b++Z5lUisb+vAg5
+YgDIKd0vAiEAuv85L+UCQvDGWJM2dfQo5PSpwdJ+KOoU++8MESVLkR0wCgYIKoZI
+zj0EAwIDSAAwRQIhANgB/HZu2OAqI8HV4YXjX/866VzvdZL+eB0T+nxUv9s4AiAr
+CAkdIf/+mZPOajPqYjYs/UzhWrnAMKfxIFDcO30/3Q==
+-----END CERTIFICATE-----
+------------------
+        No extensions
+        ASN.1Cert, length=674
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            7f:f3:2d:6b:40:9d:15:d5:96:5b:05:87:3a:7c:72:e0
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C = US, O = Google Trust Services LLC, CN = GTS Root R4
+        Validity
+            Not Before: Dec 13 09:00:00 2023 GMT
+            Not After : Feb 20 14:00:00 2029 GMT
+        Subject: C = US, O = Google Trust Services, CN = WE2
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:35:7e:1f:f2:14:ed:90:7d:e1:9e:2a:34:43:86:
+                    c1:d5:96:e8:27:70:df:9e:04:cb:a9:ca:86:79:0b:
+                    08:4d:46:8a:c2:74:a4:bb:d9:bf:ee:fd:23:d7:38:
+                    f3:4b:ef:54:17:e1:be:e7:ca:55:25:a8:0c:30:ac:
+                    2d:5d:4e:a1:51
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:0
+            X509v3 Subject Key Identifier: 
+                75:BE:C4:77:AE:89:F6:44:37:7D:CF:B1:68:1F:1D:1A:EB:DC:34:59
+            X509v3 Authority Key Identifier: 
+                80:4C:D6:EB:74:FF:49:36:A3:D5:D8:FC:B5:3E:C5:6A:F0:94:1D:8C
+            Authority Information Access: 
+                CA Issuers - URI:http://i.pki.goog/r4.crt
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://c.pki.goog/r/r4.crl
+            X509v3 Certificate Policies: 
+                Policy: 2.23.140.1.2.1
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:64:02:30:0b:bd:b8:36:55:c8:35:a3:d2:d9:7d:39:73:d3:
+        f7:f7:82:b8:09:d1:81:6f:e5:64:45:db:de:aa:c0:0e:45:12:
+        8f:ac:93:e8:1f:60:ec:2e:7e:44:2c:22:94:91:ec:ac:02:30:
+        2f:df:0c:90:76:4c:2d:69:61:d5:4f:fd:98:98:18:84:db:34:
+        ea:98:ec:9b:cd:88:62:ff:d2:65:e5:33:6a:9a:0c:ed:23:49:
+        38:2f:51:bf:91:d0:12:a2:c9:38:38:da
+-----BEGIN CERTIFICATE-----
+MIICnjCCAiWgAwIBAgIQf/Mta0CdFdWWWwWHOnxy4DAKBggqhkjOPQQDAzBHMQsw
+CQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzEU
+MBIGA1UEAxMLR1RTIFJvb3QgUjQwHhcNMjMxMjEzMDkwMDAwWhcNMjkwMjIwMTQw
+MDAwWjA7MQswCQYDVQQGEwJVUzEeMBwGA1UEChMVR29vZ2xlIFRydXN0IFNlcnZp
+Y2VzMQwwCgYDVQQDEwNXRTIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQ1fh/y
+FO2QfeGeKjRDhsHVlugncN+eBMupyoZ5CwhNRorCdKS72b/u/SPXOPNL71QX4b7n
+ylUlqAwwrC1dTqFRo4H+MIH7MA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggr
+BgEFBQcDAQYIKwYBBQUHAwIwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQU
+db7Ed66J9kQ3fc+xaB8dGuvcNFkwHwYDVR0jBBgwFoAUgEzW63T/STaj1dj8tT7F
+avCUHYwwNAYIKwYBBQUHAQEEKDAmMCQGCCsGAQUFBzAChhhodHRwOi8vaS5wa2ku
+Z29vZy9yNC5jcnQwKwYDVR0fBCQwIjAgoB6gHIYaaHR0cDovL2MucGtpLmdvb2cv
+ci9yNC5jcmwwEwYDVR0gBAwwCjAIBgZngQwBAgEwCgYIKoZIzj0EAwMDZwAwZAIw
+C724NlXINaPS2X05c9P394K4CdGBb+VkRdveqsAORRKPrJPoH2DsLn5ELCKUkeys
+AjAv3wyQdkwtaWHVT/2YmBiE2zTqmOybzYhi/9Jl5TNqmgztI0k4L1G/kdASosk4
+ONo=
+-----END CERTIFICATE-----
+------------------
+        No extensions
+        ASN.1Cert, length=894
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            7f:e5:30:bf:33:13:43:be:dd:82:16:10:49:3d:8a:1b
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = BE, O = GlobalSign nv-sa, OU = Root CA, CN = GlobalSign Root CA
+        Validity
+            Not Before: Nov 15 03:43:21 2023 GMT
+            Not After : Jan 28 00:00:42 2028 GMT
+        Subject: C = US, O = Google Trust Services LLC, CN = GTS Root R4
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (384 bit)
+                pub:
+                    04:f3:74:73:a7:68:8b:60:ae:43:b8:35:c5:81:30:
+                    7b:4b:49:9d:fb:c1:61:ce:e6:de:46:bd:6b:d5:61:
+                    18:35:ae:40:dd:73:f7:89:91:30:5a:eb:3c:ee:85:
+                    7c:a2:40:76:3b:a9:c6:b8:47:d8:2a:e7:92:91:6a:
+                    73:e9:b1:72:39:9f:29:9f:a2:98:d3:5f:5e:58:86:
+                    65:0f:a1:84:65:06:d1:dc:8b:c9:c7:73:c8:8c:6a:
+                    2f:e5:c4:ab:d1:1d:8a
+                ASN1 OID: secp384r1
+                NIST CURVE: P-384
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Subject Key Identifier: 
+                80:4C:D6:EB:74:FF:49:36:A3:D5:D8:FC:B5:3E:C5:6A:F0:94:1D:8C
+            X509v3 Authority Key Identifier: 
+                60:7B:66:1A:45:0D:97:CA:89:50:2F:7D:04:CD:34:A8:FF:FC:FD:4B
+            Authority Information Access: 
+                CA Issuers - URI:http://i.pki.goog/gsr1.crt
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://c.pki.goog/r/gsr1.crl
+            X509v3 Certificate Policies: 
+                Policy: 2.23.140.1.2.1
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        18:42:bb:0f:06:d6:03:87:96:e3:3f:63:81:0f:09:a4:a1:68:
+        48:0c:39:22:73:9e:f8:cb:4e:2d:7f:31:e9:9f:e7:09:a1:d2:
+        36:0f:84:ac:79:eb:10:e9:b0:eb:6a:b6:7b:0b:7d:1d:74:b8:
+        9b:65:ab:68:2a:2c:2c:dd:42:fd:c6:71:0b:cf:87:2d:f7:6b:
+    depth=2 C = US, O = Google Trust Services LLC, CN = GTS Root R4
+verify return:1
+depth=1 C = US, O = Google Trust Services, CN = WE2
+verify return:1
+depth=0 CN = www.google.com
+verify return:1
+    c8:0f:6e:05:7d:56:e2:23:58:58:f9:25:ba:16:85:47:90:d7:
+        96:20:fd:06:09:b6:8c:e0:2e:ae:55:d1:79:75:35:2c:31:5b:
+        3f:65:bc:cd:9c:87:42:a7:91:b1:9b:1e:5e:8e:f1:1a:bb:ca:
+        2d:47:f0:ac:90:63:7e:86:bf:d6:e4:6b:d3:d6:d3:01:8e:05:
+        8a:67:58:b8:ff:f7:a6:84:0d:49:1b:50:5b:3f:3a:0b:25:0b:
+        f2:12:8b:5c:d3:79:57:8d:36:82:ce:ff:26:11:b7:a9:f1:1a:
+        99:ed:ad:82:3e:c8:11:6e:eb:d3:3c:1c:1c:38:c0:41:9a:e1:
+        5e:53:cf:3e:15:20:57:eb:ee:e2:3f:48:a5:f1:be:19:d1:01:
+        6a:23:0c:0c:1d:fb:3f:2f:a2:b5:bd:ea:6e:a3:1b:46:ce:2e:
+        02:67:af:33:26:98:aa:d5:4b:d2:a9:36:c5:26:3b:5b:0f:8b:
+        1e:88:c1:e5
+-----BEGIN CERTIFICATE-----
+MIIDejCCAmKgAwIBAgIQf+UwvzMTQ77dghYQST2KGzANBgkqhkiG9w0BAQsFADBX
+MQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTEQMA4GA1UE
+CxMHUm9vdCBDQTEbMBkGA1UEAxMSR2xvYmFsU2lnbiBSb290IENBMB4XDTIzMTEx
+NTAzNDMyMVoXDTI4MDEyODAwMDA0MlowRzELMAkGA1UEBhMCVVMxIjAgBgNVBAoT
+GUdvb2dsZSBUcnVzdCBTZXJ2aWNlcyBMTEMxFDASBgNVBAMTC0dUUyBSb290IFI0
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE83Rzp2iLYK5DuDXFgTB7S0md+8Fhzube
+Rr1r1WEYNa5A3XP3iZEwWus87oV8okB2O6nGuEfYKueSkWpz6bFyOZ8pn6KY019e
+WIZlD6GEZQbR3IvJx3PIjGov5cSr0R2Ko4H/MIH8MA4GA1UdDwEB/wQEAwIBhjAd
+BgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDwYDVR0TAQH/BAUwAwEB/zAd
+BgNVHQ4EFgQUgEzW63T/STaj1dj8tT7FavCUHYwwHwYDVR0jBBgwFoAUYHtmGkUN
+l8qJUC99BM00qP/8/UswNgYIKwYBBQUHAQEEKjAoMCYGCCsGAQUFBzAChhpodHRw
+Oi8vaS5wa2kuZ29vZy9nc3IxLmNydDAtBgNVHR8EJjAkMCKgIKAehhxodHRwOi8v
+Yy5wa2kuZ29vZy9yL2dzcjEuY3JsMBMGA1UdIAQMMAowCAYGZ4EMAQIBMA0GCSqG
+SIb3DQEBCwUAA4IBAQAYQrsPBtYDh5bjP2OBDwmkoWhIDDkic574y04tfzHpn+cJ
+odI2D4SseesQ6bDrarZ7C30ddLibZatoKiws3UL9xnELz4ct92vID24FfVbiI1hY
++SW6FoVHkNeWIP0GCbaM4C6uVdF5dTUsMVs/ZbzNnIdCp5Gxmx5ejvEau8otR/Cs
+kGN+hr/W5GvT1tMBjgWKZ1i4//emhA1JG1BbPzoLJQvyEotc03lXjTaCzv8mEbep
+8RqZ7a2CPsgRbuvTPBwcOMBBmuFeU88+FSBX6+7iP0il8b4Z0QFqIwwMHfs/L6K1
+vepuoxtGzi4CZ68zJpiq1UvSqTbFJjtbD4seiMHl
+-----END CERTIFICATE-----
+------------------
+        No extensions
+
+    CertificateVerify, Length=74
+      Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+      Signature (len=70): 304402203ECC0CDCE39B586170E2E4A5EE68045C26E5E74D122F2CCE8B78D589BC7FAEE7022043A97DB84066E79EAAA1A6767264EF374017B7E89BC00BF4BF34D507CF44DB38
+
+    Finished, Length=48
+      verify_data (len=48): B6726C90F83ADFCED9DB1E958E3240F80AE7CC6B90C2E690DE4A8BE16BCDBBA98149A16D5F0258B608283618FB6F8853
+
+Sent Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ChangeCipherSpec (20)
+  Length = 1
+    change_cipher_spec (1)
+
+Sent Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 69
+  Inner Content Type = Handshake (22)
+    Finished, Length=48
+      verify_data (len=48): 7E3853E443531D15CB1C3A0F8F5D3537F94296DFA38EF3C3CA0813FEB90E36EA82DD282D66C842B3A2EAF710CFA87C12
+
+---
+Certificate chain
+ 0 s:CN = www.google.com
+   i:C = US, O = Google Trust Services, CN = WE2
+   a:PKEY: id-ecPublicKey, 256 (bit); sigalg: ecdsa-with-SHA256
+   v:NotBefore: Nov  3 08:29:37 2026 GMT; NotAfter: Jan 26 08:29:36 2027 GMT
+ 1 s:C = US, O = Google Trust Services, CN = WE2
+   i:C = US, O = Google Trust Services LLC, CN = GTS Root R4
+   a:PKEY: id-ecPublicKey, 256 (bit); sigalg: ecdsa-with-SHA384
+   v:NotBefore: Dec 13 09:00:00 2023 GMT; NotAfter: Feb 20 14:00:00 2029 GMT
+ 2 s:C = US, O = Google Trust Services LLC, CN = GTS Root R4
+   i:C = BE, O = GlobalSign nv-sa, OU = Root CA, CN = GlobalSign Root CA
+   a:PKEY: id-ecPublicKey, 384 (bit); sigalg: RSA-SHA256
+   v:NotBefore: Nov 15 03:43:21 2023 GMT; NotAfter: Jan 28 00:00:42 2028 GMT
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIIDezCCAyGgAwIBAgIRAMM1JZXfH0XRCTm7UQT/YP4wCgYIKoZIzj0EAwIwOzEL
+MAkGA1UEBhMCVVMxHjAcBgNVBAoTFUdvb2dsZSBUcnVzdCBTZXJ2aWNlczEMMAoG
+A1UEAxMDV0UyMB4XDTI2MTEwMzA4MjkzN1oXDTI3MDEyNjA4MjkzNlowGTEXMBUG
+A1UEAxMOd3d3Lmdvb2dsZS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASb
+meTIfMbVkkOsMfL0el+9Jf1af9JzW4bRaU1bIhwlPEMJAIGztGNRWX+iBw0rUPfS
+2pvGXY8cRMiTVXAnKqj6o4ICJjCCAiIwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQM
+MAoGCCsGAQUFBwMBMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFAoeBUasF1II4/cY
+8WoXOg0IFXo5MB8GA1UdIwQYMBaAFHW+xHeuifZEN33PsWgfHRrr3DRZMDUGCCsG
+AQUFBwEBBCkwJzAlBggrBgEFBQcwAoYZaHR0cDovL2kucGtpLmdvb2cvd2UyLmNy
+dDAZBgNVHREEEjAQgg53d3cuZ29vZ2xlLmNvbTATBgNVHSAEDDAKMAgGBmeBDAEC
+ATA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vYy5wa2kuZ29vZy93ZTIvNjRPVUlW
+enBaVjQuY3JsMIIBDAYKKwYBBAHWeQIEAgSB/QSB+gD4AHUAABpdGhwtk3W2SFV4
++C9xoa5u7zl9KXyK4xV7yt7hoB4AAAGhoL4j0QAABAMARjBEAiB6kH7xJagqp9pP
+tgNFAQIk4kL8oD4nNvLH67sGSCAFlQIgWKLFAR9t3dOftzYMviLYZXr/7CDeekZb
+2wh8BF2i7v0AfwCigQAYc04Xbh1H4JVA84G6VGaXzWOoQ1BxbrgJTtrxDQAAAaGg
+via+AAgAAAUANkr8lQQDAEgwRgIhAKzIupFAMrVS04pJblix0b++Z5lUisb+vAg5
+YgDIKd0vAiEAuv85L+UCQvDGWJM2dfQo5PSpwdJ+KOoU++8MESVLkR0wCgYIKoZI
+zj0EAwIDSAAwRQIhANgB/HZu2OAqI8HV4YXjX/866VzvdZL+eB0T+nxUv9s4AiAr
+CAkdIf/+mZPOajPqYjYs/UzhWrnAMKfxIFDcO30/3Q==
+-----END CERTIFICATE-----
+subject=CN = www.google.com
+issuer=C = US, O = Google Trust Services, CN = WE2
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: ECDSA
+Server Temp Key: X25519, 253 bits
+---
+SSL handshake has read 2786 bytes and written 414 bytes
+Verification: OK
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Server public key is 256 bit
+Secure Renegotiation IS NOT supported
+Compression: NONE
+Expansion: NONE
+ALPN protocol: h2
+Early data was not sent
+Verify return code: 0 (ok)
+---
+DONE
+Sent Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 18
+  Inner Content Type = ApplicationData (23)
+Sent Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 19
+  Inner Content Type = Alert (21)
+    Level=warning(1), description=close notify(0)
+

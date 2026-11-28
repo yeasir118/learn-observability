@@ -1,0 +1,600 @@
+Connecting to 20.205.243.166
+CONNECTED(000001C0)
+Sent TLS Record
+Header:
+  Version = TLS 1.0 (0x301)
+  Content Type = Handshake (22)
+  Length = 1563
+    ClientHello, Length=1559
+      client_version=0x303 (TLS 1.2)
+      Random:
+        gmt_unix_time=0x2D3DA8A9
+        random_bytes (len=28): 41DA517C9E9FEE4DDD8CF1E840F1D5E46372BEAE159F2D7778934397
+      session_id (len=32): 4AF282D1CE19ADD41701629F51AD3026C2969D6C62C19A6E2D94BD0131177E09
+      cipher_suites (len=60)
+        {0x13, 0x02} TLS_AES_256_GCM_SHA384
+        {0x13, 0x03} TLS_CHACHA20_POLY1305_SHA256
+        {0x13, 0x01} TLS_AES_128_GCM_SHA256
+        {0xC0, 0x2C} TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        {0xC0, 0x30} TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        {0x00, 0x9F} TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+        {0xCC, 0xA9} TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xCC, 0xA8} TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xCC, 0xAA} TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+        {0xC0, 0x2B} TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        {0xC0, 0x2F} TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        {0x00, 0x9E} TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+        {0xC0, 0x24} TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+        {0xC0, 0x28} TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+        {0x00, 0x6B} TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+        {0xC0, 0x23} TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+        {0xC0, 0x27} TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+        {0x00, 0x67} TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+        {0xC0, 0x0A} TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+        {0xC0, 0x14} TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+        {0x00, 0x39} TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+        {0xC0, 0x09} TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+        {0xC0, 0x13} TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+        {0x00, 0x33} TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+        {0x00, 0x9D} TLS_RSA_WITH_AES_256_GCM_SHA384
+        {0x00, 0x9C} TLS_RSA_WITH_AES_128_GCM_SHA256
+        {0x00, 0x3D} TLS_RSA_WITH_AES_256_CBC_SHA256
+        {0x00, 0x3C} TLS_RSA_WITH_AES_128_CBC_SHA256
+        {0x00, 0x35} TLS_RSA_WITH_AES_256_CBC_SHA
+        {0x00, 0x2F} TLS_RSA_WITH_AES_128_CBC_SHA
+      compression_methods (len=1)
+        No Compression (0x00)
+      extensions, length = 1426
+        extension_type=renegotiate(65281), length=1
+            <EMPTY>
+        extension_type=server_name(0), length=15
+          0000 - 00 0d 00 00 0a 67 69 74-68 75 62 2e 63 6f 6d   .....github.com
+        extension_type=ec_point_formats(11), length=4
+          uncompressed (0)
+          ansiX962_compressed_prime (1)
+          ansiX962_compressed_char2 (2)
+        extension_type=supported_groups(10), length=18
+          X25519MLKEM768 (4588)
+          ecdh_x25519 (29)
+          secp256r1 (P-256) (23)
+          ecdh_x448 (30)
+          secp384r1 (P-384) (24)
+          secp521r1 (P-521) (25)
+          ffdhe2048 (256)
+          ffdhe3072 (257)
+        extension_type=session_ticket(35), length=0
+        extension_type=application_layer_protocol_negotiation(16), length=14
+          h2
+          http/1.1
+        extension_type=encrypt_then_mac(22), length=0
+        extension_type=extended_master_secret(23), length=0
+        extension_type=signature_algorithms(13), length=54
+          mldsa65 (0x0905)
+          mldsa87 (0x0906)
+          mldsa44 (0x0904)
+          ecdsa_secp256r1_sha256 (0x0403)
+          ecdsa_secp384r1_sha384 (0x0503)
+          ecdsa_secp521r1_sha512 (0x0603)
+          ed25519 (0x0807)
+          ed448 (0x0808)
+          ecdsa_brainpoolP256r1tls13_sha256 (0x081a)
+          ecdsa_brainpoolP384r1tls13_sha384 (0x081b)
+          ecdsa_brainpoolP512r1tls13_sha512 (0x081c)
+          rsa_pss_pss_sha256 (0x0809)
+          rsa_pss_pss_sha384 (0x080a)
+          rsa_pss_pss_sha512 (0x080b)
+          rsa_pss_rsae_sha256 (0x0804)
+          rsa_pss_rsae_sha384 (0x0805)
+          rsa_pss_rsae_sha512 (0x0806)
+          rsa_pkcs1_sha256 (0x0401)
+          rsa_pkcs1_sha384 (0x0501)
+          rsa_pkcs1_sha512 (0x0601)
+          ecdsa_sha224 (0x0303)
+          rsa_pkcs1_sha224 (0x0301)
+          dsa_sha224 (0x0302)
+          dsa_sha256 (0x0402)
+          dsa_sha384 (0x0502)
+          dsa_sha512 (0x0602)
+        extension_type=supported_versions(43), length=5
+          TLS 1.3 (772)
+          TLS 1.2 (771)
+        extension_type=psk_key_exchange_modes(45), length=2
+          psk_dhe_ke (1)
+        extension_type=key_share(51), length=1258
+            NamedGroup: X25519MLKEM768 (4588)
+            key_exchange:  (len=1216): 2A33C744D58815F2902EE768953C9148161CDFF1097801854099133A461085894AE7029D1A5C06B0A96D920273B59C395C5A71E3DB3946204A2295C5D9B35DDA2AAA2D8AC609BBC5DE8917952C79E8FC46B72105EBFA746952C3A869A2A0684DBEB21EAF9A4838B243CE8031D59359EF316BDD900FB9F812DBB2A1A1BA01FB3C1264AC7BA60560AC9C6D77F91C3AA1655178027F2CB79C592CD65556D8070E2D6703C219940042440E46113AB82BAF36A1637967A6C48F6210522B0A9AB157AC11266D149204F1E9C6B8C14FCD063379E4CD07AB7445441385720B5700C52DB677A6C3BF3336875DE40DB4AA30B370641B4274632C82B07488BB1001652A1312025DFAEA85BD25C7DC417563A6B756118FB767B8C8959ADAC761C6467DE8983A24DA8E83AC3FB0064D4418080B07105F3A681372B463A73665B6598D19A95962B03D5A1FB3E9071F1B4D10F2CB53A66BBC320BE7F48F6F6C33C67C5249D0C7E7E6C0BC1979ED74A62AC0953B407F13F0B656E79240221B7B720843968BE4A7B1945361D774B10A20A897365C8A82B4F8112490767833C2B821E8764C4C2C4721A0E218119CA9158313729063888FA2AB8B26B382554631D7194342B46AA3CEBA1A8E3DC76CF10ACB378166D1C708DE02337CC0A230663F80099A70838DA2B7277A8B8EDA238680DAACAF98B8B44610DD72C0D913B3A0989E23625182C0C1E63A95A10545EB62B3CC3B15308A650D71683E45735E68BFECD29B05F194A2699F02DBA59FD10780DBBC4E88675927717BDB7BF6F1AF52B861E55B7436D224599A2FA2B75548CC1680CBC539EA818F7346CD90AC52003A1F2A29BAA72755D705592731BED99AA23938408523A9B7BFA18ACEA394A966719F89DC3A75F887C2B65AE8CB63395139F89A0E2232B758285FFC46ADE0567025AB32479A02C9965E55A8B3CD816498D0462D78C87E7041F182701E07BAF8D3868C0B1F53168EAD435B74DB5E7992BB375AC1B37BCA47F5BC5243078D5944BF25482AB81FFA6C7937979D57A688D0D9185599CBF0A6307D47397A14533D9C789A63BFF7EA7BE259549422369EA81B4C70CB8B57291ADC89FF640BFDCB5866730F86D279AAA69E17017A301C7D648C41B9C41CF578C75A6692B82505A6456AC587A9B7116D289CBEE5C2A48514896326B80A410D62530A64DBCF75F66E9F99A1FFDC430B9463B3CA8A76D06C0C5164272CB36EC57985A3BAF248A4325C9738CA82B39003AD9240B395B59579CF692714A06A723C90001957516A16C42088CC746533286CB531D3333788B3AA773BEC3C6BD52997CD49343FD28854C7A948540692FC6D0A9558CCEB1581F6233A02998A74A535A22F21F7BA43FBA4F32C1E70F71A4A99687554359F0970CCE854A7B7B9795C34F397B1A1D80EB11B4872B60D9F1B29B1513787A822A231ADEADB93E63826F61B8B3654CF888A4E358692F3B84324C551F12938DE22719D7A368EDC2F08AB617EB00C2A030A2C778E610B026D2104049AC4EF74BB7252AAC65C8310FA636BC2A68466A709F2168EE6701C937AC91022CFC0A0B2AB6C22112870062B5A572BC599B54D43A5BA313111D3CDC3CA3C91111A37D31C2869AE7BC39E57D751916D9ABFAABF8814446714527D3B0F5DFC583BD4BDC25072DAB816223BD2CA070783F87419FD7039F10B155A6D2E6165C7DE2E64AE3D5E81B089E3A977
+            NamedGroup: ecdh_x25519 (29)
+            key_exchange:  (len=32): 6D2C4F02E2759155752F7106A3F06F68516F725CA9263E0E9212B7120F65A134
+        extension_type=compress_certificate(27), length=3
+          zlib (1)
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = Handshake (22)
+  Length = 122
+    ServerHello, Length=118
+      server_version=0x303 (TLS 1.2)
+      Random:
+        gmt_unix_time=0x17D205E9
+        random_bytes (len=28): 528A621D429BB18A311EC67C203A4F8739784F1BD83920EA81853A46
+      session_id (len=32): 4AF282D1CE19ADD41701629F51AD3026C2969D6C62C19A6E2D94BD0131177E09
+      cipher_suite {0x13, 0x01} TLS_AES_128_GCM_SHA256
+      compression_method: No Compression (0x00)
+      extensions, length = 46
+        extension_type=supported_versions(43), length=2
+            TLS 1.3 (772)
+        extension_type=key_share(51), length=36
+            NamedGroup: ecdh_x25519 (29)
+            key_exchange:  (len=32): 78697FA23F597BD7A665E7D13994D613CB5A208E4C6B4C18EF558E2B0BF72258
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ChangeCipherSpec (20)
+  Length = 1
+    change_cipher_spec (1)
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 36
+  Inner Content Type = Handshake (22)
+    EncryptedExtensions, Length=15
+      extensions, length = 13
+        extension_type=server_name(0), length=0
+        extension_type=application_layer_protocol_negotiation(16), length=5
+          h2
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 2765
+  Inner Content Type = Handshake (22)
+    Certificate, Length=2744
+      context (len=0): 
+      certificate_list, length=2740
+        ASN.1Cert, length=1016
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            3e:1d:60:26:b4:b0:ae:a2:79:dc:a2:ef:bb:ce:d8:2b
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+        Validity
+            Not Before: Oct 30 00:00:00 2026 GMT
+            Not After : Jan 27 23:59:59 2027 GMT
+        Subject: CN = github.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:37:ca:77:89:c7:fa:fe:bc:ec:01:ff:2d:b5:01:
+                    b8:8e:68:5d:5b:03:6d:b2:f0:46:42:c1:08:36:c3:
+                    99:85:9c:ae:9c:5d:f3:ef:4e:d2:e3:c7:a4:88:23:
+                    01:0d:20:05:3a:06:cb:ae:af:e1:de:f4:c7:f8:e0:
+                    0e:8a:2c:2b:77
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                17:99:A8:04:C1:6F:E4:2D:70:A8:0A:10:3D:03:D3:E9:1A:B8:26:63
+            X509v3 Subject Key Identifier: 
+                8C:B0:2A:1E:AE:EE:86:5D:00:01:35:B1:E5:8B:69:23:A5:3E:3C:71
+            X509v3 Key Usage: critical
+                Digital Signature
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Certificate Policies: 
+                Policy: 1.3.6.1.4.1.6449.1.2.2.7
+                  CPS: https://sectigo.com/CPS
+                Policy: 2.23.140.1.2.1
+            Authority Information Access: 
+                CA Issuers - URI:http://crt.sectigo.com/SectigoPublicServerAuthenticationCADVE36.crt
+                OCSP - URI:http://ocsp.sectigo.com
+            X509v3 Subject Alternative Name: 
+                DNS:github.com, DNS:www.github.com
+            CT Precertificate SCTs: 
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : 46:A2:39:67:C6:0D:B6:46:87:C6:6F:3D:F9:99:94:76:
+                                93:A6:A6:11:20:84:57:D5:55:E7:E3:D0:A1:D9:B6:46
+                    Timestamp : Oct 30 00:21:07.488 2026 GMT
+                    Extensions: none
+                    Signature : ecdsa-with-SHA256
+                                30:44:02:20:22:10:6D:BA:4E:92:A7:64:A4:C1:E5:10:
+                                EE:08:6A:A8:D4:13:9D:46:76:70:17:F2:54:DD:7C:9A:
+                                9A:C9:E5:32:02:20:56:FA:B7:C4:9D:08:21:CC:3D:AC:
+                                96:33:FC:0E:68:84:DF:AE:0E:78:D5:E3:44:B9:E8:4B:
+                                8F:FE:10:39:81:31
+                Signed Certificate Timestamp:
+                    Version   : v1 (0x0)
+                    Log ID    : A2:81:00:18:73:4E:17:6E:1D:47:E0:95:40:F3:81:BA:
+                                54:66:97:CD:63:A8:43:50:71:6E:B8:09:4E:DA:F1:0D
+                    Timestamp : Oct 30 00:21:07.750 2026 GMT
+                    Extensions: 00:00:05:00:32:1E:E8:F2
+                    Signature : ecdsa-with-SHA256
+                                30:46:02:21:00:A9:1E:FB:C4:AE:D6:3A:CB:47:16:BB:
+                                32:96:D4:25:3C:7A:8E:E5:40:25:68:3E:44:50:68:1F:
+                                57:E4:B2:1E:78:02:21:00:93:75:72:2B:55:A3:45:97:
+                                0A:B6:8D:5A:14:E9:EA:B7:2D:30:ED:80:16:C1:07:C0:
+                                12:EA:92:87:B8:81:7D:E0
+    Signature Algorithm: ecdsa-with-SHA256
+    Signature Value:
+        30:44:02:20:22:21:55:0b:45:b5:5e:5e:8d:7a:eb:02:b7:56:
+        9d:79:7a:e7:7f:9e:56:cd:4d:af:a3:e0:55:27:28:3e:86:60:
+        02:20:05:c2:b7:5a:67:95:d3:93:7c:ec:a4:48:a1:a2:15:fe:
+        1f:7b:17:29:01:38:2b:a5:28:1b:02:4f:da:9e:9a:18
+-----BEGIN CERTIFICATE-----
+MIID9DCCA5ugAwIBAgIQPh1gJrSwrqJ53KLvu87YKzAKBggqhkjOPQQDAjBgMQsw
+CQYDVQQGEwJHQjEYMBYGA1UEChMPU2VjdGlnbyBMaW1pdGVkMTcwNQYDVQQDEy5T
+ZWN0aWdvIFB1YmxpYyBTZXJ2ZXIgQXV0aGVudGljYXRpb24gQ0EgRFYgRTM2MB4X
+DTI2MTAzMDAwMDAwMFoXDTI3MDEyNzIzNTk1OVowFTETMBEGA1UEAxMKZ2l0aHVi
+LmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDfKd4nH+v687AH/LbUBuI5o
+XVsDbbLwRkLBCDbDmYWcrpxd8+9O0uPHpIgjAQ0gBToGy66v4d70x/jgDoosK3ej
+ggKAMIICfDAfBgNVHSMEGDAWgBQXmagEwW/kLXCoChA9A9PpGrgmYzAdBgNVHQ4E
+FgQUjLAqHq7uhl0AATWx5YtpI6U+PHEwDgYDVR0PAQH/BAQDAgeAMAwGA1UdEwEB
+/wQCMAAwEwYDVR0lBAwwCgYIKwYBBQUHAwEwSQYDVR0gBEIwQDA0BgsrBgEEAbIx
+AQICBzAlMCMGCCsGAQUFBwIBFhdodHRwczovL3NlY3RpZ28uY29tL0NQUzAIBgZn
+gQwBAgEwgYQGCCsGAQUFBwEBBHgwdjBPBggrBgEFBQcwAoZDaHR0cDovL2NydC5z
+ZWN0aWdvLmNvbS9TZWN0aWdvUHVibGljU2VydmVyQXV0aGVudGljYXRpb25DQURW
+RTM2LmNydDAjBggrBgEFBQcwAYYXaHR0cDovL29jc3Auc2VjdGlnby5jb20wJQYD
+VR0RBB4wHIIKZ2l0aHViLmNvbYIOd3d3LmdpdGh1Yi5jb20wggEMBgorBgEEAdZ5
+AgQCBIH9BIH6APgAdQBGojlnxg22RofGbz35mZR2k6amESCEV9VV5+PQodm2RgAA
+AaGKLocgAAAEAwBGMEQCICIQbbpOkqdkpMHlEO4IaqjUE51GdnAX8lTdfJqayeUy
+AiBW+rfEnQghzD2sljP8DmiE364OeNXjRLnoS4/+EDmBMQB/AKKBABhzThduHUfg
+lUDzgbpUZpfNY6hDUHFuuAlO2vENAAABoYouiCYACAAABQAyHujyBAMASDBGAiEA
+qR77xK7WOstHFrsyltQlPHqO5UAlaD5EUGgfV+SyHngCIQCTdXIrVaNFlwq2jVoU
+6eq3LTDtgBbBB8AS6pKHuIF94DAKBggqhkjOPQQDAgNHADBEAiAiIVULRbVeXo16
+6wK3Vp15eud/nlbNTa+j4FUnKD6GYAIgBcK3WmeV05N87KRIoaIV/h97FykBOCul
+KBsCT9qemhg=
+-----END CERTIFICATE-----
+------------------
+        No extensions
+        ASN.1Cert, length=867
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            36:e0:59:ed:88:8d:d5:7a:ed:d5:70:b6:72:7f:9b:da
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication Root E46
+        Validity
+            Not Before: Mar 22 00:00:00 2021 GMT
+            Not After : Mar 21 23:59:59 2036 GMT
+        Subject: C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication CA DV E36
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:68:a1:a7:6c:05:27:05:89:63:1c:39:a7:ff:25:
+                    21:c5:ed:d3:2f:12:98:bb:2c:dc:f5:55:e8:49:a0:
+                    84:57:91:7b:dc:58:5f:6b:f4:a2:fd:13:2c:9b:04:
+                    c5:5b:74:7d:b3:b2:7a:26:96:19:16:6b:b8:76:8d:
+                    ef:93:f5:60:97
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                D1:22:DA:4C:59:F1:4B:5F:26:38:AA:9D:D6:EE:EB:0D:C3:FB:A9:61
+            X509v3 Subject Key Identifier: 
+                17:99:A8:04:C1:6F:E4:2D:70:A8:0A:10:3D:03:D3:E9:1A:B8:26:63
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE, pathlen:0
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+                Policy: 2.23.140.1.2.1
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://crl.sectigo.com/SectigoPublicServerAuthenticationRootE46.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://crt.sectigo.com/SectigoPublicServerAuthenticationRootE46.p7c
+                OCSP - URI:http://ocsp.sectigo.com
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:64:02:30:5b:0a:9c:14:03:87:ae:25:fa:ff:9a:51:85:a3:
+        0c:22:4a:40:cc:47:51:41:a6:73:00:18:0c:88:c9:f6:96:d1:
+        60:8b:4c:08:8c:79:c6:ed:28:51:be:ac:21:f4:d7:a9:02:30:
+        3d:d7:5c:b0:31:38:29:d7:8b:bb:58:49:76:91:e0:74:bb:ec:
+        1c:02:b7:bf:28:32:2c:6b:a3:31:4f:71:04:90:83:69:c9:11:
+        4f:dd:d5:1c:41:34:82:9a:60:36:a7:55
+-----BEGIN CERTIFICATE-----
+MIIDXzCCAuagAwIBAgIQNuBZ7YiN1Xrt1XC2cn+b2jAKBggqhkjOPQQDAzBfMQsw
+CQYDVQQGEwJHQjEYMBYGA1UEChMPU2VjdGlnbyBMaW1pdGVkMTYwNAYDVQQDEy1T
+ZWN0aWdvIFB1YmxpYyBTZXJ2ZXIgQXV0aGVudGljYXRpb24gUm9vdCBFNDYwHhcN
+MjEwMzIyMDAwMDAwWhcNMzYwMzIxMjM1OTU5WjBgMQswCQYDVQQGEwJHQjEYMBYG
+A1UEChMPU2VjdGlnbyBMaW1pdGVkMTcwNQYDVQQDEy5TZWN0aWdvIFB1YmxpYyBT
+ZXJ2ZXIgQXV0aGVudGljYXRpb24gQ0EgRFYgRTM2MFkwEwYHKoZIzj0CAQYIKoZI
+zj0DAQcDQgAEaKGnbAUnBYljHDmn/yUhxe3TLxKYuyzc9VXoSaCEV5F73Fhfa/Si
+/RMsmwTFW3R9s7J6JpYZFmu4do3vk/Vgl6OCAYEwggF9MB8GA1UdIwQYMBaAFNEi
+2kxZ8UtfJjiqndbu6w3D+6lhMB0GA1UdDgQWBBQXmagEwW/kLXCoChA9A9PpGrgm
+YzAOBgNVHQ8BAf8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHSUEFjAU
+BggrBgEFBQcDAQYIKwYBBQUHAwIwGwYDVR0gBBQwEjAGBgRVHSAAMAgGBmeBDAEC
+ATBUBgNVHR8ETTBLMEmgR6BFhkNodHRwOi8vY3JsLnNlY3RpZ28uY29tL1NlY3Rp
+Z29QdWJsaWNTZXJ2ZXJBdXRoZW50aWNhdGlvblJvb3RFNDYuY3JsMIGEBggrBgEF
+BQcBAQR4MHYwTwYIKwYBBQUHMAKGQ2h0dHA6Ly9jcnQuc2VjdGlnby5jb20vU2Vj
+dGlnb1B1YmxpY1NlcnZlckF1dGhlbnRpY2F0aW9uUm9vdEU0Ni5wN2MwIwYIKwYB
+BQUHMAGGF2h0dHA6Ly9vY3NwLnNlY3RpZ28uY29tMAoGCCqGSM49BAMDA2cAMGQC
+MFsKnBQDh64l+v+aUYWjDCJKQMxHUUGmcwAYDIjJ9pbRYItMCIx5xu0oUb6sIfTX
+qQIwPddcsDE4KdeLu1hJdpHgdLvsHAK3vygyLGujMU9xBJCDackRT93VHEE0gppg
+NqdV
+-----END CERTIFICATE-----
+------------------
+        No extensions
+        ASN.1Cert, length=842
+------details-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            1a:9e:af:ec:6d:e8:e1:9b:5c:19:31:41:b6:8d:90:dd
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C = US, ST = New Jersey, L = Jersey City, O = The USERTRUST Network, CN = USERTrust ECC Certification Authority
+        Validity
+            Not Before: Mar 22 00:00:00 2021 GMT
+            Not After : Jan 18 23:59:59 2038 GMT
+        Subject: C = GB, O = Sectigo Limited, CN = Sectigo Public Server Authentication Root E46
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (384 bit)
+                pub:
+                    04:76:fa:99:a9:6e:20:ed:f9:d7:77:e3:07:3b:a8:
+                    db:3d:5f:38:e8:ab:55:a6:56:4f:d6:48:ea:ec:7f:
+                    2d:aa:c3:b2:c5:79:ec:99:61:7f:10:79:c7:02:5a:
+                    f9:04:37:f5:34:35:2b:77:ce:7f:20:8f:52:a3:00:
+                    89:ec:d5:a7:a2:6d:5b:e3:4b:92:93:a0:80:f5:01:
+                    94:dc:f0:68:07:1e:cd:ee:fe:25:52:b5:20:43:1c:
+                    1b:fe:eb:19:ce:43:a3
+                ASN1 OID: secp384r1
+                NIST CURVE: P-384
+        X509v3 extensions:
+            X509v3 Authority Key Identifier: 
+                3A:E1:09:86:D4:CF:19:C2:96:76:74:49:76:DC:E0:35:C6:63:63:9A
+            X509v3 Subject Key Identifier: 
+                D1:22:DA:4C:59:F1:4B:5F:26:38:AA:9D:D6:EE:EB:0D:C3:FB:A9:61
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Certificate Policies: 
+                Policy: X509v3 Any Policy
+            X509v3 CRL Distribution Points: 
+                Full Name:
+                  URI:http://crl.usertrust.com/USERTrustECCCertificationAuthority.crl
+
+            Authority Information Access: 
+                OCSP - URI:http://ocsp.usertrust.com
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:66:02:31:00:8c:0b:20:62:b7:df:6f:5f:66:da:eb:11:24:
+        0d:ef:98:3b:bb:c2:d2:dc:23:6e:4b:fd:3c:aa:6a:18:6b:99:
+        eb:52:59:af:28:c5:b2:9f:83:16:91:1c:94:25:72:e2:7a:02:
+        31:00:b0:bd:90:d7:0f:f9:b6:2a:8d:47:03:90:64:9b:3e:d8:
+        40:e1:40:88:d0:c3:e3:d2:16:6b:6c:1d:4f:b4:77:0e:d3:83:
+        69:25:c7:fc:18:97:bf:c7:f0:07:db:2e:e2:d5
+-----BEGIN CERTIFICATE-----
+MIIDRjCCAsugAwIBAgIQGp6v7G3o4ZtcGTFBto2Q3TAKBggqhkjOPQQDAzCBiDEL
+MAkGA1UEBhMCVVMxEzARBgNVBAgTCk5ldyBKZXJzZXkxFDASBgNVBAcTC0pdepth=2 C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+verify return:1
+depth=1 C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+verify return:1
+depth=0 CN=github.com
+verify return:1
+lcnNl
+eSBDaXR5MR4wHAYDVQQKExVUaGUgVVNFUlRSVVNUIE5ldHdvcmsxLjAsBgNVBAMT
+JVVTRVJUcnVzdCBFQ0MgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMjEwMzIy
+MDAwMDAwWhcNMzgwMTE4MjM1OTU5WjBfMQswCQYDVQQGEwJHQjEYMBYGA1UEChMP
+U2VjdGlnbyBMaW1pdGVkMTYwNAYDVQQDEy1TZWN0aWdvIFB1YmxpYyBTZXJ2ZXIg
+QXV0aGVudGljYXRpb24gUm9vdCBFNDYwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAAR2
++pmpbiDt+dd34wc7qNs9Xzjoq1WmVk/WSOrsfy2qw7LFeeyZYX8QeccCWvkEN/U0
+NSt3zn8gj1KjAIns1aeibVvjS5KToID1AZTc8GgHHs3u/iVStSBDHBv+6xnOQ6Oj
+ggEgMIIBHDAfBgNVHSMEGDAWgBQ64QmG1M8ZwpZ2dEl23OA1xmNjmjAdBgNVHQ4E
+FgQU0SLaTFnxS18mOKqd1u7rDcP7qWEwDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB
+/wQFMAMBAf8wHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMBEGA1UdIAQK
+MAgwBgYEVR0gADBQBgNVHR8ESTBHMEWgQ6BBhj9odHRwOi8vY3JsLnVzZXJ0cnVz
+dC5jb20vVVNFUlRydXN0RUNDQ2VydGlmaWNhdGlvbkF1dGhvcml0eS5jcmwwNQYI
+KwYBBQUHAQEEKTAnMCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1c3Qu
+Y29tMAoGCCqGSM49BAMDA2kAMGYCMQCMCyBit99vX2ba6xEkDe+YO7vC0twjbkv9
+PKpqGGuZ61JZryjFsp+DFpEclCVy4noCMQCwvZDXD/m2Ko1HA5Bkmz7YQOFAiNDD
+49IWa2wdT7R3DtODaSXH/BiXv8fwB9su4tU=
+-----END CERTIFICATE-----
+------------------
+        No extensions
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 96
+  Inner Content Type = Handshake (22)
+    CertificateVerify, Length=75
+      Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+      Signature (len=71): 3045022100931734DE41BCE75BCD3B527C975E4771633AE9FFF1435FD78535C470334F491202206E1639245132764C445B0A6C0623A9E048386432AE382B050E5E05C68E75AB3F
+
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 53
+  Inner Content Type = Handshake (22)
+    Finished, Length=32
+      verify_data (len=32): B4C9F587255E3FCD0917D32668BCE087EF68BA022DFDF27E08CFCC310655FD87
+
+Sent TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ChangeCipherSpec (20)
+  Length = 1
+    change_cipher_spec (1)
+
+Sent TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 53
+  Inner Content Type = Handshake (22)
+    Finished, Length=32
+      verify_data (len=32): 360424B70C060C788FD7DB123385201DCF0CBF576A63437425B668769370A1FA
+
+---
+Certificate chain
+ 0 s:CN=github.com
+   i:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256
+   v:NotBefore: Oct 30 00:00:00 2026 GMT; NotAfter: Jan 27 23:59:59 2027 GMT
+ 1 s:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+   i:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA384
+   v:NotBefore: Mar 22 00:00:00 2021 GMT; NotAfter: Mar 21 23:59:59 2036 GMT
+ 2 s:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+   i:C=US, ST=New Jersey, L=Jersey City, O=The USERTRUST Network, CN=USERTrust ECC Certification Authority
+   a:PKEY: EC, (secp384r1); sigalg: ecdsa-with-SHA384
+   v:NotBefore: Mar 22 00:00:00 2021 GMT; NotAfter: Jan 18 23:59:59 2038 GMT
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIID9DCCA5ugAwIBAgIQPh1gJrSwrqJ53KLvu87YKzAKBggqhkjOPQQDAjBgMQsw
+CQYDVQQGEwJHQjEYMBYGA1UEChMPU2VjdGlnbyBMaW1pdGVkMTcwNQYDVQQDEy5T
+ZWN0aWdvIFB1YmxpYyBTZXJ2ZXIgQXV0aGVudGljYXRpb24gQ0EgRFYgRTM2MB4X
+DTI2MTAzMDAwMDAwMFoXDTI3MDEyNzIzNTk1OVowFTETMBEGA1UEAxMKZ2l0aHVi
+LmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDfKd4nH+v687AH/LbUBuI5o
+XVsDbbLwRkLBCDbDmYWcrpxd8+9O0uPHpIgjAQ0gBToGy66v4d70x/jgDoosK3ej
+ggKAMIICfDAfBgNVHSMEGDAWgBQXmagEwW/kLXCoChA9A9PpGrgmYzAdBgNVHQ4E
+FgQUjLAqHq7uhl0AATWx5YtpI6U+PHEwDgYDVR0PAQH/BAQDAgeAMAwGA1UdEwEB
+/wQCMAAwEwYDVR0lBAwwCgYIKwYBBQUHAwEwSQYDVR0gBEIwQDA0BgsrBgEEAbIx
+AQICBzAlMCMGCCsGAQUFBwIBFhdodHRwczovL3NlY3RpZ28uY29tL0NQUzAIBgZn
+gQwBAgEwgYQGCCsGAQUFBwEBBHgwdjBPBggrBgEFBQcwAoZDaHR0cDovL2NydC5z
+ZWN0aWdvLmNvbS9TZWN0aWdvUHVibGljU2VydmVyQXV0aGVudGljYXRpb25DQURW
+RTM2LmNydDAjBggrBgEFBQcwAYYXaHR0cDovL29jc3Auc2VjdGlnby5jb20wJQYD
+VR0RBB4wHIIKZ2l0aHViLmNvbYIOd3d3LmdpdGh1Yi5jb20wggEMBgorBgEEAdZ5
+AgQCBIH9BIH6APgAdQBGojlnxg22RofGbz35mZR2k6amESCEV9VV5+PQodm2RgAA
+AaGKLocgAAAEAwBGMEQCICIQbbpOkqdkpMHlEO4IaqjUE51GdnAX8lTdfJqayeUy
+AiBW+rfEnQghzD2sljP8DmiE364OeNXjRLnoS4/+EDmBMQB/AKKBABhzThduHUfg
+lUDzgbpUZpfNY6hDUHFuuAlO2vENAAABoYouiCYACAAABQAyHujyBAMASDBGAiEA
+qR77xK7WOstHFrsyltQlPHqO5UAlaD5EUGgfV+SyHngCIQCTdXIrVaNFlwq2jVoU
+6eq3LTDtgBbBB8AS6pKHuIF94DAKBggqhkjOPQQDAgNHADBEAiAiIVULRbVeXo16
+6wK3Vp15eud/nlbNTa+j4FUnKD6GYAIgBcK3WmeV05N87KRIoaIV/h97FykBOCul
+KBsCT9qemhg=
+-----END CERTIFICATE-----
+subject=CN=github.com
+issuer=C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: ecdsa_secp256r1_sha256
+Peer Temp Key: X25519, 253 bits
+---
+SSL handshake has read 3103 bytes and written 1632 bytes
+Verification: OK
+---
+New, TLSv1.3, Cipher is TLS_AES_128_GCM_SHA256
+Protocol: TLSv1.3
+Server public key is 256 bit
+This TLS version forbids renegotiation.
+Compression: NONE
+Expansion: NONE
+ALPN protocol: h2
+Early data was not sent
+Verify return code: 0 (ok)
+---
+DONE
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 74
+  Inner Content Type = Handshake (22)
+    NewSessionTicket, Length=53
+        ticket_lifetime_hint=7200
+        ticket_age_add=512978948
+        ticket_nonce (len=8): 0000000000000000
+        ticket (len=32): B14780B960447F4EFFE0A2EFD49C30D9BC54435CD3A59E9DC45A1BE572F2B030
+        No extensions
+
+---
+Post-Handshake New Session Ticket arrived:
+SSL-Session:
+    Protocol  : TLSv1.3
+    Cipher    : TLS_AES_128_GCM_SHA256
+    Session-ID: FAC6C2576DADD0193E5DC4FA1C384759CD4504E8998DDC1DCBF5C3166FDC497D
+    Session-ID-ctx: 
+    Resumption PSK: 94CD49E390736F0FD9F45E39BD1E5DA12D2C49EFC4F2EE283390DA1A151BBC7D
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    TLS session ticket lifetime hint: 7200 (seconds)
+    TLS session ticket:
+    0000 - b1 47 80 b9 60 44 7f 4e-ff e0 a2 ef d4 9c 30 d9   .G..`D.N......0.
+    0010 - bc 54 43 5c d3 a5 9e 9d-c4 5a 1b e5 72 f2 b0 30   .TC\.....Z..r..0
+
+    Start Time: 1795858806
+    Timeout   : 7200 (sec)
+    Verify return code: 0 (ok)
+    Extended master secret: no
+    Max Early Data: 0
+---
+read R BLOCK
+Received TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 74
+  Inner Content Type = Handshake (22)
+    NewSessionTicket, Length=53
+        ticket_lifetime_hint=7200
+        ticket_age_add=1746649539
+        ticket_nonce (len=8): 0000000000000001
+        ticket (len=32): 6CD63C1BE77365EFB7979A4A4777D739ACE550F4103E6A520945CDB0933F92BB
+        No extensions
+
+---
+Post-Handshake New Session Ticket arrived:
+SSL-Session:
+    Protocol  : TLSv1.3
+    Cipher    : TLS_AES_128_GCM_SHA256
+    Session-ID: 4978F276BDA2594A479BFD032797C87BFFDED549310CE33775715723F63DE957
+    Session-ID-ctx: 
+    Resumption PSK: 122800E48230FDF9DC1FA103E335F09146D8F71D4213F008A30E9E64B515993C
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    TLS session ticket lifetime hint: 7200 (seconds)
+    TLS session ticket:
+    0000 - 6c d6 3c 1b e7 73 65 ef-b7 97 9a 4a 47 77 d7 39   l.<..se....JGw.9
+    0010 - ac e5 50 f4 10 3e 6a 52-09 45 cd b0 93 3f 92 bb   ..P..>jR.E...?..
+
+    Start Time: 1795858806
+    Timeout   : 7200 (sec)
+    Verify return code: 0 (ok)
+    Extended master secret: no
+    Max Early Data: 0
+---
+read R BLOCK
+Sent TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 18
+  Inner Content Type = ApplicationData (23)
+Sent TLS Record
+Header:
+  Version = TLS 1.2 (0x303)
+  Content Type = ApplicationData (23)
+  Length = 19
+  Inner Content Type = Alert (21)
+    Level=warning(1), description=close notify(0)
+
