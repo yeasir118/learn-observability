@@ -1,0 +1,45 @@
+##### aws/leaf_cert.crt
+subject=CN=www.amazon.com
+issuer=C=US, O=Amazon, CN=Amazon RSA 2048 M04
+notBefore=Jan 19 00:00:00 2026 GMT
+notAfter=Jan 11 23:59:59 2027 GMT
+X509v3 Subject Alternative Name: 
+    DNS:www.amazon.com, DNS:yp.amazon.com, DNS:konrad-test.amazon.com, DNS:p-yo-www-amazon-com-kalias.amazon.com, DNS:mp3recs.amazon.com, DNS:p-nt-www-amazon-com-kalias.amazon.com, DNS:origin-www.amazon.com, DNS:buybox.amazon.com, DNS:uedata.amazon.com, DNS:us.amazon.com, DNS:yellowpages.amazon.com, DNS:home.amazon.com, DNS:www.m.amazon.com, DNS:iphone.amazon.com, DNS:www.amzn.com, DNS:huddles.amazon.com, DNS:amazon.com, DNS:corporate.amazon.com, DNS:shop.business.amazon.com, DNS:p-y3-www-amazon-com-kalias.amazon.com, DNS:buckeye-retail-website.amazon.com, DNS:www.cdn.amazon.com, DNS:test-www.amazon.com, DNS:amzn.com
+X509v3 Key Usage: critical
+    Digital Signature, Key Encipherment
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication
+X509v3 Basic Constraints: critical
+    CA:FALSE
+                Public-Key: (2048 bit)
+            Public Key Algorithm: rsaEncryption
+        Signature Algorithm: sha256WithRSAEncryption
+    Signature Algorithm: sha256WithRSAEncryption
+##### aws/intermediate_cert_1.crt
+subject=C=US, O=Amazon, CN=Amazon RSA 2048 M04
+issuer=C=US, O=Amazon, CN=Amazon Root CA 1
+notBefore=Aug 23 22:26:35 2022 GMT
+notAfter=Aug 23 22:26:35 2030 GMT
+X509v3 Basic Constraints: critical
+    CA:TRUE, pathlen:0
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+                Public-Key: (2048 bit)
+            Public Key Algorithm: rsaEncryption
+        Signature Algorithm: sha256WithRSAEncryption
+    Signature Algorithm: sha256WithRSAEncryption
+##### aws/intermediate_cert_2.crt
+subject=C=US, O=Amazon, CN=Amazon Root CA 1
+issuer=C=US, ST=Arizona, L=Scottsdale, O=Starfield Technologies, Inc., CN=Starfield Services Root Certificate Authority - G2
+notBefore=May 25 12:00:00 2015 GMT
+notAfter=Dec 31 01:00:00 2037 GMT
+X509v3 Basic Constraints: critical
+    CA:TRUE
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+                Public-Key: (2048 bit)
+            Public Key Algorithm: rsaEncryption
+        Signature Algorithm: sha256WithRSAEncryption
+    Signature Algorithm: sha256WithRSAEncryption

@@ -34,8 +34,8 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-024](TS-024-shared-service-defaults.md) | Task | Extract shared service plumbing into TinyShop.ServiceDefaults | Done | 5 | TS-013 |
 | [TS-025](TS-025-compose-templates.md) | Task | Remove repetition from compose.yaml with templates | Done | 2 | TS-024 |
 | [TS-026](TS-026-react-frontend-app.md) | Story | React frontend app (runs locally) | Done | 3 | TS-014 |
-| [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Epic | M1.5: Encryption and identity in transit (TLS, a private PKI, mutual TLS) | To Do | – | TS-001 |
-| [TS-028](TS-028-tls-foundations-and-the-before-picture.md) | Spike | TLS foundations and the "before" picture | To Do | 2 | – |
+| [TS-027](TS-027-epic-m1-5-tls-and-service-identity.md) | Epic | M1.5: Encryption and identity in transit (TLS, a private PKI, mutual TLS) | In Progress | – | TS-001 |
+| [TS-028](TS-028-tls-foundations-and-the-before-picture.md) | Spike | TLS foundations and the "before" picture | Done | 2 | – |
 | [TS-029](TS-029-private-pki-by-hand.md) | Task | A private PKI by hand (OpenSSL) | To Do | 5 | TS-028 |
 | [TS-030](TS-030-https-at-the-edge.md) | Story | HTTPS at the edge | To Do | 5 | TS-029 |
 | [TS-031](TS-031-tls-inside-http-services.md) | Story | TLS inside: nginx, the gateway and the HTTP services | To Do | 5 | TS-030 |
@@ -44,6 +44,7 @@ The bigger picture (milestones, and expansion ideas parked for later) is in the 
 | [TS-034](TS-034-mutual-tls-and-service-identity.md) | Story | Mutual TLS and service identity | To Do | 8 | TS-032, TS-033 |
 | [TS-035](TS-035-automated-certificate-lifecycle.md) | Story | Automated certificate lifecycle: step-ca, ACME, short-lived certificates | To Do | 8 | TS-034 |
 | [TS-036](TS-036-failure-exercise-1-5-tls-incident.md) | Spike | Failure Exercise 1.5: a TLS incident (blind), and the `phase-1.5-tls` tag | To Do | 3 | TS-035 |
+| [TS-037](TS-037-http-versions-in-tinyshop.md) | Spike | HTTP/1.0 to HTTP/3 and gRPC, seen in TinyShop | To Do | 3 | TS-030, TS-032 |
 
 Keep this table in sync with each ticket's front matter.
 

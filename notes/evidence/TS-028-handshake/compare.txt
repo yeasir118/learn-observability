@@ -1,0 +1,30 @@
+=== github.com
+depth=2 C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+depth=1 C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+depth=0 CN=github.com
+Peer signature type: ecdsa_secp256r1_sha256
+Peer Temp Key: X25519, 253 bits
+New, TLSv1.3, Cipher is TLS_AES_128_GCM_SHA256
+Protocol: TLSv1.3
+Server public key is 256 bit
+ALPN protocol: h2
+=== www.amazon.com
+depth=2 C=US, O=Amazon, CN=Amazon Root CA 1
+depth=1 C=US, O=Amazon, CN=Amazon RSA 2048 M04
+depth=0 CN=www.amazon.com
+Peer signature type: rsa_pss_rsae_sha256
+Negotiated TLS1.3 group: X25519MLKEM768
+New, TLSv1.3, Cipher is TLS_AES_128_GCM_SHA256
+Protocol: TLSv1.3
+Server public key is 2048 bit
+ALPN protocol: h2
+=== www.google.com
+depth=2 C=US, O=Google Trust Services LLC, CN=GTS Root R4
+depth=1 C=US, O=Google Trust Services, CN=WE2
+depth=0 CN=www.google.com
+Peer signature type: ecdsa_secp256r1_sha256
+Negotiated TLS1.3 group: X25519MLKEM768
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Protocol: TLSv1.3
+Server public key is 256 bit
+ALPN protocol: h2

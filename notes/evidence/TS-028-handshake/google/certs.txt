@@ -1,0 +1,50 @@
+##### google/leaf_cert.crt
+subject=CN=www.google.com
+issuer=C=US, O=Google Trust Services, CN=WE2
+notBefore=Nov  3 08:29:37 2026 GMT
+notAfter=Jan 26 08:29:36 2027 GMT
+X509v3 Key Usage: critical
+    Digital Signature
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication
+X509v3 Basic Constraints: critical
+    CA:FALSE
+X509v3 Subject Alternative Name: 
+    DNS:www.google.com
+                NIST CURVE: P-256
+                Public-Key: (256 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: ecdsa-with-SHA256
+    Signature Algorithm: ecdsa-with-SHA256
+##### google/intermediate_cert_1.crt
+subject=C=US, O=Google Trust Services, CN=WE2
+issuer=C=US, O=Google Trust Services LLC, CN=GTS Root R4
+notBefore=Dec 13 09:00:00 2023 GMT
+notAfter=Feb 20 14:00:00 2029 GMT
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+X509v3 Basic Constraints: critical
+    CA:TRUE, pathlen:0
+                NIST CURVE: P-256
+                Public-Key: (256 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: ecdsa-with-SHA384
+    Signature Algorithm: ecdsa-with-SHA384
+##### google/intermediate_cert_2.crt
+subject=C=US, O=Google Trust Services LLC, CN=GTS Root R4
+issuer=C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
+notBefore=Nov 15 03:43:21 2023 GMT
+notAfter=Jan 28 00:00:42 2028 GMT
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+X509v3 Basic Constraints: critical
+    CA:TRUE
+                NIST CURVE: P-384
+                Public-Key: (384 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: sha256WithRSAEncryption
+    Signature Algorithm: sha256WithRSAEncryption

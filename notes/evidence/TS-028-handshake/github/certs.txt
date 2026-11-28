@@ -1,0 +1,50 @@
+##### github/leaf_cert.crt
+subject=CN=github.com
+issuer=C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+notBefore=Oct 30 00:00:00 2026 GMT
+notAfter=Jan 27 23:59:59 2027 GMT
+X509v3 Key Usage: critical
+    Digital Signature
+X509v3 Basic Constraints: critical
+    CA:FALSE
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication
+X509v3 Subject Alternative Name: 
+    DNS:github.com, DNS:www.github.com
+                NIST CURVE: P-256
+                Public-Key: (256 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: ecdsa-with-SHA256
+    Signature Algorithm: ecdsa-with-SHA256
+##### github/intermediate_cert_1.crt
+subject=C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+issuer=C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+notBefore=Mar 22 00:00:00 2021 GMT
+notAfter=Mar 21 23:59:59 2036 GMT
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+X509v3 Basic Constraints: critical
+    CA:TRUE, pathlen:0
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+                NIST CURVE: P-256
+                Public-Key: (256 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: ecdsa-with-SHA384
+    Signature Algorithm: ecdsa-with-SHA384
+##### github/intermediate_cert_2.crt
+subject=C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+issuer=C=US, ST=New Jersey, L=Jersey City, O=The USERTRUST Network, CN=USERTrust ECC Certification Authority
+notBefore=Mar 22 00:00:00 2021 GMT
+notAfter=Jan 18 23:59:59 2038 GMT
+X509v3 Key Usage: critical
+    Digital Signature, Certificate Sign, CRL Sign
+X509v3 Basic Constraints: critical
+    CA:TRUE
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication, TLS Web Client Authentication
+                NIST CURVE: P-384
+                Public-Key: (384 bit)
+            Public Key Algorithm: id-ecPublicKey
+        Signature Algorithm: ecdsa-with-SHA384
+    Signature Algorithm: ecdsa-with-SHA384

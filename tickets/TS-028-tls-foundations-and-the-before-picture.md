@@ -2,7 +2,7 @@
 key: TS-028
 title: TLS foundations and the "before" picture
 type: Spike
-status: To Do
+status: Done
 priority: High
 points: 2
 assignee: yeasir118
@@ -32,11 +32,19 @@ Before building anything, see the problem and the tools. First, capture TinyShop
 **Out of scope**
 - Any change to TinyShop
 
+## Phases
+The assignee does the work in every phase; Claude briefs each one, then reviews and completes the notes.
+1. **The "before" capture (AC1):** TinyShop's own traffic captured from inside one container, saved as a capture file in `notes/evidence/TS-028-before-tls/` for the "after" captures of TS-031 to TS-034 (decision D38), and read: what's visible in HTTP, in gRPC (h2c) and in Postgres.
+2. **A real handshake taken apart (AC2):** `openssl s_client` against public websites; the chain, the protocol, the cipher, the key-exchange group, ALPN; one certificate read field by field.
+3. **The concepts in your own words (AC3):** the TLS 1.3 handshake step by step, and what each certificate field is for.
+4. **The threat model and the questions (AC4):** who could read or change what, where; what TLS fixes and what it doesn't; the five questions.
+5. **Review and close (Claude with the assignee).**
+
 ## Acceptance criteria
-- [ ] AC1: A capture from inside `backend-network` (or `order-network`) shows, in plain text, at least: one order's JSON, one SQL statement or its result, and one HTTP header. The commands and the readable lines are in `notes/m1-5.md`.
-- [ ] AC2: For one public website, `notes/m1-5.md` records its certificate chain (each certificate's subject, issuer, validity, key type), the negotiated TLS version, cipher suite, key-exchange group and ALPN protocol, with the `openssl` commands.
-- [ ] AC3: The same notes explain, in your own words, each step of a TLS 1.3 handshake and what each certificate field you met is for (SAN, key usage, extended key usage, basic constraints, validity, issuer and subject).
-- [ ] AC4: A threat model for TinyShop: who could read or change traffic where, what TLS fixes, what it doesn't, and which hops matter most.
+- [x] AC1: A capture from inside `backend-network` (or `order-network`) shows, in plain text, at least: one order's JSON, one SQL statement or its result, and one HTTP header. The commands and the readable lines are in `notes/m1_5.md`.
+- [x] AC2: For one public website, `notes/m1_5.md` records its certificate chain (each certificate's subject, issuer, validity, key type), the negotiated TLS version, cipher suite, key-exchange group and ALPN protocol, with the `openssl` commands.
+- [x] AC3: The same notes explain, in your own words, each step of a TLS 1.3 handshake and what each certificate field you met is for (SAN, key usage, extended key usage, basic constraints, validity, issuer and subject).
+- [x] AC4: A threat model for TinyShop: who could read or change traffic where, what TLS fixes, what it doesn't, and which hops matter most.
 
 ## Technical notes
 - **Capturing between containers:** start netshoot inside another container's network namespace, as the matrix script does: `docker run --rm -it --network container:<container> nicolaka/netshoot:v0.16`. Then `tcpdump -i any -A port 8080` (`-A` prints the payload as text), or `tshark` for decoded protocols. Generate traffic with the shop or the load generator.
@@ -52,7 +60,7 @@ Before building anything, see the problem and the tools. First, capture TinyShop
 - What a threat model is, and why it comes before the solution
 
 ## Questions to answer
-Write the answers in `notes/m1-5.md`.
+Write the answers in `notes/m1_5.md`.
 1. Docker networks already isolate TinyShop's services. Why isn't that enough? Give a concrete way traffic on a Docker network could be read or changed.
 2. What does each of these guarantee: encryption, integrity, server authentication, client authentication? Which does plain TLS give you, and which needs mTLS?
 3. Why is a certificate chain needed at all? Why doesn't a website just send a certificate signed directly by a root?
@@ -60,9 +68,13 @@ Write the answers in `notes/m1-5.md`.
 5. Which TinyShop hop would you encrypt first if you could only do one, and why?
 
 ## Definition of done
-- [ ] All acceptance criteria met
-- [ ] Questions answered in `notes/`
-- [ ] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (review, merge)
+- [x] All acceptance criteria met
+- [x] Questions answered in `notes/`
+- [x] The shared definition of done in [README.md](README.md#definition-of-done-applies-to-every-ticket) is met (review, merge)
 
 ## Activity log
 - 2026-11-19: Created with epic TS-027, refined (first ticket of the epic)
+- 2026-11-20: Phases added; started (branch `TS-028-before-tls-situation`)
+- 2026-11-23: Phases 1 and 2 done (AC1, AC2): the "before" capture and three public handshakes, notes in `notes/m1_5.md`, evidence in `notes/evidence/TS-028-before-tls/` and `TS-028-handshake/`
+- 2026-11-28: Phase 3 done (AC3): the TLS 1.3 handshake message by message and the certificate fields, in `notes/m1_5.md`; traces in `notes/evidence/TS-028-handshake/`
+- 2026-11-28: Phase 4 done (AC4): the threat model (assets, attackers, hops by priority, what TLS does not fix) and the five questions in `notes/m1_5.md`. Reviewed with Claude; closed. HTTP/1.0 to HTTP/3 parked as TS-037
